@@ -13,7 +13,7 @@ pygame.mouse.set_visible(0)
 
 maps = resources.Maps()
 maps.add('level0', 'data/test.tmx')
-maps.add('level1', 'data/test1.tmx')
+#maps.add('level1', 'data/test1.tmx')
 
 maps.load()
 
