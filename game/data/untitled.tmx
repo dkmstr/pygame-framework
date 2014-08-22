@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="10" height="10" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" source="Background.tsx"/>
+ <tileset firstgid="320" source="Objects.tsx"/>
+ <layer name="Tile Layer 1" width="10" height="10">
+  <properties>
+   <property name="Prop1" value="test"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,324,37,38,38,38,38,39,0,0,
+0,352,0,0,0,0,0,0,0,0,
+0,324,0,0,0,0,0,0,0,0,
+0,352,0,0,0,0,0,0,0,0,
+0,324,0,0,0,0,0,0,0,0,
+0,352,0,0,0,0,0,0,0,0,
+117,118,118,147,147,147,147,118,118,119
+</data>
+ </layer>
+ <layer name="Tile Layer 2" width="10" height="10">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,497,0,0,355,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,2,3,610,0,0,4,0,0,
+0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

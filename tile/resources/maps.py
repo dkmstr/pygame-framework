@@ -36,8 +36,11 @@ class Layer(object):
         width = surface.get_width() if width <= 0 else width
         height = surface.get_height() if height <= 0 else height
 
-        xStart, xLen = x / tileWidth, width / tileWidth
-        yStart, yLen = y / tileHeight, height / tileHeight
+        xStart, xLen = x / tileWidth, width / tileWidth + 1
+        yStart, yLen = y / tileHeight, height / tileHeight + 1
+
+        if xStart > width or yStart > height:
+            return
 
         xOffset = x % tileWidth
         yOffset = y % tileHeight
@@ -47,9 +50,10 @@ class Layer(object):
 
         for y in xrange(yStart, yEnd):
             for x in xrange(xStart, xEnd):
-                tile = self.data[y*self.width+x]
-                if tile > 0:
-                    surface.blit(tiles[tile-1], ((x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset))
+                if x >= 0 and y >= 0:
+                    tile = self.data[y*self.width+x]
+                    if tile > 0:
+                        surface.blit(tiles[tile-1], ((x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset))
 
 
 class Map(object):
