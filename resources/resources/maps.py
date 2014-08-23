@@ -88,7 +88,7 @@ class Maps(object):
     @staticmethod
     def __getTileSetInfo(tileSet):
         print "Loading tileset ", tileSet
-        tree = ET.parse(resource_path(tileSet))
+        tree = ET.parse(tileSet)
         root = tree.getroot()  # Map element
         image = root.find('image')
         return TileSet(

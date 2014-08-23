@@ -1,1 +1,4 @@
 *.pyc
+*~
+resources/build
+resources/dist

@@ -102,10 +102,12 @@ class GameState(object):
 class GameControl(object):
     EXIT_GAMESTATE = 'EXIT_GAME'
 
-    def __init__(self):
+    def __init__(self, width, height):
         self._states = {}
         self._current = None
         pygame.init()
+
+        self.screen = pygame.display.set_mode((width, height), pygame.DOUBLEBUF | pygame.HWSURFACE)
 
     def add(self, state):
         state.controller = self
@@ -127,13 +129,15 @@ class GameControl(object):
         return True
 
     def run(self):
-        screen = pygame.display.set_mode((640, 480), pygame.DOUBLEBUF | pygame.HWSURFACE)
-
+        counter = 0
         while True:
-            print ">> Executing game loop"
+            counter += 1
+            if counter > 100:
+                pygame.display.set_caption('FPS: {}'.format(self._current.fps()))
             new_state = self._current.tick(pygame.event.get())
             if new_state is not None:
                 print 'Got new state: {}'.format(new_state)
                 if self.switch(new_state) is False:
                     return
+            pygame.display.flip()
             # Nothing more to do, this is the basic loop
