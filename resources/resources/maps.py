@@ -7,6 +7,8 @@ import base64
 import struct
 import xml.etree.ElementTree as ET
 
+from resources.util import resource_path
+
 
 class TileSet(object):
     def __init__(self, name, tilewidth, tileheight, image_path, image_width=0, image_height=0):
@@ -58,7 +60,7 @@ class Layer(object):
 
 class Map(object):
     def __init__(self, path):
-        self.path = path
+        self.path = resource_path(path)
         self.width = self.height = 0
         self.tilewidth = self.tileheight = 0
         self.tilesets = {}
@@ -86,7 +88,7 @@ class Maps(object):
     @staticmethod
     def __getTileSetInfo(tileSet):
         print "Loading tileset ", tileSet
-        tree = ET.parse(tileSet)
+        tree = ET.parse(resource_path(tileSet))
         root = tree.getroot()  # Map element
         image = root.find('image')
         return TileSet(

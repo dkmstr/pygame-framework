@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pygame
+from resources.util import resource_path
 
 
 class Images(object):
@@ -14,7 +15,7 @@ class Images(object):
 
     def addImage(self, resId, path):
         self._resources[resId] = {
-            'path': path,
+            'path': resource_path(path),
             'surface': None,
         }
 
