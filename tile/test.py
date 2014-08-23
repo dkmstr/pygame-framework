@@ -45,14 +45,13 @@ while run:
             elif event.key == K_DOWN:
                 y_speed = 1
 
-
         if event.type == KEYUP:
             if event.key in (K_RIGHT, K_LEFT):
                 x_speed = 0
             elif event.key in (K_UP, K_DOWN):
                 y_speed = 0
 
-    m.drawTo(screen, x, y)
+    m.draw(screen, x, y)
     x += x_speed
     y += y_speed
 

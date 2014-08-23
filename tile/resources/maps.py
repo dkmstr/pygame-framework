@@ -28,7 +28,7 @@ class Layer(object):
         self.data = data
         self.tilemap = tilemap
 
-    def drawTo(self, surface, x=0, y=0, width=0, height=0):
+    def draw(self, surface, x=0, y=0, width=0, height=0):
         tiles = self.tilemap.tiles
         tileWidth = self.tilemap.tilewidth
         tileHeight = self.tilemap.tileheight
@@ -68,12 +68,12 @@ class Map(object):
     def getLayer(self, layerName):
         return self.layers[layerName]
 
-    def drawTo(self, surface, x=0, y=0, width=0, height=0, layers=None):
+    def draw(self, surface, x=0, y=0, width=0, height=0, layers=None):
         if layers is None:
             theLayers = [i for i in self.layers]
 
         for layer in theLayers:
-            self.layers[layer].drawTo(surface, x, y, width, height)
+            self.layers[layer].draw(surface, x, y, width, height)
 
 
 class Maps(object):
