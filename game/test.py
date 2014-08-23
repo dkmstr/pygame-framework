@@ -39,7 +39,7 @@ bg.add_surface(images.get('bck2'), 3)
 
 #m.drawTo(screen, 0, 100)
 
-#clock = pygame.time.Clock()
+clock = pygame.time.Clock()
 
 run = True
 full = False
@@ -75,16 +75,17 @@ while run:
             elif event.key in (K_UP, K_DOWN):
                 y_speed = 0
 
-    bg.draw(screen)
     bg.scroll(speed)
-    m.drawTo(screen, x, y)
     x += x_speed
     y += y_speed
+    clock.tick(60)
 
     t = pygame.time.get_ticks()
-    pygame.time.wait(16-t+t_ref)
-    t_ref = t
-    pygame.display.flip()
+    if t-t_ref > 16:
+        bg.draw(screen)
+        m.drawTo(screen, x, y)
+        t_ref = t
+        pygame.display.flip()
     #screen.fill(0)
 
     #caption = "{} - FPS: {:.2f}".format('Tile map', clock.get_fps())
