@@ -1,1 +1,0 @@
-../../parallax/resources/images.py

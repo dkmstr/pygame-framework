@@ -1,1 +1,0 @@
-../../tile/resources/maps.py
