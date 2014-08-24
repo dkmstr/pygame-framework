@@ -8,13 +8,14 @@ from pygame.locals import *
 import resources
 import parallax
 
-WIDTH = 1280
-HEIGHT = 1024
+WIDTH = 1024
+HEIGHT = 768
 
 BASE_SPEED = 8
 
+
 class GameTest(resources.game_state.GameState):
-    framerate = 50
+    framerate = 60
 
     def __init__(self, name):
         super(GameTest, self).__init__(name)

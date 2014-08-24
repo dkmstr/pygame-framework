@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class GameState(object):
-    framerate = 60
+    framerate = 50
     name = None
 
     def __init__(self, name):
