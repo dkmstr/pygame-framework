@@ -70,6 +70,7 @@ class Map(object):
         self.tilewidth = self.tileheight = 0
         self.tilesets = {}
         self.tiles = []
+        self.layers_names = []
         self.layers = {}
 
     def getLayer(self, layerName):
@@ -77,9 +78,9 @@ class Map(object):
 
     def draw(self, surface, x=0, y=0, width=0, height=0, layers=None):
         if layers is None:
-            theLayers = [i for i in self.layers]
+            layers = self.layers_names
 
-        for layer in theLayers:
+        for layer in layers:
             self.layers[layer].draw(surface, x, y, width, height)
 
 
@@ -131,6 +132,7 @@ class Maps(object):
         m.height = int(root.attrib['height'])
         m.tilewidth = int(root.attrib['tilewidth'])
         m.tileheight = int(root.attrib['tileheight'])
+        m.layers_names = []
         m.layers = {}
         m.tiles = []
 
@@ -184,6 +186,7 @@ class Maps(object):
             data = layer.find('data')
             if data.attrib['encoding'] != 'base64':
                 print 'No base 64'
+            m.layers_names.append(layerName)
             m.layers[layerName] = Layer(
                 m,
                 layerName,

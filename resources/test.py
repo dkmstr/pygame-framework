@@ -8,9 +8,10 @@ from pygame.locals import *
 import resources
 import parallax
 
-WIDTH = 1024
-HEIGHT = 768
+WIDTH = 1280
+HEIGHT = 1024
 
+BASE_SPEED = 8
 
 class GameTest(resources.game_state.GameState):
     framerate = 50
@@ -32,8 +33,8 @@ class GameTest(resources.game_state.GameState):
         self.images.addImage('bck2', 'data/images/near-background.png')
         self.images.load(self.controller.screen)
 
-        #self.maps.add('level0', 'data/maps/test.tmx')
-        self.maps.add('level0', 'data/maps/other.tmx')
+        self.maps.add('level0', 'data/maps/level.tmx')
+        #self.maps.add('level0', 'data/maps/other.tmx')
         self.maps.load()
 
         self.map = self.maps.get('level0')
@@ -52,15 +53,15 @@ class GameTest(resources.game_state.GameState):
         if key == K_q:
             return resources.game_state.GameControl.EXIT_GAMESTATE
         elif key == K_RIGHT:
-            self.x_speed = 4
-            self.bg_speed = 6
+            self.x_speed = BASE_SPEED
+            self.bg_speed = BASE_SPEED
         elif key == K_LEFT:
-            self.x_speed = -4
-            self.bg_speed = -2
+            self.x_speed = -BASE_SPEED
+            self.bg_speed = -BASE_SPEED
         elif key == K_UP:
-            self.y_speed = -1
+            self.y_speed = -BASE_SPEED
         elif key == K_DOWN:
-            self.y_speed = 1
+            self.y_speed = BASE_SPEED
 
     def on_keyup(self, key):
         if key in (K_RIGHT, K_LEFT):
@@ -85,9 +86,12 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
+
 gc = resources.game_state.GameControl(WIDTH, HEIGHT)
 gc.add(GameTest('state0'))
 gc.add(GameTest('state1'))
 
+#import cProfile
 
+#cProfile.run('gc.run()')
 gc.run()

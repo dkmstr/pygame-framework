@@ -54,8 +54,8 @@ class GameState(object):
         if new_state is None:
             new_state = self.render()
 
-#        self.clock.tick(self.framerate)
-        self.clock.tick()
+        self.clock.tick(self.framerate)
+#        self.clock.tick()
 
         return new_state
 
@@ -140,6 +140,7 @@ class GameControl(object):
         while True:
             counter += 1
             if counter > 100:
+                logger.debug("FPS: {}".format(self._current.fps()))
                 pygame.display.set_caption('FPS: {}'.format(self._current.fps()))
                 counter = 0
             new_state = self._current.tick(pygame.event.get())
