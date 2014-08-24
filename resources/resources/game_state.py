@@ -5,6 +5,10 @@ from __future__ import unicode_literals
 import pygame
 from pygame.locals import *
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class GameState(object):
     framerate = 60
@@ -50,7 +54,8 @@ class GameState(object):
         if new_state is None:
             new_state = self.render()
 
-        self.clock.tick(self.framerate)
+#        self.clock.tick(self.framerate)
+        self.clock.tick()
 
         return new_state
 
@@ -119,6 +124,7 @@ class GameControl(object):
 
     def switch(self, game_state):
         if game_state not in self._states or game_state == GameControl.EXIT_GAMESTATE:
+            logger.debug('Received game_state {}. EXITING'.format(game_state))
             return False
 
         if self._current is not None:
@@ -129,14 +135,16 @@ class GameControl(object):
         return True
 
     def run(self):
+        logger.debug('Running main loop')
         counter = 0
         while True:
             counter += 1
             if counter > 100:
                 pygame.display.set_caption('FPS: {}'.format(self._current.fps()))
+                counter = 0
             new_state = self._current.tick(pygame.event.get())
             if new_state is not None:
-                print 'Got new state: {}'.format(new_state)
+                logger.debug('Got new state: {}'.format(new_state))
                 if self.switch(new_state) is False:
                     return
             pygame.display.flip()

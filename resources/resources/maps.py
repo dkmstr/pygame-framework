@@ -9,12 +9,17 @@ import xml.etree.ElementTree as ET
 
 from resources.util import resource_path
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class TileSet(object):
-    def __init__(self, name, tilewidth, tileheight, image_path, image_width=0, image_height=0):
+    def __init__(self, name, tilewidth, tileheight, tilespacing, image_path, image_width=0, image_height=0):
         self.name = name
         self.tilewidth = tilewidth
         self.tileheight = tileheight
+        self.tilespacing = tilespacing
         self.image_path = image_path
         self.image_width = image_width
         self.image_heigth = image_height
@@ -38,8 +43,8 @@ class Layer(object):
         width = surface.get_width() if width <= 0 else width
         height = surface.get_height() if height <= 0 else height
 
-        xStart, xLen = x / tileWidth, width / tileWidth + 1
-        yStart, yLen = y / tileHeight, height / tileHeight + 1
+        xStart, xLen = x / tileWidth, (width + tileWidth - 1) / tileWidth + 1
+        yStart, yLen = y / tileHeight, (height + tileHeight - 1) / tileHeight + 1
 
         if xStart > width or yStart > height:
             return
@@ -95,6 +100,7 @@ class Maps(object):
             root.attrib['name'],
             int(root.attrib['tilewidth']),
             int(root.attrib['tileheight']),
+            int(root.attrib.get('spacing', 0)),
             image.attrib['source'],
             int(image.attrib['width']),
             int(image.attrib['height'])
@@ -138,6 +144,7 @@ class Maps(object):
                     tileSet.attrib['name'],
                     int(tileSet.attrib['tilewidth']),
                     int(tileSet.attrib['tileheight']),
+                    int(tileSet.attrib.get('spacing', 0)),
                     image.attrib['source'],
                     int(image.attrib['width']),
                     int(image.attrib['height'])
@@ -145,19 +152,21 @@ class Maps(object):
 
             source.firstgid = int(tileSet.attrib['firstgid'])
 
-            print source.name, '-->', source.image_path, ' - {0}x{1}'.format(m.width, m.height)
+            print source.name, '-->', os.path.join(mapPath, source.image_path), ' - {0}x{1}'.format(m.width, m.height), ' spacing: {}'.format(source.tilespacing)
             # TODO: Load tileset and associate it to m
             try:
                 image = pygame.image.load(os.path.join(mapPath, source.image_path))
-                image = image.convert_alpha()
             except Exception as e:
                 print "Image not found!: {0}".format(e)
+
+            image = image.convert_alpha()
+            image.set_alpha(0, pygame.RLEACCEL)
 
             source.surface = image  # Store original surface
 
             tilewidth, tileheight = source.tilewidth, source.tileheight
-            tilesPerRow = image.get_width() / tilewidth
-            tilesRows = image.get_height() / tileheight
+            tilesPerRow = image.get_width() / (tilewidth+source.tilespacing)
+            tilesRows = image.get_height() / (tileheight+source.tilespacing)
 
             if len(m.tiles) <= source.firstgid:
                 m.tiles.extend(xrange(source.firstgid+tilesRows*tilesPerRow-len(m.tiles)))
@@ -165,7 +174,7 @@ class Maps(object):
             print 'Tiles Cols/Rows', tilesPerRow, tilesRows, tilewidth, tileheight, source.firstgid
             for y in xrange(tilesRows):
                 for x in xrange(tilesPerRow):
-                    m.tiles[source.firstgid+y*tilesPerRow+x-1] = (image.subsurface((tilewidth*x, tileheight*y, tilewidth, tileheight)))  # Creates reference
+                    m.tiles[source.firstgid+y*tilesPerRow+x-1] = (image.subsurface(((tilewidth+source.tilespacing)*x, (tileheight+source.tilespacing)*y, tilewidth, tileheight)))  # Creates reference
 
             m.tilesets[source.name] = source  # Keep source image stored, tiles are references to it
 

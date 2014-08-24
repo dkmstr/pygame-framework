@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import logging
 import pygame
 from pygame.locals import *
 import resources
 import parallax
 
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 1024
+HEIGHT = 768
 
 
 class GameTest(resources.game_state.GameState):
@@ -31,7 +32,8 @@ class GameTest(resources.game_state.GameState):
         self.images.addImage('bck2', 'data/images/near-background.png')
         self.images.load(self.controller.screen)
 
-        self.maps.add('level0', 'data/maps/test.tmx')
+        #self.maps.add('level0', 'data/maps/test.tmx')
+        self.maps.add('level0', 'data/maps/other.tmx')
         self.maps.load()
 
         self.map = self.maps.get('level0')
@@ -50,10 +52,10 @@ class GameTest(resources.game_state.GameState):
         if key == K_q:
             return resources.game_state.GameControl.EXIT_GAMESTATE
         elif key == K_RIGHT:
-            self.x_speed = 1
-            self.bg_speed = 2
+            self.x_speed = 4
+            self.bg_speed = 6
         elif key == K_LEFT:
-            self.x_speed = -1
+            self.x_speed = -4
             self.bg_speed = -2
         elif key == K_UP:
             self.y_speed = -1
@@ -76,7 +78,16 @@ class GameTest(resources.game_state.GameState):
         self.bg.draw(self.controller.screen)
         self.map.draw(self.controller.screen, self.x, self.y)
 
+logging.basicConfig(
+    filename='log.log',
+    filemode='w',
+    format='%(levelname)s %(asctime)s %(module)s %(funcName)s %(lineno)d %(message)s',
+    level=logging.DEBUG
+)
+
 gc = resources.game_state.GameControl(WIDTH, HEIGHT)
 gc.add(GameTest('state0'))
 gc.add(GameTest('state1'))
+
+
 gc.run()

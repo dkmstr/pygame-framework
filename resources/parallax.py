@@ -18,6 +18,10 @@
 
 import pygame
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class _subsurface:
     '''Container class for subsurface'''
@@ -32,7 +36,7 @@ class ParallaxSurface:
     '''Class handling parallax scrolling of a series of surfaces'''
 
     def __init__(self, size, colorkey_flags=0):
-        print "parllaxSurface inited!"
+        logger.debug("parllaxSurface inited!")
         self.colorkey_flags = colorkey_flags
         self.scroller = 0
         self.levels = []
@@ -51,6 +55,7 @@ class ParallaxSurface:
             raise SystemExit(message)
         if ".png" in image_path:
             image = image.convert_alpha()
+            image.set_alpha(0, pygame.RLEACCEL)
         else:
             image = image.convert()
         if len(self.levels) > 0:

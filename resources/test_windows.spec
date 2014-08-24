@@ -1,6 +1,6 @@
 # -*- mode: python -*-
 a = Analysis(['test.py'],
-             pathex=['M:\\projects\\pygame\\resources'],
+             pathex=[''],
              hiddenimports=[],
              hookspath=None,
              runtime_hooks=None)
