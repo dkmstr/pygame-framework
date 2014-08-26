@@ -25,6 +25,13 @@ class TileSet(object):
         self.image_heigth = image_height
         self.firstgid = 0
         self.surface = None
+        self.properties = {}
+
+    def getProperty(self, propertyName):
+        '''
+        Obtains a property associated whit this tileset
+        '''
+        return self.properties.get(propertyName)
 
 
 class Layer(object):
@@ -34,6 +41,7 @@ class Layer(object):
         self.height = height
         self.data = data
         self.tilemap = tilemap
+        self.properties = {}
 
     def draw(self, surface, x=0, y=0, width=0, height=0):
         tiles = self.tilemap.tiles
@@ -62,6 +70,12 @@ class Layer(object):
                     if tile > 0:
                         surface.blit(tiles[tile-1], ((x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset))
 
+    def getProperty(self, propertyName):
+        '''
+        Obtains a property associated whit this layer
+        '''
+        return self.properties.get(propertyName)
+
 
 class Map(object):
     def __init__(self, path):
@@ -72,6 +86,7 @@ class Map(object):
         self.tiles = []
         self.layers_names = []
         self.layers = {}
+        self.properties = {}
 
     def getLayer(self, layerName):
         return self.layers[layerName]
@@ -83,13 +98,48 @@ class Map(object):
         for layer in layers:
             self.layers[layer].draw(surface, x, y, width, height)
 
+    def getProperty(self, propertyName):
+        '''
+        Obtains a property associated whit this map
+        '''
+        return self.properties.get(propertyName)
+
+
+# Loads a TMX file
+# TMX properties that will be used:
+# For layer:
+#   * holder: Defaults to False
+#     Indicates that this layer will never been drawn
+#     This will be used as a "holder" for "object layers" tiles/sprites
+#   * collission: Defaults to False
+#     If set to false, collisions against this map will not been check against this layer
+# Object layers are used this way: (objectgroups)
+#   Rects define the "source tiles" for an object (platform or not)
+#   polylines defines paths
+#   Object types:
+#     * platform, Object that moves and translates the "holding" objects with it
+#     * path, Used to describe a path, not drawn (must be set in polilynes for maybe future increased use of this)
+#     * object, Simple object. If no type is specified, this is the default type for objects
+#   Objects properties:
+#     * speed: Speed for this object (used by moving platforms)
+#     * path: specifies the path "object" that will describe the movement of this (right now, polylines)
+#     * layer: For object and platform types is required, and indicates where to get from the "sprites"
 
 class Maps(object):
     def __init__(self):
         self._maps = {}
+        self.properties = {}
 
     def add(self, mapId, path):
         self._maps[mapId] = Map(path)
+
+    @staticmethod
+    def __loadProperties(obj, node):
+        if node:
+            logger.debug('Loading properties for {}'.format(obj))
+            for p in node.findall('property'):
+                logger.debug('Found property {}={}'.format(p.attrib['name'], p.attrib['value']))
+                obj.properties[p.attrib['name']] = p.attrib['value']
 
     @staticmethod
     def __getTileSetInfo(tileSet):
@@ -97,7 +147,7 @@ class Maps(object):
         tree = ET.parse(tileSet)
         root = tree.getroot()  # Map element
         image = root.find('image')
-        return TileSet(
+        ts = TileSet(
             root.attrib['name'],
             int(root.attrib['tilewidth']),
             int(root.attrib['tileheight']),
@@ -106,6 +156,7 @@ class Maps(object):
             int(image.attrib['width']),
             int(image.attrib['height'])
         )
+        Maps.__loadProperties(ts, root.find('properties'))
 
     def load(self, mapId=None, force=False):
         if mapId is None:
@@ -124,8 +175,9 @@ class Maps(object):
         tree = ET.parse(m.path)
         root = tree.getroot()  # Map element
 
-        print 'Map: ', m.path
-        print 'Path: ', mapPath
+        logger.debug('Loading map {} in folder {}'.format(m.map, m.mapPath))
+
+        Maps.__loadProperties(self, root.find('properties'))
 
         # Get general m info
         m.width = int(root.attrib['width'])
@@ -142,6 +194,7 @@ class Maps(object):
                 source = Maps.__getTileSetInfo(os.path.join(mapPath, tileSet.attrib['source']))
             else:
                 image = tileSet.find('image')
+
                 source = TileSet(
                     tileSet.attrib['name'],
                     int(tileSet.attrib['tilewidth']),
@@ -151,6 +204,7 @@ class Maps(object):
                     int(image.attrib['width']),
                     int(image.attrib['height'])
                 )
+                Maps.__loadProperties(source, tileSet.find('properties'))
 
             source.firstgid = int(tileSet.attrib['firstgid'])
 
@@ -194,6 +248,7 @@ class Maps(object):
                 layerWidth,
                 layerHeight
             )
+            Maps.__loadProperties(m.layers[layerName], layer.find('properties'))
 
     def get(self, mapId):
         return self._maps[mapId]

@@ -78,7 +78,7 @@ class GameTest(resources.game_state.GameState):
 
     def on_render(self):
         self.bg.draw(self.controller.screen)
-        self.map.draw(self.controller.screen, self.x, self.y)
+        self.map.draw(self.controller.screen, self.x, self.y, layers=None)
 
 logging.basicConfig(
     filename='log.log',
