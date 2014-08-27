@@ -14,6 +14,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+######################
+# Tile               #
+######################
 class Tile(object):
     def __init__(self, tileSet, tileId, surface, properties={}):
         self._tileSet = tileSet
@@ -63,6 +66,10 @@ class Tile(object):
         '''
         return self.properties.get(propertyName)
 
+    def draw(self, toSurface, x, y):
+        if self._surface is not None:
+            toSurface.blit(self._surface, (x, y))
+
     def getImage(self):
         return self._surface
 
@@ -90,6 +97,9 @@ class Platform(MapObject):
     pass
 
 
+######################
+# TileSet            #
+######################
 class TileSet(object):
     def __init__(self, parentMap):
         self.name = None
@@ -186,6 +196,9 @@ class TileSet(object):
         return 'Tileset {}: {}x{} ({})'.format(self.name, self.tilewidth, self.tileheight, self.properties)
 
 
+######################
+# Layer              #
+######################
 class Layer(object):
     EMPTY_TILE = Tile(None, 0, None)
 
@@ -200,6 +213,9 @@ class Layer(object):
 
     def updateAttributes(self):
         self.visible = self.properties.get('visible', 'True') == 'True'
+
+    def load(self, node):
+        pass
 
     def update(self):
         pass
@@ -223,17 +239,23 @@ class Layer(object):
         return self.properties.get(propertyName)
 
 
+######################
+# ArrayLayer         #
+######################
 class ArrayLayer(Layer):
     LAYER_TYPE = 'array'
 
-    def __init__(self, name, parentMap, properties={}):
-        super(ArrayLayer, self).__init__(name, ArrayLayer.LAYER_TYPE, properties)
+    def __init__(self, parentMap):
+        super(ArrayLayer, self).__init__('', ArrayLayer.LAYER_TYPE)
         self.parentMap = parentMap
 
-    def loadFromXml(self, node):
+    def load(self, node):
         self.name = node.attrib['name']
         self.width = int(node.attrib['width'])
         self.height = int(node.attrib['height'])
+
+        self.properties = Maps._loadProperties(node.find('properties'))
+
         data = node.find('data')
         if data.attrib['encoding'] != 'base64':
             raise Exception('No base 64 encoded')
@@ -264,7 +286,7 @@ class ArrayLayer(Layer):
                 if x >= 0 and y >= 0:
                     tile = self.data[y*self.width+x]
                     if tile > 0:
-                        surface.blit(tiles[tile-1].getImage(), ((x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset))
+                        tiles[tile-1].draw(surface, (x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset)
 
     def update(self):
         super(ArrayLayer, self).update()
@@ -281,6 +303,9 @@ class ArrayLayer(Layer):
         return 'ArrayLayer {}: {}x{} ({})'.format(self.name, self.width, self.height, self.properties)
 
 
+######################
+# DynamicLayer       #
+######################
 class DynamicLayer(Layer):
     LAYER_TYPE = 'dynamic'
 
@@ -289,6 +314,9 @@ class DynamicLayer(Layer):
         self.objects = []
 
 
+######################
+# Map                #
+######################
 class Map(object):
     def __init__(self, mapId, path, properties={}):
         self.id = mapId
@@ -333,13 +361,13 @@ class Map(object):
 
             self.tiles.extend(ts.tiles)
 
-            # Now load map data into layers, we understand right now only base 64
-            # This loads the standard tiles layers
-            for layer in root.findall('layer'):
-                l = ArrayLayer('tmpName', self, properties=Maps._loadProperties(layer.find('properties')))
-                l.loadFromXml(layer)
-                # Just a holder
-                self.addLayer(l)
+        # Now load map data into layers, we understand right now only base 64
+        # This loads the standard tiles layers
+        for layer in root.findall('layer'):
+            l = ArrayLayer(self)
+            l.load(layer)
+
+            self.addLayer(l)
 
             # Now load "object" layers and convert them to DynamicLayer
 
