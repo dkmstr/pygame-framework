@@ -44,10 +44,11 @@ class GameTest(resources.game_state.GameState):
         self.bg.add_surface(self.images.get('bck2'), 3)
 
     def on_enter(self):
-        pygame.mixer.music.load(resources.util.resource_path('data/sound/forest_0.ogg'))
+        pygame.mixer.music.load(resources.util.resource_path('data/sound/CrEEP_0.ogg'))
         pygame.mixer.music.play(-1)
 
     def on_exit(self):
+        pygame.mixer.music.stop()
         print 'Exiting'
 
     def on_keydown(self, key):

@@ -91,33 +91,83 @@ class Platform(MapObject):
 
 
 class TileSet(object):
-    def __init__(self, name, tilewidth, tileheight, tilespacing, image_path, image_width=0, image_height=0):
-        self.name = name
-        self.tilewidth = tilewidth
-        self.tileheight = tileheight
-        self.tilespacing = tilespacing
-        self.image_path = image_path
-        self.image_width = image_width
-        self.image_heigth = image_height
+    def __init__(self, parentMap):
+        self.name = None
+        self.tilewidth = self.tileheight = self.tilespacing = 0
+        self.image_path = ''
+        self.image_width = self.image_heigth = 0
         self.firstgid = 0
         self.surface = None
         self.tiles = []
         self.animated_tiles = []
         self.properties = {}
         self.tiles_properties = {}
+        self.parent_map = parentMap
 
-    @staticmethod
-    def fromXml(node):
+    def __loadTilesProperties(self, node):
+        self.tiles_properties = {}
+        for t in node.findall('tile'):
+            tid = int(t.attrib['id'])
+            self.tiles_properties[tid] = Maps._loadProperties(t.find('properties'))
+
+    def __loadTileSet(self, relativePath, node):
         image = node.find('image')
-        return TileSet(
-            node.attrib['name'],
-            int(node.attrib['tilewidth']),
-            int(node.attrib['tileheight']),
-            int(node.attrib.get('spacing', 0)),
-            image.attrib['source'],
-            int(image.attrib['width']),
-            int(image.attrib['height'])
-        )
+
+        self.name = node.attrib['name']
+        self.tilewidth = int(node.attrib['tilewidth'])
+        self.tileheight = int(node.attrib['tileheight'])
+        self.tilespacing = int(node.attrib.get('spacing', 0))
+        self.image_path = image.attrib['source']
+        self.image_width = int(image.attrib['width'])
+        self.image_height = int(image.attrib['height'])
+
+        image = pygame.image.load(os.path.join(relativePath, self.image_path))
+
+        image = image.convert_alpha()
+        image.set_alpha(0, pygame.RLEACCEL)
+
+        self.surface = image  # Store original surface
+
+        self.properties = Maps._loadProperties(node.find('properties'))
+        self.__loadTilesProperties(node)
+
+    def __loadExternalTileset(self, relativePath, path):
+        print "Loading tileset ", path
+        tree = ET.parse(os.path.join(relativePath, path))
+        root = tree.getroot()  # Map element
+        self.__loadTileSet(relativePath, root)
+
+    def load(self, relativePath, node):
+        logger.debug('Loading tileset in path {}'.format(relativePath))
+        if 'source' in node.attrib:
+            self.__loadExternalTileset(relativePath, node.attrib['source'])
+        else:
+            self.__loadTileSet(relativePath, node)
+
+        self.firstgid = int(node.attrib['firstgid'])
+
+        logger.debug('Image path: {} {}x{}'.format(self.image_path, self.image_width, self.image_height))
+
+        tilesPerRow = self.surface.get_width() / (self.tilewidth+self.tilespacing)
+        tilesRows = self.surface.get_height() / (self.tileheight+self.tilespacing)
+
+        self.tiles = range(tilesRows*tilesPerRow)  # Gens a dummy array of this len
+
+        logger.debug('Tiles Grid size: {}x{}'.format(tilesPerRow, tilesRows))
+        for y in xrange(tilesRows):
+            for x in xrange(tilesPerRow):
+                localTileId = y*tilesPerRow+x
+                tileId = self.firstgid+localTileId-1
+                # Map data contains global tile id (i.e., tile id + tileset firstgid - 1)
+                # We keep here a reference to tiles in thow places (same reference in fact)
+                self.tiles[localTileId] = Tile(self,
+                    tileId,
+                    self.surface.subsurface(((self.tilewidth+self.tilespacing)*x, (self.tileheight+self.tilespacing)*y, self.tilewidth, self.tileheight)),
+                    self.tiles_properties.get(localTileId, {})
+                )  # Creates reference
+
+        self.animated_tiles = [i for i in self.tiles if i.animated]
+        logger.debug(self.animated_tiles)
 
     def getTile(self, localTileId):
         return self.tiles[localTileId]
@@ -176,17 +226,23 @@ class Layer(object):
 class ArrayLayer(Layer):
     LAYER_TYPE = 'array'
 
-    def __init__(self, name, tilemap, data, width=0, height=0, properties={}):
+    def __init__(self, name, parentMap, properties={}):
         super(ArrayLayer, self).__init__(name, ArrayLayer.LAYER_TYPE, properties)
-        self.width = width
-        self.height = height
-        self.data = data
-        self.tilemap = tilemap
+        self.parentMap = parentMap
+
+    def loadFromXml(self, node):
+        self.name = node.attrib['name']
+        self.width = int(node.attrib['width'])
+        self.height = int(node.attrib['height'])
+        data = node.find('data')
+        if data.attrib['encoding'] != 'base64':
+            raise Exception('No base 64 encoded')
+        self.data = struct.unpack('<' + 'I'*(self.width*self.height), base64.b64decode(data.text))
 
     def draw(self, surface, x=0, y=0, width=0, height=0):
-        tiles = self.tilemap.tiles
-        tileWidth = self.tilemap.tilewidth
-        tileHeight = self.tilemap.tileheight
+        tiles = self.parentMap.tiles
+        tileWidth = self.parentMap.tilewidth
+        tileHeight = self.parentMap.tileheight
 
         width = surface.get_width() if width <= 0 else width
         height = surface.get_height() if height <= 0 else height
@@ -214,12 +270,12 @@ class ArrayLayer(Layer):
         super(ArrayLayer, self).update()
 
     def getTileAt(self, x, y):
-        x /= self.tilemap.tileWidth
-        y /= self.tilemap.tileHeight
+        x /= self.parentMap.tileWidth
+        y /= self.parentMap.tileHeight
         tile = self.data[y*self.width+x]
         if tile == 0:
             return Layer.EMPTY_TILE
-        return self.tilemap.tiles[tile-1]
+        return self.parentMap.tiles[tile-1]
 
     def __unicode__(self):
         return 'ArrayLayer {}: {}x{} ({})'.format(self.name, self.width, self.height, self.properties)
@@ -234,20 +290,66 @@ class DynamicLayer(Layer):
 
 
 class Map(object):
-    def __init__(self, path, properties={}):
+    def __init__(self, mapId, path, properties={}):
+        self.id = mapId
         self.path = resource_path(path)
-        self.width = self.height = 0
-        self.tilewidth = self.tileheight = 0
-        self.tilesets = {}
-        self.tiles = []
-        self.layers_names = []
-        self.layers = {}
-        self.properties = properties
+        self.reset()
 
     def __getLayers(self, layersNames):
         if layersNames is None:
             layersNames = self.layers_names
         return layersNames
+
+    def reset(self, fromNode=None):
+        self.width = self.height = self.tilewidth = self.tileheight = 0
+        self.tilesets = {}
+        self.layers_names = []
+        self.holders_names = []
+        self.layers = {}
+        self.tiles = []
+        self.properties = {}
+        if fromNode is not None:
+            self.width = int(fromNode.attrib['width'])
+            self.height = int(fromNode.attrib['height'])
+            self.tilewidth = int(fromNode.attrib['tilewidth'])
+            self.tileheight = int(fromNode.attrib['tileheight'])
+            self.properties = Maps._loadProperties(fromNode.find('properties'))
+
+    def load(self):
+        mapPath = os.path.dirname(self.path)
+
+        tree = ET.parse(self.path)
+        root = tree.getroot()  # Map element
+
+        logger.debug('Loading map "{}" in folder "{}"'.format(self.id, mapPath))
+
+        self.reset(root)
+
+        for tileSet in root.findall('tileset'):
+            ts = TileSet(self)
+            ts.load(mapPath, tileSet)
+
+            self.tilesets[ts.name] = ts
+
+            self.tiles.extend(ts.tiles)
+
+            # Now load map data into layers, we understand right now only base 64
+            # This loads the standard tiles layers
+            for layer in root.findall('layer'):
+                l = ArrayLayer('tmpName', self, properties=Maps._loadProperties(layer.find('properties')))
+                l.loadFromXml(layer)
+                # Just a holder
+                self.addLayer(l)
+
+            # Now load "object" layers and convert them to DynamicLayer
+
+    def addLayer(self, layer):
+        if layer.getProperty('holder') == 'True':
+            logger.debug('Layer {} is a holder layer'.format(layer.name))
+            self.holders_names.append(layer.name)
+        else:
+            self.layers_names.append(layer.name)
+            self.layers[layer.name] = layer
 
     def getLayer(self, layerName):
         return self.layers[layerName]
@@ -261,6 +363,7 @@ class Map(object):
     def update(self, layersNames=None):
         layersNames = self.__getLayers(layersNames)
 
+        # Keep order intact
         for layerName in layersNames:
             self.layers[layerName].update()
 
@@ -302,36 +405,16 @@ class Maps(object):
         self._maps = {}
 
     def add(self, mapId, path):
-        self._maps[mapId] = Map(path)
+        self._maps[mapId] = Map(mapId, path)
 
     @staticmethod
-    def __loadProperties(node):
+    def _loadProperties(node):
         props = {}
         if node is not None:
             for p in node.findall('property'):
                 logger.debug('Found property {}={}'.format(p.attrib['name'], p.attrib['value']))
                 props[p.attrib['name']] = p.attrib['value']
         return props
-
-    @staticmethod
-    def __loadTilesProperties(tileSet):
-        props = {}
-        for t in tileSet.findall('tile'):
-            tid = int(t.attrib['id'])
-            logger.debug('Found tile {}'.format(tid))
-            props[tid] = Maps.__loadProperties(t.find('properties'))
-            logger.debug('Properties: {}'.format(tid))
-        return props
-
-    @staticmethod
-    def __getTileSetInfo(tileSet):
-        print "Loading tileset ", tileSet
-        tree = ET.parse(tileSet)
-        root = tree.getroot()  # Map element
-        ts = TileSet.fromXml(root)
-
-        ts.properties = Maps.__loadProperties(root.find('properties'))
-        ts.tiles_properties = Maps.__loadTilesProperties(root)
 
     def load(self, mapId=None, force=False):
         if mapId is None:
@@ -343,91 +426,7 @@ class Maps(object):
             return False
 
         m = self._maps[mapId]
-
-        # Extract path from file
-        mapPath = os.path.dirname(m.path)
-
-        tree = ET.parse(m.path)
-        root = tree.getroot()  # Map element
-
-        logger.debug('Loading map {} in folder {}'.format(mapId, mapPath))
-
-        # Get general m info
-        m.width = int(root.attrib['width'])
-        m.height = int(root.attrib['height'])
-        m.tilewidth = int(root.attrib['tilewidth'])
-        m.tileheight = int(root.attrib['tileheight'])
-        m.layers_names = []
-        m.layers = {}
-        m.tiles = []
-        m.properties = Maps.__loadProperties(root.find('properties'))
-
-        # Locate tilesets
-        for tileSet in root.findall('tileset'):
-            if 'source' in tileSet.attrib:
-                source = Maps.__getTileSetInfo(os.path.join(mapPath, tileSet.attrib['source']))
-            else:
-                source = TileSet.fromXml(tileSet)
-                source.properties = Maps.__loadProperties(tileSet.find('properties'))
-                source.tiles_properties = Maps.__loadTilesProperties(tileSet)
-
-            source.firstgid = int(tileSet.attrib['firstgid'])
-
-            print source.name, '-->', os.path.join(mapPath, source.image_path), ' - {0}x{1}'.format(m.width, m.height), ' spacing: {}'.format(source.tilespacing)
-
-            try:
-                image = pygame.image.load(os.path.join(mapPath, source.image_path))
-            except Exception as e:
-                logger.exception("Image not found!: {0}".format(e))
-
-            image = image.convert_alpha()
-            image.set_alpha(0, pygame.RLEACCEL)
-
-            source.surface = image  # Store original surface
-
-            tilewidth, tileheight = source.tilewidth, source.tileheight
-            tilesPerRow = image.get_width() / (tilewidth+source.tilespacing)
-            tilesRows = image.get_height() / (tileheight+source.tilespacing)
-
-            source.tiles = range(tilesRows*tilesPerRow)  # Gens a dummy array of this len
-
-            # Extends tile
-            if len(m.tiles) <= source.firstgid:
-                m.tiles.extend(xrange(source.firstgid+tilesRows*tilesPerRow-len(m.tiles)-1))
-
-            logger.debug('Tiles Grid size: {}x{}'.format(tilesPerRow, tilesRows))
-            for y in xrange(tilesRows):
-                for x in xrange(tilesPerRow):
-                    localTileId = y*tilesPerRow+x
-                    tileId = source.firstgid+localTileId-1
-                    # Map data contains global tile id (i.e., tile id + tileset firstgid - 1)
-                    # We keep here a reference to tiles in thow places (same reference in fact)
-                    m.tiles[tileId] = source.tiles[localTileId] = Tile(source,
-                        tileId,
-                        image.subsurface(((tilewidth+source.tilespacing)*x, (tileheight+source.tilespacing)*y, tilewidth, tileheight)),
-                        source.tiles_properties.get(localTileId, {})
-                    )  # Creates reference
-            source.animated_tiles = [i for i in source.tiles if i.animated]
-            m.tilesets[source.name] = source  # Keep source image stored, tiles are references to it
-
-        # Now load m data, we understand right now only base 64
-        for layer in root.findall('layer'):
-            layerName, layerWidth, layerHeight = layer.attrib['name'], int(layer.attrib['width']), int(layer.attrib['height'])
-            data = layer.find('data')
-            if data.attrib['encoding'] != 'base64':
-                logger.error('No base 64 encoded layer, skyped')
-                continue
-            m.layers_names.append(layerName)
-            m.layers[layerName] = ArrayLayer(
-                layerName,
-                m,
-                struct.unpack('<' + 'I'*(layerWidth*layerHeight), base64.b64decode(data.text)),
-                layerWidth,
-                layerHeight,
-                properties=Maps.__loadProperties(layer.find('properties'))
-            )
-
-        # Now load "object" layers and convert them to DynamicLayer
+        m.load()
 
     def get(self, mapId):
         return self._maps[mapId]

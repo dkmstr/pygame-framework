@@ -4,6 +4,50 @@
 		"selected_items":
 		[
 			[
+				"it",
+				"iteritems	(function)"
+			],
+			[
+				"s",
+				"self	(param)"
+			],
+			[
+				"a",
+				"animation_orig_delay  (variable)"
+			],
+			[
+				"ani",
+				"animation_state	(statement)"
+			],
+			[
+				"an",
+				"animation_state	(statement)"
+			],
+			[
+				"anima",
+				"animation_state  (variable)"
+			],
+			[
+				"Map",
+				"MapObject	(class)"
+			],
+			[
+				"Ti",
+				"TileSet	(class)"
+			],
+			[
+				"pro",
+				"properties	(param)"
+			],
+			[
+				"tile",
+				"tileheight	(statement)"
+			],
+			[
+				"wi",
+				"tilewidth	(statement)"
+			],
+			[
 				"prop",
 				"properties	(statement)"
 			],
@@ -48,16 +92,8 @@
 				"tileheight	(statement)"
 			],
 			[
-				"it",
-				"itervalues	(function)"
-			],
-			[
 				"se",
 				"setattr	(function)"
-			],
-			[
-				"tile",
-				"tilewidth	(statement)"
 			],
 			[
 				"get",
@@ -392,10 +428,6 @@
 				"color-negro"
 			],
 			[
-				"s",
-				"secondary-color-A-lighter"
-			],
-			[
 				"navb",
 				"navbar-nav"
 			],
@@ -482,38 +514,6 @@
 			[
 				"Cat",
 				"CATEGORIES	(global, instance)"
-			],
-			[
-				"logg",
-				"logger	(global, instance)"
-			],
-			[
-				"UDSPO",
-				"UDSPostLang	(imported, class)"
-			],
-			[
-				"UDSP",
-				"UDSPostLang	(global, class)"
-			],
-			[
-				"For",
-				"ForeignKey	(imported, class)"
-			],
-			[
-				"wi",
-				"widgets"
-			],
-			[
-				"L",
-				"LANGUAGES"
-			],
-			[
-				"ModelForm",
-				"ModelForm	(imported, class)"
-			],
-			[
-				"Mode",
-				"ModelForm	ModelForm"
 			]
 		]
 	},
@@ -523,23 +523,7 @@
 			"file": "resources/test.py",
 			"settings":
 			{
-				"buffer_size": 2626,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "resources/parallax.py",
-			"settings":
-			{
-				"buffer_size": 3682,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "resources/resources/game_state.py",
-			"settings":
-			{
-				"buffer_size": 3846,
+				"buffer_size": 2672,
 				"line_ending": "Unix"
 			}
 		},
@@ -555,7 +539,7 @@
 			"file": "resources/resources/maps.py",
 			"settings":
 			{
-				"buffer_size": 9259,
+				"buffer_size": 15170,
 				"line_ending": "Unix"
 			}
 		}
@@ -668,10 +652,10 @@
 	},
 	"file_history":
 	[
-		"/home/dkmaster/projects/pygame/resources/test_windows.spec",
-		"/home/dkmaster/projects/pygame/resources/parallax.py",
-		"/home/dkmaster/projects/pygame/game/test.py",
 		"/home/dkmaster/projects/pygame/resources/resources/game_state.py",
+		"/home/dkmaster/projects/pygame/resources/parallax.py",
+		"/home/dkmaster/projects/pygame/resources/test_windows.spec",
+		"/home/dkmaster/projects/pygame/game/test.py",
 		"/home/dkmaster/projects/pygame/resources/test.spec",
 		"/home/dkmaster/projects/pygame/parallax/test.py",
 		"/home/dkmaster/projects/pygame/states/test.py",
@@ -814,6 +798,11 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"fromNode",
+			"))\n",
+			"getArrayLayer",
+			"MapLayer",
+			"Layer",
 			"spacing",
 			"speed",
 			"command",
@@ -936,12 +925,7 @@
 			".demo3",
 			"ccenter",
 			"$secondary-color",
-			"color-azul",
-			"$color-verde",
-			"$primary-color",
-			"cache",
-			"20px",
-			"home"
+			"color-azul"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -949,6 +933,10 @@
 		"regex": false,
 		"replace_history":
 		[
+			"fromXml",
+			"getLayer",
+			"ArrayLayer",
+			"MapLayer",
 			"tag.slug",
 			"page",
 			"reverse('blog:",
@@ -999,7 +987,7 @@
 	"groups":
 	[
 		{
-			"selected": 4,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -1008,15 +996,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2626,
+						"buffer_size": 2672,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2285,
-								2285
+								361,
+								361
 							]
 						],
 						"settings":
@@ -1130,7 +1118,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 486.0,
+						"translation.y": 378.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -1138,274 +1126,6 @@
 				},
 				{
 					"buffer": 1,
-					"file": "resources/parallax.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3682,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1371,
-								1371
-							]
-						],
-						"settings":
-						{
-							"codeintel": true,
-							"codeintel_config":
-							{
-								"JavaScript":
-								{
-									"codeintel_max_recursive_dir_depth": 2,
-									"codeintel_scan_files_in_project": false,
-									"javascriptExtraPaths":
-									[
-									]
-								},
-								"PHP":
-								{
-									"codeintel_max_recursive_dir_depth": 5,
-									"codeintel_scan_files_in_project": false,
-									"phpExtraPaths":
-									[
-									]
-								},
-								"Python":
-								{
-									"env":
-									{
-									}
-								}
-							},
-							"codeintel_enabled_languages":
-							[
-								"JavaScript",
-								"Mason",
-								"XBL",
-								"XUL",
-								"RHTML",
-								"SCSS",
-								"Python",
-								"HTML",
-								"Ruby",
-								"Python3",
-								"XML",
-								"Sass",
-								"XSLT",
-								"Django",
-								"HTML5",
-								"Perl",
-								"CSS",
-								"Twig",
-								"Less",
-								"Smarty",
-								"Node.js",
-								"Tcl",
-								"TemplateToolkit",
-								"PHP"
-							],
-							"codeintel_live": true,
-							"codeintel_live_enabled_languages":
-							[
-								"JavaScript",
-								"Mason",
-								"XBL",
-								"XUL",
-								"RHTML",
-								"SCSS",
-								"Python",
-								"HTML",
-								"Ruby",
-								"Python3",
-								"XML",
-								"Sass",
-								"XSLT",
-								"Django",
-								"HTML5",
-								"Perl",
-								"CSS",
-								"Twig",
-								"Less",
-								"Smarty",
-								"Node.js",
-								"Tcl",
-								"TemplateToolkit",
-								"PHP"
-							],
-							"codeintel_max_recursive_dir_depth": 10,
-							"codeintel_scan_exclude_dir":
-							{
-								"JavaScript":
-								[
-									"/build/",
-									"/min/"
-								]
-							},
-							"codeintel_scan_files_in_project": true,
-							"codeintel_selected_catalogs":
-							[
-								"PyWin32",
-								"jQuery",
-								"Rails"
-							],
-							"codeintel_snippets": true,
-							"codeintel_syntax_map":
-							{
-								"Python Django": "Python"
-							},
-							"codeintel_tooltips": "popup",
-							"sublime_auto_complete": true,
-							"syntax": "Packages/Djaneiro/Syntaxes/Python Django.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 35.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "resources/resources/game_state.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3846,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								207,
-								207
-							]
-						],
-						"settings":
-						{
-							"codeintel": true,
-							"codeintel_config":
-							{
-								"JavaScript":
-								{
-									"codeintel_max_recursive_dir_depth": 2,
-									"codeintel_scan_files_in_project": false,
-									"javascriptExtraPaths":
-									[
-									]
-								},
-								"PHP":
-								{
-									"codeintel_max_recursive_dir_depth": 5,
-									"codeintel_scan_files_in_project": false,
-									"phpExtraPaths":
-									[
-									]
-								},
-								"Python":
-								{
-									"env":
-									{
-									}
-								}
-							},
-							"codeintel_enabled_languages":
-							[
-								"JavaScript",
-								"Mason",
-								"XBL",
-								"XUL",
-								"RHTML",
-								"SCSS",
-								"Python",
-								"HTML",
-								"Ruby",
-								"Python3",
-								"XML",
-								"Sass",
-								"XSLT",
-								"Django",
-								"HTML5",
-								"Perl",
-								"CSS",
-								"Twig",
-								"Less",
-								"Smarty",
-								"Node.js",
-								"Tcl",
-								"TemplateToolkit",
-								"PHP"
-							],
-							"codeintel_live": true,
-							"codeintel_live_enabled_languages":
-							[
-								"JavaScript",
-								"Mason",
-								"XBL",
-								"XUL",
-								"RHTML",
-								"SCSS",
-								"Python",
-								"HTML",
-								"Ruby",
-								"Python3",
-								"XML",
-								"Sass",
-								"XSLT",
-								"Django",
-								"HTML5",
-								"Perl",
-								"CSS",
-								"Twig",
-								"Less",
-								"Smarty",
-								"Node.js",
-								"Tcl",
-								"TemplateToolkit",
-								"PHP"
-							],
-							"codeintel_max_recursive_dir_depth": 10,
-							"codeintel_scan_exclude_dir":
-							{
-								"JavaScript":
-								[
-									"/build/",
-									"/min/"
-								]
-							},
-							"codeintel_scan_files_in_project": true,
-							"codeintel_selected_catalogs":
-							[
-								"PyWin32",
-								"jQuery",
-								"Rails"
-							],
-							"codeintel_snippets": true,
-							"codeintel_syntax_map":
-							{
-								"Python Django": "Python"
-							},
-							"codeintel_tooltips": "popup",
-							"sublime_auto_complete": true,
-							"syntax": "Packages/Djaneiro/Syntaxes/Python Django.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 162.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
 					"file": "resources/resources/images.py",
 					"semi_transient": false,
 					"settings":
@@ -1532,27 +1252,27 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 17.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 2,
 					"file": "resources/resources/maps.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 9259,
+						"buffer_size": 15170,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5924,
-								5924
+								14210,
+								14210
 							]
 						],
 						"settings":
@@ -1666,7 +1386,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2661.0,
+						"translation.y": 6941.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
