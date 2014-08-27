@@ -82,19 +82,27 @@ class Tile(object):
     def id(self):
         return self._id
 
+    def getTileSet(self):
+        return self._tileSet
+
     def __unicode__(self):
         return 'Tile {} ({}x{}) ({})'.format(self._id, self._surface.get_width(), self._surface.get_height(), self.properties)
 
 
-class MapObject(Tile):
-    def __init__(self, tileId, surface, x, y, properties={}):
-        super(MapObject, self).__init__(self, tileId, surface)
-        self.x = x
-        self.y = y
+class Platform(object):
+    def __init__(self, origX, origY, path, tiles, sticky):
+        self.x = self.origX = origX
+        self.y = self.origY = origY
+        self.path = path
+        self.tiles = tiles
+        self.sticky = sticky
 
-
-class Platform(MapObject):
-    pass
+    def draw(self, toSurface, x, y):
+        x = self.x - x
+        y = self.y - y
+        for t in self.tiles:
+            t.draw(toSurface, x, y)
+            x += t.getTileSet().tilewidth
 
 
 ######################
@@ -177,7 +185,6 @@ class TileSet(object):
                 )  # Creates reference
 
         self.animated_tiles = [i for i in self.tiles if i.animated]
-        logger.debug(self.animated_tiles)
 
     def getTile(self, localTileId):
         return self.tiles[localTileId]
@@ -200,11 +207,13 @@ class TileSet(object):
 # Layer              #
 ######################
 class Layer(object):
+    LAYER_TYPE = 'default'
     EMPTY_TILE = Tile(None, 0, None)
 
-    def __init__(self, name, layerType, properties={}):
-        self.name = name
-        self.type = layerType
+    def __init__(self, parentMap=None, layerType=None, properties={}):
+        self.name = None
+        self.type = layerType if layerType is not None else self.LAYER_TYPE
+        self.parentMap = parentMap
         self.setProperties(properties)
 
     def setProperties(self, properties):
@@ -220,7 +229,7 @@ class Layer(object):
     def update(self):
         pass
 
-    def draw(self):
+    def draw(self, toSurface, x=0, y=0, width=0, height=0):
         pass
 
     def getType(self):
@@ -245,10 +254,6 @@ class Layer(object):
 class ArrayLayer(Layer):
     LAYER_TYPE = 'array'
 
-    def __init__(self, parentMap):
-        super(ArrayLayer, self).__init__('', ArrayLayer.LAYER_TYPE)
-        self.parentMap = parentMap
-
     def load(self, node):
         self.name = node.attrib['name']
         self.width = int(node.attrib['width'])
@@ -261,13 +266,13 @@ class ArrayLayer(Layer):
             raise Exception('No base 64 encoded')
         self.data = struct.unpack('<' + 'I'*(self.width*self.height), base64.b64decode(data.text))
 
-    def draw(self, surface, x=0, y=0, width=0, height=0):
+    def draw(self, toSurface, x=0, y=0, width=0, height=0):
         tiles = self.parentMap.tiles
         tileWidth = self.parentMap.tilewidth
         tileHeight = self.parentMap.tileheight
 
-        width = surface.get_width() if width <= 0 else width
-        height = surface.get_height() if height <= 0 else height
+        width = toSurface.get_width() if width <= 0 else width
+        height = toSurface.get_height() if height <= 0 else height
 
         xStart, xLen = x / tileWidth, (width + tileWidth - 1) / tileWidth + 1
         yStart, yLen = y / tileHeight, (height + tileHeight - 1) / tileHeight + 1
@@ -286,14 +291,14 @@ class ArrayLayer(Layer):
                 if x >= 0 and y >= 0:
                     tile = self.data[y*self.width+x]
                     if tile > 0:
-                        tiles[tile-1].draw(surface, (x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset)
+                        tiles[tile-1].draw(toSurface, (x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset)
 
     def update(self):
         super(ArrayLayer, self).update()
 
     def getTileAt(self, x, y):
-        x /= self.parentMap.tileWidth
-        y /= self.parentMap.tileHeight
+        x /= self.parentMap.tilewidth
+        y /= self.parentMap.tileheight
         tile = self.data[y*self.width+x]
         if tile == 0:
             return Layer.EMPTY_TILE
@@ -309,9 +314,64 @@ class ArrayLayer(Layer):
 class DynamicLayer(Layer):
     LAYER_TYPE = 'dynamic'
 
-    def __init__(self, name, properties={}):
-        super(DynamicLayer, self).__init__(name, DynamicLayer.LAYER_TYPE, properties)
-        self.objects = []
+    def load(self, node):
+        self.name = node.attrib['name']
+        self.width = int(node.attrib['width'])
+        self.height = int(node.attrib['height'])
+
+        self.properties = Maps._loadProperties(node.find('properties'))
+
+        paths = {}
+        self.platforms = {}
+
+        for obj in node.findall('object'):
+            if obj.attrib['type'] == 'path':  # This is a path, store it in paths
+                name = obj.attrib['name']
+                properties = Maps._loadProperties(obj.find('properties'))
+                polyline = [[int(v) for v in i.split(',')] for i in obj.find('polyline').attrib['points'].split(' ')]
+                start = properties.get('start', 'start')
+                direction = properties.get('direction', 'forward')
+                if start == 'begin':
+                    start = 0
+                    direction = 'forward'
+                elif start == 'end':
+                    start = len(polyline)-1
+                    direction = 'backward'
+                direction = 1 if direction == 'forward' else -1
+                paths[name] = {
+                    'x': obj.attrib['x'],
+                    'y': obj.attrib['y'],
+                    'polyline': polyline,
+                    'start': start,
+                    'direction': direction
+                }
+
+                logger.debug('Path {} {}'.format(name, paths[name]))
+            elif obj.attrib['type'] == 'platform':
+                name = obj.attrib['name']
+                properties = Maps._loadProperties(obj.find('properties'))
+                startX, startY = int(obj.attrib['x']), int(obj.attrib['y'])
+                width, height = int(obj.attrib['width']), int(obj.attrib['height'])
+                layer = self.parentMap.getLayer(properties.get('layer', None))
+                tiles = []
+                for y in xrange(startY, startY+height, self.parentMap.tileheight):
+                    for x in xrange(startX, startX+width, self.parentMap.tilewidth):
+                        tiles.append(layer.getTileAt(x, y))
+                print [t.id() for t in tiles]
+
+                p = Platform(startX, startY, properties.get('path', None), tiles, properties.get('sticky', False))
+                self.platforms[obj.attrib['name']] = p
+
+                logger.debug('Platform {}'.format(p))
+
+            # Get obj properties to know that is this
+        # After loading, add paths to Platforms
+        for p in self.platforms.itervalues():
+            p.path = paths[p.path]
+
+    def draw(self, toSurface, x=0, y=0, width=0, height=0):
+        for obj in self.platforms.itervalues():
+            obj.draw(toSurface, x, y)
 
 
 ######################
@@ -370,6 +430,11 @@ class Map(object):
             self.addLayer(l)
 
             # Now load "object" layers and convert them to DynamicLayer
+        for layer in root.findall('objectgroup'):
+            l = DynamicLayer(self)
+            l.load(layer)
+
+            self.addLayer(l)
 
     def addLayer(self, layer):
         if layer.getProperty('holder') == 'True':
@@ -377,10 +442,10 @@ class Map(object):
             self.holders_names.append(layer.name)
         else:
             self.layers_names.append(layer.name)
-            self.layers[layer.name] = layer
+        self.layers[layer.name] = layer
 
     def getLayer(self, layerName):
-        return self.layers[layerName]
+        return self.layers.get(layerName)
 
     def draw(self, surface, x=0, y=0, width=0, height=0, layersNames=None):
         layersNames = self.__getLayers(layersNames)

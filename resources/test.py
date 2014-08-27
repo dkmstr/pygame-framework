@@ -25,6 +25,7 @@ class GameTest(resources.game_state.GameState):
 
         self.images = resources.images.Images((1280, 2880))
         self.maps = resources.maps.Maps()
+        self.maps.add('level0', 'data/maps/level.tmx')
 
         self.map = None
         self.bg = parallax.ParallaxSurface((WIDTH, HEIGHT), pygame.RLEACCEL)
@@ -34,7 +35,6 @@ class GameTest(resources.game_state.GameState):
         self.images.addImage('bck2', 'data/images/near-background.png')
         self.images.load(self.controller.screen)
 
-        self.maps.add('level0', 'data/maps/level.tmx')
         #self.maps.add('level0', 'data/maps/other.tmx')
         self.maps.load()
 
