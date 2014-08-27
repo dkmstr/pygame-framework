@@ -15,7 +15,7 @@ BASE_SPEED = 8
 
 
 class GameTest(resources.game_state.GameState):
-    framerate = 60
+    framerate = 50
 
     def __init__(self, name):
         super(GameTest, self).__init__(name)
@@ -73,12 +73,13 @@ class GameTest(resources.game_state.GameState):
 
     def on_frame(self):
         self.bg.scroll(self.bg_speed)
+        self.map.update()
         self.x += self.x_speed
         self.y += self.y_speed
 
     def on_render(self):
         self.bg.draw(self.controller.screen)
-        self.map.draw(self.controller.screen, self.x, self.y, layers=None)
+        self.map.draw(self.controller.screen, self.x, self.y)
 
 logging.basicConfig(
     filename='log.log',
