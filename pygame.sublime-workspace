@@ -4,6 +4,30 @@
 		"selected_items":
 		[
 			[
+				"tiles_layer",
+				"tiles_layer_name	(statement)"
+			],
+			[
+				"tilewid",
+				"tilewidth"
+			],
+			[
+				"se",
+				"segments	(statement)"
+			],
+			[
+				"seg",
+				"segment_pos	(statement)"
+			],
+			[
+				"curre",
+				"current_line_pos	(statement)"
+			],
+			[
+				"curr",
+				"current_segment	(statement)"
+			],
+			[
 				"colli",
 				"colliderect	(function)"
 			],
@@ -126,10 +150,6 @@
 			[
 				"ti",
 				"tileheight	(statement)"
-			],
-			[
-				"se",
-				"setattr	(function)"
 			],
 			[
 				"get",
@@ -494,26 +514,6 @@
 			[
 				"add",
 				"addClass	addClass"
-			],
-			[
-				"alig",
-				"box-align:   (property)"
-			],
-			[
-				"center",
-				"center-block"
-			],
-			[
-				"over",
-				"overflow-x"
-			],
-			[
-				"UDSAr",
-				"UDSArticleLang"
-			],
-			[
-				"back",
-				"background-color"
 			]
 		]
 	},
@@ -523,7 +523,7 @@
 			"file": "resources/test.py",
 			"settings":
 			{
-				"buffer_size": 2673,
+				"buffer_size": 2674,
 				"line_ending": "Unix"
 			}
 		},
@@ -536,13 +536,10 @@
 			}
 		},
 		{
-			"contents": "# -*- coding: utf-8 -*-\nfrom __future__ import unicode_literals\n\nimport pygame\nimport os\nimport base64\nimport struct\nimport xml.etree.ElementTree as ET\n\nfrom resources.util import resource_path\n\nimport logging\n\nlogger = logging.getLogger(__name__)\n\n\n######################\n# Path               #\n######################\nclass Path(object):\n    pass\n\n\n######################\n# Tile               #\n######################\nclass Tile(object):\n    def __init__(self, tileSet, tileId, surface, properties={}):\n        self._tileSet = tileSet\n        self._id = tileId\n        self._orig_surface = self._surface = surface\n        self.setProperties(properties)\n\n    def setProperties(self, properties):\n        self.properties = properties\n        self.updateAttributes()\n\n    def updateAttributes(self):\n        '''\n        Updates attributes of the object because properties was set\n        '''\n        self.sticky = self.properties.get('sticky', 'False') == 'True'\n        self.delay = int(self.properties.get('delay', '0'))\n        # Animation ids of tiles are relative to tileset\n        if self.properties.get('animation') is not None:\n            self.animated = True\n            self.animation = [int(i) for i in self.properties.get('animation', '-1').split(',')]\n            self.animation_orig_delay = self.animation_delay = int(self.properties.get('delay', '1'))\n            self.animation_state = 0\n            logger.debug('Added animation for tile {}: {}'.format(self._id, self.animation))\n        else:\n            self.animated = False\n            self.animation = None\n            self.animation_state = None\n\n    def update(self):\n        if self.animated is False:\n            return\n        self.animation_delay -= 1\n        if self.animation_delay > 0:\n            return\n        self.animation_delay = self.animation_orig_delay\n        if self.animation_state >= len(self.animation):\n            self.animation_state = 0\n            self.resetImage()\n        else:\n            self._surface = self._tileSet.getTile(self.animation[self.animation_state]).getImage()\n            self.animation_state += 1\n\n    def getProperty(self, propertyName):\n        '''\n        Obtains a property associated whit this tileset\n        '''\n        return self.properties.get(propertyName)\n\n    # This x,y coordinates are screen coordinates\n    # TileArray, Platform, etc.. converts coordinates of objects acordly beforw invoking it\n    def draw(self, toSurface, x, y):\n        if self._surface is not None:\n            toSurface.blit(self._surface, (x, y))\n\n    def getImage(self):\n        return self._surface\n\n    def setImage(self, surface):\n        self._surface = surface\n\n    def resetImage(self):\n        self._surface = self._orig_surface\n\n    def id(self):\n        return self._id\n\n    def getTileSet(self):\n        return self._tileSet\n\n    def __unicode__(self):\n        return 'Tile {} ({}x{}) ({})'.format(self._id, self._surface.get_width(), self._surface.get_height(), self.properties)\n\n\nclass Platform(object):\n    def __init__(self, origX, origY, width, height, path, tiles, sticky):\n        self.rect = pygame.Rect(origX, origY, width, height)\n        self.path = path\n        self.tiles = tiles\n        self.sticky = sticky\n        self.dir = 1\n        self.pos = 0\n\n    def draw(self, toSurface, x, y):\n        '''\n        Draws to specied surface, to coords x, y\n        '''\n        rect = pygame.Rect((x, y), toSurface.get_size())\n        logger.debug('Rect: {}'.format(rect))\n        if not rect.colliderect(self.rect):\n            return\n        # Translate start to screen coordinates\n        x = self.rect.left - x\n        y = self.rect.top - y\n        for row in self.tiles:\n            xx = x\n            for t in row:\n                t.draw(toSurface, xx, y)  # tile drawing is in screen coordinates, that is what we have on x & y\n                xx += t.getTileSet().tilewidth\n            y += t.getTileSet().tileheight\n\n    def update(self):\n        self.pos += self.dir\n        self.rect.left = self.rect.left + self.dir\n        if self.pos == 100:\n            self.dir = -1\n        elif self.pos == 0:\n            self.dir = 1\n\n\n######################\n# TileSet            #\n######################\nclass TileSet(object):\n    def __init__(self, parentMap):\n        self.name = None\n        self.tilewidth = self.tileheight = self.tilespacing = 0\n        self.image_path = ''\n        self.image_width = self.image_heigth = 0\n        self.firstgid = 0\n        self.surface = None\n        self.tiles = []\n        self.animated_tiles = []\n        self.properties = {}\n        self.tiles_properties = {}\n        self.parent_map = parentMap\n\n    def __loadTilesProperties(self, node):\n        self.tiles_properties = {}\n        for t in node.findall('tile'):\n            tid = int(t.attrib['id'])\n            self.tiles_properties[tid] = Maps._loadProperties(t.find('properties'))\n\n    def __loadTileSet(self, relativePath, node):\n        image = node.find('image')\n\n        self.name = node.attrib['name']\n        self.tilewidth = int(node.attrib['tilewidth'])\n        self.tileheight = int(node.attrib['tileheight'])\n        self.tilespacing = int(node.attrib.get('spacing', 0))\n        self.image_path = image.attrib['source']\n        self.image_width = int(image.attrib['width'])\n        self.image_height = int(image.attrib['height'])\n\n        image = pygame.image.load(os.path.join(relativePath, self.image_path))\n\n        image = image.convert_alpha()\n        image.set_alpha(0, pygame.RLEACCEL)\n\n        self.surface = image  # Store original surface\n\n        self.properties = Maps._loadProperties(node.find('properties'))\n        self.__loadTilesProperties(node)\n\n    def __loadExternalTileset(self, relativePath, path):\n        print \"Loading tileset \", path\n        tree = ET.parse(os.path.join(relativePath, path))\n        root = tree.getroot()  # Map element\n        self.__loadTileSet(relativePath, root)\n\n    def load(self, relativePath, node):\n        logger.debug('Loading tileset in path {}'.format(relativePath))\n        if 'source' in node.attrib:\n            self.__loadExternalTileset(relativePath, node.attrib['source'])\n        else:\n            self.__loadTileSet(relativePath, node)\n\n        self.firstgid = int(node.attrib['firstgid'])\n\n        logger.debug('Image path: {} {}x{}'.format(self.image_path, self.image_width, self.image_height))\n\n        tilesPerRow = self.surface.get_width() / (self.tilewidth+self.tilespacing)\n        tilesRows = self.surface.get_height() / (self.tileheight+self.tilespacing)\n\n        self.tiles = [None] * (tilesRows*tilesPerRow)  # Gens a dummy array of this len\n\n        logger.debug('Tiles Grid size: {}x{}'.format(tilesPerRow, tilesRows))\n        for y in xrange(tilesRows):\n            for x in xrange(tilesPerRow):\n                localTileId = y*tilesPerRow+x\n                tileId = self.firstgid+localTileId-1\n                # Map data contains global tile id (i.e., tile id + tileset firstgid - 1)\n                # We keep here a reference to tiles in thow places (same reference in fact)\n                self.tiles[localTileId] = Tile(self,\n                    tileId,\n                    self.surface.subsurface(((self.tilewidth+self.tilespacing)*x, (self.tileheight+self.tilespacing)*y, self.tilewidth, self.tileheight)),\n                    self.tiles_properties.get(localTileId, {})\n                )  # Creates reference\n\n        self.animated_tiles = [i for i in self.tiles if i.animated]\n\n    def getTile(self, localTileId):\n        return self.tiles[localTileId]\n\n    def getProperty(self, propertyName):\n        '''\n        Obtains a property associated whit this tileset\n        '''\n        return self.properties.get(propertyName)\n\n    def update(self):\n        for t in self.animated_tiles:\n            t.update()\n\n    def __unicode__(self):\n        return 'Tileset {}: {}x{} ({})'.format(self.name, self.tilewidth, self.tileheight, self.properties)\n\n\n######################\n# Layer              #\n######################\nclass Layer(object):\n    LAYER_TYPE = 'default'\n    EMPTY_TILE = Tile(None, 0, None)\n\n    def __init__(self, parentMap=None, layerType=None, properties={}):\n        self.name = None\n        self.type = layerType if layerType is not None else self.LAYER_TYPE\n        self.parentMap = parentMap\n        self.setProperties(properties)\n\n    def setProperties(self, properties):\n        self.properties = properties\n        # Set custom \"flags\" based on properties\n\n    def updateAttributes(self):\n        self.visible = self.properties.get('visible', 'True') == 'True'\n\n    def load(self, node):\n        pass\n\n    def update(self):\n        pass\n\n    def draw(self, toSurface, x=0, y=0, width=0, height=0):\n        pass\n\n    def getType(self):\n        return self.type\n\n    def getTileAt(self, x, y):\n        return Layer.EMPTY_TILE\n\n    def isVisible(self):\n        return self.visible\n\n    def getProperty(self, propertyName):\n        '''\n        Obtains a property associated whit this layer\n        '''\n        return self.properties.get(propertyName)\n\n\n######################\n# ArrayLayer         #\n######################\nclass ArrayLayer(Layer):\n    LAYER_TYPE = 'array'\n\n    def load(self, node):\n        self.name = node.attrib['name']\n        self.width = int(node.attrib['width'])\n        self.height = int(node.attrib['height'])\n\n        self.properties = Maps._loadProperties(node.find('properties'))\n\n        data = node.find('data')\n        if data.attrib['encoding'] != 'base64':\n            raise Exception('No base 64 encoded')\n        self.data = struct.unpack('<' + 'I'*(self.width*self.height), base64.b64decode(data.text))\n\n    def draw(self, toSurface, x=0, y=0, width=0, height=0):\n        tiles = self.parentMap.tiles\n        tileWidth = self.parentMap.tilewidth\n        tileHeight = self.parentMap.tileheight\n\n        width = toSurface.get_width() if width <= 0 else width\n        height = toSurface.get_height() if height <= 0 else height\n\n        xStart, xLen = x / tileWidth, (width + tileWidth - 1) / tileWidth + 1\n        yStart, yLen = y / tileHeight, (height + tileHeight - 1) / tileHeight + 1\n\n        if xStart > width or yStart > height:\n            return\n\n        xOffset = x % tileWidth\n        yOffset = y % tileHeight\n\n        xEnd = self.width if xStart+xLen > self.width else xStart+xLen\n        yEnd = self.height if yStart+yLen > self.height else yStart+yLen\n\n        for y in xrange(yStart, yEnd):\n            for x in xrange(xStart, xEnd):\n                if x >= 0 and y >= 0:\n                    tile = self.data[y*self.width+x]\n                    if tile > 0:\n                        tiles[tile-1].draw(toSurface, (x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset)\n\n    def update(self):\n        super(ArrayLayer, self).update()\n\n    def getTileAt(self, x, y):\n        x /= self.parentMap.tilewidth\n        y /= self.parentMap.tileheight\n        tile = self.data[y*self.width+x]\n        if tile == 0:\n            return Layer.EMPTY_TILE\n        return self.parentMap.tiles[tile-1]\n\n    def __unicode__(self):\n        return 'ArrayLayer {}: {}x{} ({})'.format(self.name, self.width, self.height, self.properties)\n\n\n######################\n# DynamicLayer       #\n######################\nclass DynamicLayer(Layer):\n    LAYER_TYPE = 'dynamic'\n\n    def load(self, node):\n        self.name = node.attrib['name']\n        self.width = int(node.attrib['width'])\n        self.height = int(node.attrib['height'])\n\n        self.properties = Maps._loadProperties(node.find('properties'))\n\n        paths = {}\n        self.platforms = {}\n\n        for obj in node.findall('object'):\n            if obj.attrib['type'] == 'path':  # This is a path, store it in paths\n                name = obj.attrib['name']\n                properties = Maps._loadProperties(obj.find('properties'))\n                polyline = [[int(v) for v in i.split(',')] for i in obj.find('polyline').attrib['points'].split(' ')]\n                start = properties.get('start', 'start')\n                direction = properties.get('direction', 'forward')\n                if start == 'begin':\n                    start = 0\n                    direction = 'forward'\n                elif start == 'end':\n                    start = len(polyline)-1\n                    direction = 'backward'\n                direction = 1 if direction == 'forward' else -1\n                paths[name] = {\n                    'x': obj.attrib['x'],\n                    'y': obj.attrib['y'],\n                    'polyline': polyline,\n                    'start': start,\n                    'direction': direction\n                }\n\n                logger.debug('Path {} {}'.format(name, paths[name]))\n            elif obj.attrib['type'] == 'platform':\n                name = obj.attrib['name']\n                properties = Maps._loadProperties(obj.find('properties'))\n                startX, startY = int(obj.attrib['x']), int(obj.attrib['y'])\n                width, height = int(obj.attrib['width']), int(obj.attrib['height'])\n                layer = self.parentMap.getLayer(properties.get('layer', None))\n                tiles = []\n\n                for y in xrange(startY, startY+height, self.parentMap.tileheight):\n                    t = []\n                    for x in xrange(startX, startX+width, self.parentMap.tilewidth):\n                        t.append(layer.getTileAt(x, y))\n                    tiles.append(t)\n\n                p = Platform(startX, startY, width, height, properties.get('path', None), tiles, properties.get('sticky', False))\n                self.platforms[obj.attrib['name']] = p\n\n                logger.debug('Platform {}'.format(p))\n\n            # Get obj properties to know that is this\n        # After loading, add paths to Platforms\n        for p in self.platforms.itervalues():\n            p.path = paths[p.path]\n\n    def draw(self, toSurface, x=0, y=0, width=0, height=0):\n        for obj in self.platforms.itervalues():\n            obj.draw(toSurface, x, y)\n\n    def update(self):\n        for obj in self.platforms.itervalues():\n            obj.update()\n\n\n######################\n# Map                #\n######################\nclass Map(object):\n    def __init__(self, mapId, path, properties={}):\n        self.id = mapId\n        self.path = resource_path(path)\n        self.reset()\n\n    def __getLayers(self, layersNames):\n        if layersNames is None:\n            layersNames = self.layers_names\n        return layersNames\n\n    def reset(self, fromNode=None):\n        self.width = self.height = self.tilewidth = self.tileheight = 0\n        self.tilesets = {}\n        self.layers_names = []\n        self.holders_names = []\n        self.layers = {}\n        self.tiles = []\n        self.properties = {}\n        if fromNode is not None:\n            self.width = int(fromNode.attrib['width'])\n            self.height = int(fromNode.attrib['height'])\n            self.tilewidth = int(fromNode.attrib['tilewidth'])\n            self.tileheight = int(fromNode.attrib['tileheight'])\n            self.properties = Maps._loadProperties(fromNode.find('properties'))\n\n    def load(self):\n        mapPath = os.path.dirname(self.path)\n\n        tree = ET.parse(self.path)\n        root = tree.getroot()  # Map element\n\n        logger.debug('Loading map \"{}\" in folder \"{}\"'.format(self.id, mapPath))\n\n        self.reset(root)\n\n        for tileSet in root.findall('tileset'):\n            ts = TileSet(self)\n            ts.load(mapPath, tileSet)\n\n            self.tilesets[ts.name] = ts\n\n            self.tiles.extend(ts.tiles)\n\n        # Now load map data into layers, we understand right now only base 64\n        # This loads the standard tiles layers\n        for layer in root.findall('layer'):\n            l = ArrayLayer(self)\n            l.load(layer)\n\n            self.addLayer(l)\n\n            # Now load \"object\" layers and convert them to DynamicLayer\n        for layer in root.findall('objectgroup'):\n            l = DynamicLayer(self)\n            l.load(layer)\n\n            self.addLayer(l)\n\n    def addLayer(self, layer):\n        if layer.getProperty('holder') == 'True':\n            logger.debug('Layer {} is a holder layer'.format(layer.name))\n            self.holders_names.append(layer.name)\n        else:\n            self.layers_names.append(layer.name)\n        self.layers[layer.name] = layer\n\n    def getLayer(self, layerName):\n        return self.layers.get(layerName)\n\n    def draw(self, surface, x=0, y=0, width=0, height=0, layersNames=None):\n        layersNames = self.__getLayers(layersNames)\n\n        for layerName in layersNames:\n            self.layers[layerName].draw(surface, x, y, width, height)\n\n    def update(self, layersNames=None):\n        layersNames = self.__getLayers(layersNames)\n\n        # Keep order intact\n        for layerName in layersNames:\n            self.layers[layerName].update()\n\n        for ts in self.tilesets.itervalues():\n            ts.update()\n\n    def getProperty(self, propertyName):\n        '''\n        Obtains a property associated whit this map\n        '''\n        return self.properties.get(propertyName)\n\n    def __unicode__(self):\n        return 'Map {}: {}x{} with tile of  ({})'.format(self.path, self.width, self.height, self.tilewidth, self.tileheight, self.properties)\n\n\n# Loads a TMX file\n# TMX properties that will be used:\n# For layer:\n#   * holder: Defaults to False\n#     Indicates that this layer will never been drawn\n#     This will be used as a \"holder\" for \"object layers\" tiles/sprites\n#   * collission: Defaults to False\n#     If set to false, collisions against this map will not been check against this layer\n# Object layers are used this way: (objectgroups)\n#   Rects define the \"source tiles\" for an object (platform or not)\n#   polylines defines paths\n#   Object types:\n#     * platform, Object that moves and translates the \"holding\" objects with it\n#     * path, Used to describe a path, not drawn (must be set in polilynes for maybe future increased use of this)\n#     * object, Simple object. If no type is specified, this is the default type for objects\n#   Objects properties:\n#     * speed: Speed for this object (used by moving platforms)\n#     * path: specifies the path \"object\" that will describe the movement of this (right now, polylines)\n#     * layer: For object and platform types is required, and indicates where to get from the \"sprites\"\n\nclass Maps(object):\n    def __init__(self):\n        self._maps = {}\n\n    def add(self, mapId, path):\n        self._maps[mapId] = Map(mapId, path)\n\n    @staticmethod\n    def _loadProperties(node):\n        props = {}\n        if node is not None:\n            for p in node.findall('property'):\n                logger.debug('Found property {}={}'.format(p.attrib['name'], p.attrib['value']))\n                props[p.attrib['name']] = p.attrib['value']\n        return props\n\n    def load(self, mapId=None, force=False):\n        if mapId is None:\n            for mId in self._maps:\n                self.load(mId, force)\n            return\n\n        if mapId not in self._maps:\n            return False\n\n        m = self._maps[mapId]\n        m.load()\n\n    def get(self, mapId):\n        return self._maps[mapId]\n\n    def __unicode__(self):\n        r = ''\n        for v in self._maps:\n            r += unicode(v)\n",
 			"file": "resources/resources/maps.py",
-			"file_size": 19281,
-			"file_write_time": 130536908512092238,
 			"settings":
 			{
-				"buffer_size": 19281,
+				"buffer_size": 21966,
 				"line_ending": "Unix"
 			}
 		}
@@ -801,6 +798,8 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"print",
+			"Segment",
 			"t",
 			"__loadTilesProperties",
 			"__loadProperties",
@@ -926,9 +925,7 @@
 			"render(request,",
 			"render",
 			"template",
-			".new-ticker",
-			"news-ticker",
-			".demo3"
+			".new-ticker"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -936,6 +933,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"PathSegment",
 			"_loadTilesProperties",
 			"_loadProperties",
 			"fromXml",
@@ -992,7 +990,7 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -1001,15 +999,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2673,
+						"buffer_size": 2674,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2673,
-								2673
+								2507,
+								2507
 							]
 						],
 						"settings":
@@ -1123,10 +1121,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 841.0,
+						"translation.y": 918.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -1256,11 +1254,11 @@
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.x": -0.0,
+						"translation.y": 216.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -1269,15 +1267,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 19281,
+						"buffer_size": 21966,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								248,
-								248
+								16438,
+								16438
 							]
 						],
 						"settings":
@@ -1391,10 +1389,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 7589.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]

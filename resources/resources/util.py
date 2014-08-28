@@ -5,6 +5,7 @@ import sys
 import os
 
 
+# For loading from pyinstaller
 def resource_path(relative):
 
     if hasattr(sys, "_MEIPASS"):
