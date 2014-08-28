@@ -14,6 +14,76 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+class PathSegment(object):
+    def __init__(self, x, y, x_offset, y_offset):
+        self.x, self.y, self.x_offset, self.y_offset = x, y, x_offset, y_offset
+
+        # Calculate gradient
+        if x_offset == 0 and y_offset == 0:
+            self.x_step = self.y_step = 0
+            self.x_at_end = self.y_at_end = lambda x: True
+        else:
+            div = abs(x_offset) if abs(x_offset) > abs(y_offset) else abs(y_offset)
+            self.x_step = (x_offset << 16) / div
+
+            if self.x_step > 0:
+                self.x_at_end = lambda x: x >= self.x + self.x_offset
+            else:
+                self.x_at_end = lambda x: x <= self.x + self.x_offset
+
+            self.y_step = (y_offset << 16) / div
+
+            if self.y_step > 0:
+                self.y_at_end = lambda y: y >= self.y + self.y_offset
+            else:
+                self.y_at_end = lambda y: y <= self.y + self.y_offset
+
+    def getCoords(self, position, step):
+        '''
+        Very aproximate position using only integers
+        '''
+        position *= step
+        x, y = self.x + ((self.x_step*position) >> 16), self.y + ((self.y_step*position) >> 16)
+        if self.x_at_end(x) and self.y_at_end(y):
+            return None  # Out of line
+        return (x, y)
+
+    def __unicode__(self):
+        return 'PathSegment: ({},{})-({},{}) {},{}'.format(self.x, self.y, self.x + self.x_offset, self.y + self.y_offset, self.x_step, self.y_step)
+
+
+######################
+# Path               #
+######################
+class Path(object):
+    def __init__(self, segments, step, bounce=False):
+        self.segments = segments
+        self.step = step
+        self.reset()
+
+    def reset(self):
+        self.segment = 0
+        self.segment_pos = 0
+
+    def iterate(self):
+        if self.segment >= len(self.segments):
+            return None
+        pos = self.segments[self.segment].getCoords(self.segment_pos, self.step)
+        if pos is None:
+            self.segment += 1
+            self.segment_pos = 0
+            pos = self.iterate()
+            if pos is None:
+                self.reset()
+                return self.iterate()
+        else:
+            self.segment_pos += 1
+        return pos
+
+    def __unicode__(self):
+        return 'Path: {}'.format([unicode(s) for s in self.segments])
+
+
 ######################
 # Tile               #
 ######################
@@ -66,6 +136,8 @@ class Tile(object):
         '''
         return self.properties.get(propertyName)
 
+    # This x,y coordinates are screen coordinates
+    # TileArray, Platform, etc.. converts coordinates of objects acordly beforw invoking it
     def draw(self, toSurface, x, y):
         if self._surface is not None:
             toSurface.blit(self._surface, (x, y))
@@ -90,19 +162,31 @@ class Tile(object):
 
 
 class Platform(object):
-    def __init__(self, origX, origY, path, tiles, sticky):
-        self.x = self.origX = origX
-        self.y = self.origY = origY
+    def __init__(self, origX, origY, width, height, path, tiles, sticky):
+        self.rect = pygame.Rect(origX, origY, width, height)
         self.path = path
         self.tiles = tiles
         self.sticky = sticky
 
     def draw(self, toSurface, x, y):
-        x = self.x - x
-        y = self.y - y
-        for t in self.tiles:
-            t.draw(toSurface, x, y)
-            x += t.getTileSet().tilewidth
+        '''
+        Draws to specied surface, to coords x, y
+        '''
+        rect = pygame.Rect((x, y), toSurface.get_size())
+        if not rect.colliderect(self.rect):
+            return
+        # Translate start to screen coordinates
+        x = self.rect.left - x
+        y = self.rect.top - y
+        for row in self.tiles:
+            xx = x
+            for t in row:
+                t.draw(toSurface, xx, y)  # tile drawing is in screen coordinates, that is what we have on x & y
+                xx += t.getTileSet().tilewidth
+            y += t.getTileSet().tileheight
+
+    def update(self):
+        self.rect.left, self.rect.top = self.path.iterate()
 
 
 ######################
@@ -150,7 +234,7 @@ class TileSet(object):
         self.__loadTilesProperties(node)
 
     def __loadExternalTileset(self, relativePath, path):
-        print "Loading tileset ", path
+        logger.debug('Loading external tileset: {}'.format(path))
         tree = ET.parse(os.path.join(relativePath, path))
         root = tree.getroot()  # Map element
         self.__loadTileSet(relativePath, root)
@@ -169,7 +253,7 @@ class TileSet(object):
         tilesPerRow = self.surface.get_width() / (self.tilewidth+self.tilespacing)
         tilesRows = self.surface.get_height() / (self.tileheight+self.tilespacing)
 
-        self.tiles = range(tilesRows*tilesPerRow)  # Gens a dummy array of this len
+        self.tiles = [None] * (tilesRows*tilesPerRow)  # Gens a dummy array of this len
 
         logger.debug('Tiles Grid size: {}x{}'.format(tilesPerRow, tilesRows))
         for y in xrange(tilesRows):
@@ -320,6 +404,12 @@ class DynamicLayer(Layer):
         self.height = int(node.attrib['height'])
 
         self.properties = Maps._loadProperties(node.find('properties'))
+        tiles_layer_name = self.properties.get('layer', None)
+
+        self.tiles_layer = self.parentMap.getLayer(tiles_layer_name)
+        if self.tiles_layer is None:
+            logger.error('Linking to an unexistent layer: {}'.format(tiles_layer_name))
+            return
 
         paths = {}
         self.platforms = {}
@@ -329,49 +419,62 @@ class DynamicLayer(Layer):
                 name = obj.attrib['name']
                 properties = Maps._loadProperties(obj.find('properties'))
                 polyline = [[int(v) for v in i.split(',')] for i in obj.find('polyline').attrib['points'].split(' ')]
-                start = properties.get('start', 'start')
-                direction = properties.get('direction', 'forward')
-                if start == 'begin':
-                    start = 0
-                    direction = 'forward'
-                elif start == 'end':
-                    start = len(polyline)-1
-                    direction = 'backward'
-                direction = 1 if direction == 'forward' else -1
-                paths[name] = {
-                    'x': obj.attrib['x'],
-                    'y': obj.attrib['y'],
-                    'polyline': polyline,
-                    'start': start,
-                    'direction': direction
-                }
+                step = int(properties.get('step', '1'))
+                bounce = properties.get('bounce', 'False') == 'False'
 
-                logger.debug('Path {} {}'.format(name, paths[name]))
+                if len(polyline) > 0:
+                    orig_x, orig_y = int(obj.attrib['x']), int(obj.attrib['y'])
+                    x, y = orig_x + polyline[0][0], orig_y + polyline[0][1]
+                    polyline = polyline[1:]
+
+                    segments = []
+                    for line in polyline:
+                        xf, yf = orig_x + line[0], orig_y + line[1]
+                        segments.append(PathSegment(x, y, xf-x, yf-y))
+                        x = orig_x + line[0]
+                        y = orig_y + line[1]
+
+                    paths[name] = Path(segments, step, bounce)
+
+                    logger.debug('Path {} {}'.format(name, paths[name]))
             elif obj.attrib['type'] == 'platform':
                 name = obj.attrib['name']
                 properties = Maps._loadProperties(obj.find('properties'))
                 startX, startY = int(obj.attrib['x']), int(obj.attrib['y'])
-                width, height = int(obj.attrib['width']), int(obj.attrib['height'])
-                layer = self.parentMap.getLayer(properties.get('layer', None))
+                width, height = int(obj.attrib.get('width', self.parentMap.tilewidth)), int(obj.attrib.get('height', self.parentMap.tileheight))
                 tiles = []
-                for y in xrange(startY, startY+height, self.parentMap.tileheight):
-                    for x in xrange(startX, startX+width, self.parentMap.tilewidth):
-                        tiles.append(layer.getTileAt(x, y))
-                print [t.id() for t in tiles]
 
-                p = Platform(startX, startY, properties.get('path', None), tiles, properties.get('sticky', False))
+                for y in xrange(startY, startY+height, self.parentMap.tileheight):
+                    t = []
+                    for x in xrange(startX, startX+width, self.parentMap.tilewidth):
+                        t.append(self.tiles_layer.getTileAt(x, y))
+                    tiles.append(t)
+
+                p = Platform(startX, startY, width, height, properties.get('path', None), tiles, properties.get('sticky', False))
                 self.platforms[obj.attrib['name']] = p
 
                 logger.debug('Platform {}'.format(p))
 
             # Get obj properties to know that is this
         # After loading, add paths to Platforms
-        for p in self.platforms.itervalues():
-            p.path = paths[p.path]
+        erroneous = []
+        for k, p in self.platforms.iteritems():
+            try:
+                p.path = paths[p.path]
+            except:
+                logger.error('Path {} doesn\'t exists!!'.format(p.path))
+                erroneous.append(k)
+
+        for k in erroneous:
+            del self.platforms[k]
 
     def draw(self, toSurface, x=0, y=0, width=0, height=0):
         for obj in self.platforms.itervalues():
             obj.draw(toSurface, x, y)
+
+    def update(self):
+        for obj in self.platforms.itervalues():
+            obj.update()
 
 
 ######################
@@ -421,20 +524,16 @@ class Map(object):
 
             self.tiles.extend(ts.tiles)
 
-        # Now load map data into layers, we understand right now only base 64
-        # This loads the standard tiles layers
-        for layer in root.findall('layer'):
-            l = ArrayLayer(self)
-            l.load(layer)
-
-            self.addLayer(l)
-
-            # Now load "object" layers and convert them to DynamicLayer
-        for layer in root.findall('objectgroup'):
-            l = DynamicLayer(self)
-            l.load(layer)
-
-            self.addLayer(l)
+        # Load Layer
+        # Remember that object layers must reference tiles layer, and that tiles layer must
+        # be BEFORE (i.e. down in the tiled editor layers list) the objects layer because reference must
+        # exists. To avoit problems, always put (if posible) linked tiles layers at bottom in tiled so they get
+        # loaded FIRST
+        for elem in root:
+            if elem.tag in ('layer', 'objectgroup'):
+                l = ArrayLayer(self) if elem.tag == 'layer' else DynamicLayer(self)
+                l.load(elem)
+                self.addLayer(l)
 
     def addLayer(self, layer):
         if layer.getProperty('holder') == 'True':

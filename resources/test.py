@@ -92,7 +92,7 @@ logging.basicConfig(
 
 gc = resources.game_state.GameControl(WIDTH, HEIGHT)
 gc.add(GameTest('state0'))
-gc.add(GameTest('state1'))
+#gc.add(GameTest('state1'))
 
 #import cProfile
 
