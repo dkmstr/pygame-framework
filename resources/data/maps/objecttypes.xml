@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objecttypes>
+ <objecttype name="path" color="#ff0741"/>
+ <objecttype name="platform" color="#5a13e8"/>
+</objecttypes>

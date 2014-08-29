@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"Lo",
+				"loadProperties  (function)"
+			],
+			[
 				"tiles_layer",
 				"tiles_layer_name	(statement)"
 			],
@@ -510,10 +514,6 @@
 			[
 				"mouse",
 				"mouseleave	mouseleave"
-			],
-			[
-				"add",
-				"addClass	addClass"
 			]
 		]
 	},
@@ -523,7 +523,7 @@
 			"file": "resources/test.py",
 			"settings":
 			{
-				"buffer_size": 2674,
+				"buffer_size": 2681,
 				"line_ending": "Unix"
 			}
 		},
@@ -531,15 +531,7 @@
 			"file": "resources/resources/images.py",
 			"settings":
 			{
-				"buffer_size": 1787,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "resources/resources/maps.py",
-			"settings":
-			{
-				"buffer_size": 21966,
+				"buffer_size": 1761,
 				"line_ending": "Unix"
 			}
 		}
@@ -650,21 +642,36 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"/home/dkmaster/projects/pygame",
+		"/home/dkmaster/projects/pygame/resources",
+		"/home/dkmaster/projects/pygame/resources/data",
+		"/home/dkmaster/projects/pygame/resources/data/test"
+	],
 	"file_history":
 	[
 		"/home/dkmaster/projects/pygame/resources/resources/game_state.py",
+		"/home/dkmaster/projects/pygame/resources/resources/paths/__init__.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/tileset.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/maps.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/__init__.py",
+		"/home/dkmaster/projects/pygame/resources/resources/__init__.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/utils.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/tiles.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/layers.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/objects.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps.py",
+		"/home/dkmaster/projects/pygame/resources/resources/util.py",
 		"/home/dkmaster/projects/pygame/resources/parallax.py",
 		"/home/dkmaster/projects/pygame/resources/test_windows.spec",
 		"/home/dkmaster/projects/pygame/game/test.py",
 		"/home/dkmaster/projects/pygame/resources/test.spec",
 		"/home/dkmaster/projects/pygame/parallax/test.py",
 		"/home/dkmaster/projects/pygame/states/test.py",
-		"/home/dkmaster/projects/pygame/resources/resources/__init__.py",
 		"/home/dkmaster/projects/pygame/tile/test.py",
 		"/home/dkmaster/projects/pygame/resources/test.py",
-		"/home/dkmaster/projects/pygame/resources/resources/util.py",
 		"/home/dkmaster/projects/pygame/resources/resources/images.py",
-		"/home/dkmaster/projects/pygame/resources/resources/maps.py",
 		"/home/dkmaster/projects/pygame/states/resources/game_state.py",
 		"/home/dkmaster/projects/pygame/states/resources/__init__.py",
 		"/home/dkmaster/projects/pygame/parallax/parallax.py",
@@ -771,15 +778,7 @@
 		"/home/dkmaster/projects/udsenterprise.com/blogango/cms_app.py",
 		"/home/dkmaster/projects/udsenterprise.com/wiki/plugins/haystack/__init__.py",
 		"/home/dkmaster/projects/udsenterprise.com/zinnia/cms_app.py",
-		"/home/dkmaster/projects/udsenterprise.com/zinnia/cms_urls.py",
-		"/home/dkmaster/projects/udsenterprise.com/manage.py",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/templates/uds_users/recover-password.html",
-		"/home/dkmaster/projects/udsenterprise.com/knowledge/templates/django_knowledge/index.html",
-		"/home/dkmaster/projects/udsenterprise.com/wiki/templates/wiki/base_site.html",
-		"/home/dkmaster/projects/udsenterprise.com/wiki/templates/wiki/base.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/templates/uds_users/mail-sent.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/templates/uds_users/password-changed.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/templates/uds_users/registration-confirmed.html"
+		"/home/dkmaster/projects/udsenterprise.com/zinnia/cms_urls.py"
 	],
 	"find":
 	{
@@ -798,6 +797,12 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"resource",
+			"resId",
+			"_resources",
+			"_load",
+			"Platform",
+			"paths",
 			"print",
 			"Segment",
 			"t",
@@ -919,13 +924,7 @@
 			"rendeer",
 			"context = RequestContext",
 			"render(request, ",
-			"render",
-			"def ",
-			"def",
-			"render(request,",
-			"render",
-			"template",
-			".new-ticker"
+			"render"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -933,6 +932,11 @@
 		"regex": false,
 		"replace_history":
 		[
+			"img",
+			"imgId",
+			"_images",
+			"ObjectWithPath",
+			"pathList",
 			"PathSegment",
 			"_loadTilesProperties",
 			"_loadProperties",
@@ -999,15 +1003,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2674,
+						"buffer_size": 2681,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2507,
-								2507
+								446,
+								446
 							]
 						],
 						"settings":
@@ -1116,12 +1120,12 @@
 							},
 							"codeintel_tooltips": "popup",
 							"sublime_auto_complete": true,
-							"syntax": "Packages/Djaneiro/Syntaxes/Python Django.tmLanguage",
+							"syntax": "Packages/Python/Python.tmLanguage",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 918.0,
+						"translation.y": 175.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -1133,15 +1137,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1787,
+						"buffer_size": 1761,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1787,
-								1787
+								1489,
+								1489
 							]
 						],
 						"settings":
@@ -1250,146 +1254,12 @@
 							},
 							"codeintel_tooltips": "popup",
 							"sublime_auto_complete": true,
-							"syntax": "Packages/Djaneiro/Syntaxes/Python Django.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": -0.0,
-						"translation.y": 216.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "resources/resources/maps.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 21966,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								16438,
-								16438
-							]
-						],
-						"settings":
-						{
-							"codeintel": true,
-							"codeintel_config":
-							{
-								"JavaScript":
-								{
-									"codeintel_max_recursive_dir_depth": 2,
-									"codeintel_scan_files_in_project": false,
-									"javascriptExtraPaths":
-									[
-									]
-								},
-								"PHP":
-								{
-									"codeintel_max_recursive_dir_depth": 5,
-									"codeintel_scan_files_in_project": false,
-									"phpExtraPaths":
-									[
-									]
-								},
-								"Python":
-								{
-									"env":
-									{
-									}
-								}
-							},
-							"codeintel_enabled_languages":
-							[
-								"JavaScript",
-								"Mason",
-								"XBL",
-								"XUL",
-								"RHTML",
-								"SCSS",
-								"Python",
-								"HTML",
-								"Ruby",
-								"Python3",
-								"XML",
-								"Sass",
-								"XSLT",
-								"Django",
-								"HTML5",
-								"Perl",
-								"CSS",
-								"Twig",
-								"Less",
-								"Smarty",
-								"Node.js",
-								"Tcl",
-								"TemplateToolkit",
-								"PHP"
-							],
-							"codeintel_live": true,
-							"codeintel_live_enabled_languages":
-							[
-								"JavaScript",
-								"Mason",
-								"XBL",
-								"XUL",
-								"RHTML",
-								"SCSS",
-								"Python",
-								"HTML",
-								"Ruby",
-								"Python3",
-								"XML",
-								"Sass",
-								"XSLT",
-								"Django",
-								"HTML5",
-								"Perl",
-								"CSS",
-								"Twig",
-								"Less",
-								"Smarty",
-								"Node.js",
-								"Tcl",
-								"TemplateToolkit",
-								"PHP"
-							],
-							"codeintel_max_recursive_dir_depth": 10,
-							"codeintel_scan_exclude_dir":
-							{
-								"JavaScript":
-								[
-									"/build/",
-									"/min/"
-								]
-							},
-							"codeintel_scan_files_in_project": true,
-							"codeintel_selected_catalogs":
-							[
-								"PyWin32",
-								"jQuery",
-								"Rails"
-							],
-							"codeintel_snippets": true,
-							"codeintel_syntax_map":
-							{
-								"Python Django": "Python"
-							},
-							"codeintel_tooltips": "popup",
-							"sublime_auto_complete": true,
-							"syntax": "Packages/Djaneiro/Syntaxes/Python Django.tmLanguage",
+							"syntax": "Packages/Python/Python.tmLanguage",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 7589.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -1471,6 +1341,7 @@
 		],
 		"width": 0.0
 	},
+	"selected_group": 0,
 	"settings":
 	{
 	},

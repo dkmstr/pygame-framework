@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 import base64
 import struct
+import pygame
+import os
 from resources import paths
 from tiles import Tile
 from objects import ObjectWithPath
@@ -29,17 +31,39 @@ class Layer(object):
     def setProperties(self, properties):
         self.properties = properties
         # Set custom "flags" based on properties
+        self.updateAttributes()
 
     def updateAttributes(self):
         self.visible = self.properties.get('visible', 'True') == 'True'
+        self.holder = self.properties.get('holder', 'False') == 'True'
+        self.parallax = self.properties.get('parallax', 'False') == 'True'
+        self.parallax_factor = (
+            int(self.properties.get('parallax_factor_x', '100')),
+            int(self.properties.get('parallax_factor_y', '100'))
+        )
 
     def load(self, node):
         pass
 
     def update(self):
+        self.on_update()
+
+    def on_update(self):
         pass
 
+    # Draw method for layer, better override "on_draw" so we can
+    # calculate commono things here (as a parallax efect, for example)
     def draw(self, toSurface, x=0, y=0, width=0, height=0):
+        if self.parallax is True:
+            x = x * self.parallax_factor[0] / 100
+            y = y * self.parallax_factor[1] / 100
+
+        width = toSurface.get_width() if width <= 0 else width
+        height = toSurface.get_height() if height <= 0 else height
+
+        self.on_draw(toSurface, x, y, width, height)
+
+    def on_draw(self, toSurface, x, y, width, height):
         pass
 
     def getType(self):
@@ -69,20 +93,17 @@ class ArrayLayer(Layer):
         self.width = int(node.attrib['width'])
         self.height = int(node.attrib['height'])
 
-        self.properties = loadProperties(node.find('properties'))
+        self.setProperties(loadProperties(node.find('properties')))
 
         data = node.find('data')
         if data.attrib['encoding'] != 'base64':
             raise Exception('No base 64 encoded')
         self.data = struct.unpack('<' + 'I'*(self.width*self.height), base64.b64decode(data.text))
 
-    def draw(self, toSurface, x=0, y=0, width=0, height=0):
+    def on_draw(self, toSurface, x, y, width, height):
         tiles = self.parentMap.tiles
         tileWidth = self.parentMap.tilewidth
         tileHeight = self.parentMap.tileheight
-
-        width = toSurface.get_width() if width <= 0 else width
-        height = toSurface.get_height() if height <= 0 else height
 
         xStart, xLen = x / tileWidth, (width + tileWidth - 1) / tileWidth + 1
         yStart, yLen = y / tileHeight, (height + tileHeight - 1) / tileHeight + 1
@@ -103,8 +124,8 @@ class ArrayLayer(Layer):
                     if tile > 0:
                         tiles[tile-1].draw(toSurface, (x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset)
 
-    def update(self):
-        super(ArrayLayer, self).update()
+    def on_update(self):
+        pass
 
     def getTileAt(self, x, y):
         x /= self.parentMap.tilewidth
@@ -129,7 +150,7 @@ class DynamicLayer(Layer):
         self.width = int(node.attrib['width'])
         self.height = int(node.attrib['height'])
 
-        self.properties = loadProperties(node.find('properties'))
+        self.setProperties(loadProperties(node.find('properties')))
         tiles_layer_name = self.properties.get('layer', None)
 
         self.tiles_layer = self.parentMap.getLayer(tiles_layer_name)
@@ -194,10 +215,40 @@ class DynamicLayer(Layer):
         for k in erroneous:
             del self.platforms[k]
 
-    def draw(self, toSurface, x=0, y=0, width=0, height=0):
+    def on_draw(self, toSurface, x, y, width, height):
         for obj in self.platforms.itervalues():
             obj.draw(toSurface, x, y)
 
-    def update(self):
+    def on_update(self):
         for obj in self.platforms.itervalues():
             obj.update()
+
+    def __unicode__(self):
+        return 'Dinamyc Layer'
+
+
+class ImageLayer(Layer):
+    LAYER_TYPE = 'image'
+
+    def load(self, node):
+        logger.debug('Loading image Layer')
+        self.name = node.attrib['name']
+        self.width = int(node.attrib['width'])
+        self.height = int(node.attrib['height'])
+        self.image_path = os.path.join(self.parentMap.mapPath, node.find('image').attrib['source'])
+        self.image = (pygame.image.load(self.image_path))
+        self.cached_size = (-1, -1)
+
+        self.setProperties(loadProperties(node.find('properties')))
+        logger.debug('Loaded image Layer {}'.format(self))
+
+    def on_draw(self, toSurface, x, y, width, height):
+        if width != self.cached_size[0] or height != self.cached_size[1]:
+            logger.debug('Rescaling image layer to {}x{}'.format(width, height))
+            self.cached_size = (width, height)
+            self.cached_image = pygame.transform.scale(self.image, self.cached_size).convert()
+
+        toSurface.blit(self.cached_image, (0, 0))
+
+    def __unicode__(self):
+        return 'Image Layer: {}'.format(self.image_path)

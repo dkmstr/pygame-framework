@@ -8,6 +8,7 @@ from resources.util import resource_path
 from tileset import TileSet
 from layers import ArrayLayer
 from layers import DynamicLayer
+from layers import ImageLayer
 from utils import loadProperties
 
 import logging
@@ -21,12 +22,22 @@ logger = logging.getLogger(__name__)
 class Map(object):
     def __init__(self, mapId, path, properties={}):
         self.id = mapId
-        self.path = resource_path(path)
+        self.mapFile = resource_path(path)
+        self.mapPath = os.path.dirname(self.mapFile)
         self.reset()
 
     def __getLayers(self, layersNames):
         if layersNames is None:
             layersNames = self.layers_names
+        else:
+            layersNames = [l for l in layersNames if l in self.layers_names]
+        return layersNames
+
+    def __getParallaxLayersNames(self, layersNames):
+        if layersNames is None:
+            layersNames = self.parallax_names
+        else:
+            layersNames = [l for l in layersNames if l in self.parallax_names]
         return layersNames
 
     def reset(self, fromNode=None):
@@ -34,6 +45,7 @@ class Map(object):
         self.tilesets = {}
         self.layers_names = []
         self.holders_names = []
+        self.parallax_names = []
         self.layers = {}
         self.tiles = []
         self.properties = {}
@@ -45,18 +57,16 @@ class Map(object):
             self.properties = loadProperties(fromNode.find('properties'))
 
     def load(self):
-        mapPath = os.path.dirname(self.path)
-
-        tree = ET.parse(self.path)
+        tree = ET.parse(self.mapFile)
         root = tree.getroot()  # Map element
 
-        logger.debug('Loading map "{}" in folder "{}"'.format(self.id, mapPath))
+        logger.debug('Loading map "{}" in folder "{}"'.format(self.id, self.mapPath))
 
         self.reset(root)
 
         for tileSet in root.findall('tileset'):
             ts = TileSet(self)
-            ts.load(mapPath, tileSet)
+            ts.load(tileSet)
 
             self.tilesets[ts.name] = ts
 
@@ -67,9 +77,14 @@ class Map(object):
         # be BEFORE (i.e. down in the tiled editor layers list) the objects layer because reference must
         # exists. To avoit problems, always put (if posible) linked tiles layers at bottom in tiled so they get
         # loaded FIRST
+        t = {
+            'layer': ArrayLayer,
+            'objectgroup': DynamicLayer,
+            'imagelayer': ImageLayer
+        }
         for elem in root:
-            if elem.tag in ('layer', 'objectgroup'):
-                l = ArrayLayer(self) if elem.tag == 'layer' else DynamicLayer(self)
+            if elem.tag in ('layer', 'objectgroup', 'imagelayer'):
+                l = t[elem.tag](self)
                 l.load(elem)
                 self.addLayer(l)
 
@@ -77,6 +92,9 @@ class Map(object):
         if layer.getProperty('holder') == 'True':
             logger.debug('Layer {} is a holder layer'.format(layer.name))
             self.holders_names.append(layer.name)
+        elif layer.getProperty('parallax') == 'True':
+            logger.debug('Layer {} is a parallax layer'.format(layer.name))
+            self.parallax_names.append(layer.name)
         else:
             self.layers_names.append(layer.name)
         self.layers[layer.name] = layer
@@ -85,10 +103,10 @@ class Map(object):
         return self.layers.get(layerName)
 
     def draw(self, surface, x=0, y=0, width=0, height=0, layersNames=None):
-        layersNames = self.__getLayers(layersNames)
-
-        for layerName in layersNames:
-            self.layers[layerName].draw(surface, x, y, width, height)
+        # First, we draw "parallax" layers
+        for d in (self.__getParallaxLayersNames(layersNames), self.__getLayers(layersNames)):
+            for layerName in d:
+                self.layers[layerName].draw(surface, x, y, width, height)
 
     def update(self, layersNames=None):
         layersNames = self.__getLayers(layersNames)
@@ -108,6 +126,7 @@ class Map(object):
 
     def __unicode__(self):
         return 'Map {}: {}x{} with tile of  ({})'.format(self.path, self.width, self.height, self.tilewidth, self.tileheight, self.properties)
+
 
 class Maps(object):
     def __init__(self):

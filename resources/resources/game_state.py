@@ -147,6 +147,7 @@ class GameControl(object):
             if new_state is not None:
                 logger.debug('Got new state: {}'.format(new_state))
                 if self.switch(new_state) is False:
+                    pygame.quit()
                     return
             pygame.display.flip()
             # Nothing more to do, this is the basic loop

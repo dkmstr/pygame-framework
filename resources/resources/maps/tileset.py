@@ -28,7 +28,7 @@ class TileSet(object):
         self.animated_tiles = []
         self.properties = {}
         self.tiles_properties = {}
-        self.parent_map = parentMap
+        self.parentMap = parentMap
 
     def __loadTilesProperties(self, node):
         self.tiles_properties = {}
@@ -36,7 +36,7 @@ class TileSet(object):
             tid = int(t.attrib['id'])
             self.tiles_properties[tid] = loadProperties(t.find('properties'))
 
-    def __loadTileSet(self, relativePath, node):
+    def __loadTileSet(self, node):
         image = node.find('image')
 
         self.name = node.attrib['name']
@@ -47,7 +47,7 @@ class TileSet(object):
         self.image_width = int(image.attrib['width'])
         self.image_height = int(image.attrib['height'])
 
-        image = pygame.image.load(os.path.join(relativePath, self.image_path))
+        image = pygame.image.load(os.path.join(self.parentMap.mapPath, self.image_path))
 
         image = image.convert_alpha()
         image.set_alpha(0, pygame.RLEACCEL)
@@ -57,18 +57,18 @@ class TileSet(object):
         self.properties = loadProperties(node.find('properties'))
         self.__loadTilesProperties(node)
 
-    def __loadExternalTileset(self, relativePath, path):
+    def __loadExternalTileset(self, path):
         logger.debug('Loading external tileset: {}'.format(path))
-        tree = ET.parse(os.path.join(relativePath, path))
+        tree = ET.parse(os.path.join(self.parentMap.mapPath, path))
         root = tree.getroot()  # Map element
-        self.__loadTileSet(relativePath, root)
+        self.__loadTileSet(self.parentMap.mapPath, root)
 
-    def load(self, relativePath, node):
-        logger.debug('Loading tileset in path {}'.format(relativePath))
+    def load(self, node):
+        logger.debug('Loading tileset in path {}'.format(self.parentMap.mapPath))
         if 'source' in node.attrib:
-            self.__loadExternalTileset(relativePath, node.attrib['source'])
+            self.__loadExternalTileset(node.attrib['source'])
         else:
-            self.__loadTileSet(relativePath, node)
+            self.__loadTileSet(node)
 
         self.firstgid = int(node.attrib['firstgid'])
 

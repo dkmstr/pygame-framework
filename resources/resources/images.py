@@ -16,11 +16,11 @@ class Images(object):
     def __init__(self, baseRes):
         logger.debug('baseRes: {}'.format(baseRes))
         self._baseRes = baseRes
-        self._resources = {}
+        self._images = {}
 
-    def addImage(self, resId, path):
-        logger.debug('Adding image {} --> {}'.format(resId, path))
-        self._resources[resId] = {
+    def addImage(self, imgId, path):
+        logger.debug('Adding image {} --> {}'.format(imgId, path))
+        self._images[imgId] = {
             'path': resource_path(path),
             'surface': None,
         }
@@ -31,24 +31,24 @@ class Images(object):
         '''
         display_size = screen.get_size()
         logger.debug('Display size: {}'.format(display_size))
-        for resId, resource in self._resources.iteritems():
+        for imgId, img in self._images.iteritems():
             try:
-                image = (pygame.image.load(resource['path']))
+                image = (pygame.image.load(img['path']))
             except:
                 logger.exception('Image not found!')
 
-            if ".png" in resource['path']:
+            if ".png" in img['path']:
                 image = image.convert_alpha()
             else:
                 image = image.convert()
 
             img_size = image.get_size()
             proportion = float(display_size[1]) / self._baseRes[1]  # Proportion is based on height, not widht
-            logger.debug('Image {0} has {1} size and {2} proportion'.format(resource['path'], img_size, proportion))
+            logger.debug('Image {0} has {1} size and {2} proportion'.format(img['path'], img_size, proportion))
             img_size = (int(img_size[0] * proportion), int(img_size[1] * proportion))
-            logger.debug('Image {0} has {1} size and {2} proportion'.format(resource['path'], img_size, proportion))
+            logger.debug('Image {0} has been changed to {1} size and {2} proportion'.format(img['path'], img_size, proportion))
 
-            resource['surface'] = pygame.transform.scale(image, img_size)
+            img['surface'] = pygame.transform.scale(image, img_size)
 
-    def get(self, resId):
-        return self._resources[resId]['surface']
+    def get(self, imgId):
+        return self._images[imgId]['surface']

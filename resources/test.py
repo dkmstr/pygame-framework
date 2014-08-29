@@ -25,23 +25,23 @@ class GameTest(resources.game_state.GameState):
 
         self.images = resources.images.Images((1280, 2880))
         self.maps = resources.maps.Maps()
-        self.maps.add('level0', 'data/maps/level.tmx')
+        self.maps.add('level0', 'data/test/level-test-0.tmx')
 
         self.map = None
-        self.bg = parallax.ParallaxSurface((WIDTH, HEIGHT), pygame.RLEACCEL)
+        #self.bg = parallax.ParallaxSurface((WIDTH, HEIGHT), pygame.RLEACCEL)
 
     def on_init(self):
-        self.images.addImage('bck1', 'data/images/far-background.png')
-        self.images.addImage('bck2', 'data/images/near-background.png')
-        self.images.load(self.controller.screen)
+        #self.images.addImage('bck1', 'data/images/far-background.png')
+        #self.images.addImage('bck2', 'data/images/near-background.png')
+        #self.images.load(self.controller.screen)
 
         #self.maps.add('level0', 'data/maps/other.tmx')
         self.maps.load()
 
         self.map = self.maps.get('level0')
 
-        self.bg.add_surface(self.images.get('bck1'), 5)
-        self.bg.add_surface(self.images.get('bck2'), 3)
+        #self.bg.add_surface(self.images.get('bck1'), 5)
+        #self.bg.add_surface(self.images.get('bck2'), 3)
 
     def on_enter(self):
         pygame.mixer.music.load(resources.util.resource_path('data/sound/CrEEP_0.ogg'))
@@ -73,13 +73,14 @@ class GameTest(resources.game_state.GameState):
             self.y_speed = 0
 
     def on_frame(self):
-        self.bg.scroll(self.bg_speed)
+        #self.bg.scroll(self.bg_speed)
         self.map.update()
         self.x += self.x_speed
         self.y += self.y_speed
 
     def on_render(self):
-        self.bg.draw(self.controller.screen)
+        #self.bg.draw(self.controller.screen)
+        self.controller.screen.fill(0)
         self.map.draw(self.controller.screen, self.x, self.y)
 
 logging.basicConfig(
