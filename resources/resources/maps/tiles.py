@@ -46,11 +46,11 @@ class Tile(object):
         if self.animationDelay > 0:
             return
         self.animationDelay = self.animationOriginalDelay
-        if self.animationState >= len(self.animation):
+        if self.animationState > len(self.animation):
             self.animationState = 0
             self.resetImage()
         else:
-            self.surface = self.tileSet.getTile(self.animation[self.animationState]).getImage()
+            self.surface = self.tileSet.getTile(self.animation[self.animationState-1]).getOriginalImage()
             self.animationState += 1
 
     def getProperty(self, propertyName):
@@ -64,6 +64,9 @@ class Tile(object):
     def draw(self, toSurface, x, y):
         if self.surface is not None:
             toSurface.blit(self.surface, (x, y))
+
+    def getOriginalImage(self):
+        return self.originalSurface
 
     def getImage(self):
         return self.surface

@@ -26,6 +26,7 @@ class GameTest(resources.game_state.GameState):
         self.images = resources.images.Images((1280, 2880))
         self.maps = resources.maps.Maps()
         self.maps.add('level0', 'data/test/level-test-0.tmx')
+        #self.maps.add('level0', 'data/maps/level.tmx')
 
         self.map = None
         #self.bg = parallax.ParallaxSurface((WIDTH, HEIGHT), pygame.RLEACCEL)
@@ -39,6 +40,9 @@ class GameTest(resources.game_state.GameState):
         self.maps.load()
 
         self.map = self.maps.get('level0')
+        for actorType, actorDataList in self.map.getActorList().iteritems():
+            if actorType == 'Player':
+                self.x, self.y = actorDataList[0][0], actorDataList[0][1]
 
         #self.bg.add_surface(self.images.get('bck1'), 5)
         #self.bg.add_surface(self.images.get('bck2'), 3)

@@ -10,6 +10,7 @@ from layers import ArrayLayer
 from layers import DynamicLayer
 from layers import ImageLayer
 from utils import loadProperties
+from actors import ActorList
 
 import logging
 
@@ -49,6 +50,7 @@ class Map(object):
         self.layers = {}
         self.tiles = []
         self.properties = {}
+        self.actors = ActorList()
         if fromNode is not None:
             self.width = int(fromNode.attrib['width'])
             self.height = int(fromNode.attrib['height'])
@@ -89,7 +91,11 @@ class Map(object):
                 self.addLayer(l)
 
     def addLayer(self, layer):
-        if layer.getProperty('holder') == 'True':
+        logger.debug('Adding layer {} to layer list'.format(layer))
+        if layer.getProperty('actors') == 'True':
+            self.actors.addActorsFromArrayLayer(layer)
+            return   # This layer is completly removed
+        elif layer.getProperty('holder') == 'True':
             logger.debug('Layer {} is a holder layer'.format(layer.name))
             self.holderNames.append(layer.name)
         elif layer.getProperty('parallax') == 'True':
@@ -101,6 +107,9 @@ class Map(object):
 
     def getLayer(self, layerName):
         return self.layers.get(layerName)
+
+    def getActorList(self):
+        return self.actors
 
     def draw(self, surface, x=0, y=0, width=0, height=0, layersNames=None):
         # First, we draw "parallax" layers

@@ -118,9 +118,10 @@ class ArrayLayer(Layer):
         yEnd = self.height if yStart+yLen > self.height else yStart+yLen
 
         for y in xrange(yStart, yEnd):
+            pos = self.width * y
             for x in xrange(xStart, xEnd):
                 if x >= 0 and y >= 0:
-                    tile = self.data[y*self.width+x]
+                    tile = self.data[pos+x]
                     if tile > 0:
                         tiles[tile-1].draw(toSurface, (x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset)
 
@@ -134,6 +135,19 @@ class ArrayLayer(Layer):
         if tile == 0:
             return Layer.EMPTY_TILE
         return self.parentMap.tiles[tile-1]
+
+    def __iter__(self):
+        '''
+         Iterates over all non empty tiles of this map
+         return (x, y, tile) where x,y are integers and tile is an Tile object
+         x and 6 are "Absolute map coords in pixels"
+        '''
+        for y in xrange(0, self.height):
+            pos = self.width * y
+            for x in xrange(0, self.width):
+                tile = self.data[pos+x]
+                if tile > 0:
+                    yield(x*self.parentMap.tileWidth, y*self.parentMap.tileHeight, self.parentMap.tiles[tile-1])
 
     def __unicode__(self):
         return 'ArrayLayer {}: {}x{} ({})'.format(self.name, self.width, self.height, self.properties)
@@ -222,6 +236,10 @@ class DynamicLayer(Layer):
     def onUpdate(self):
         for obj in self.platforms.itervalues():
             obj.update()
+
+    def __iter__(self):
+        for obj in self.platforms.itervalues():
+            yield obj
 
     def __unicode__(self):
         return 'Dinamyc Layer'
