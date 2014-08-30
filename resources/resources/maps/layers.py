@@ -75,6 +75,10 @@ class Layer(object):
     def isVisible(self):
         return self.visible
 
+    # Collisions
+    def getCollisions(self, rect):
+        return ()
+
     def getProperty(self, propertyName):
         '''
         Obtains a property associated whit this layer
@@ -135,6 +139,23 @@ class ArrayLayer(Layer):
         if tile == 0:
             return Layer.EMPTY_TILE
         return self.parentMap.tiles[tile-1]
+
+    def getCollisions(self, rect):
+        tiles = self.parentMap.tiles
+        tileWidth = self.parentMap.tileWidth
+        tileHeight = self.parentMap.tileHeight
+
+        xStart = rect.left / tileWidth
+        xEnd = (rect.right + tileWidth - 2) / tileWidth
+        yStart = rect.top / tileHeight
+        yEnd = (rect.bottom + tileHeight - 2) / tileHeight
+
+        for y in xrange(yStart, yEnd):
+            pos = self.width * y
+            for x in xrange(xStart, xEnd):
+                tile = self.data[pos+x]
+                if tile > 0:
+                    yield (pygame.Rect(x*tileWidth, y*tileHeight, tileWidth, tileHeight), tiles[tile-1])
 
     def __iter__(self):
         '''
@@ -236,6 +257,11 @@ class DynamicLayer(Layer):
     def onUpdate(self):
         for obj in self.platforms.itervalues():
             obj.update()
+
+    def getCollisions(self, rect):
+        for obj in self.platforms.itervalues():
+            if obj.collide(rect):
+                yield (obj.getRect(), obj)
 
     def __iter__(self):
         for obj in self.platforms.itervalues():

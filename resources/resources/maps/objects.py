@@ -33,3 +33,9 @@ class ObjectWithPath(object):
 
     def update(self):
         self.rect.left, self.rect.top = self.path.iterate()
+
+    def getRect(self):
+        return self.rect
+
+    def collide(self, rect):
+        return self.rect.colliderect(rect)

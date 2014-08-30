@@ -6,7 +6,7 @@ import logging
 import pygame
 from pygame.locals import *
 import resources
-import parallax
+from player import Player
 
 WIDTH = 1024
 HEIGHT = 768
@@ -21,9 +21,8 @@ class GameTest(resources.game_state.GameState):
         super(GameTest, self).__init__(name)
 
         self.x_speed = self.y_speed = self.bg_speed = 0
-        self.x = self.y = 0
 
-        self.images = resources.images.Images((1280, 2880))
+        # self.images = resources.images.Images((1280, 2880))
         self.maps = resources.maps.Maps()
         self.maps.add('level0', 'data/test/level-test-0.tmx')
         #self.maps.add('level0', 'data/maps/level.tmx')
@@ -43,6 +42,7 @@ class GameTest(resources.game_state.GameState):
         for actorType, actorDataList in self.map.getActorList().iteritems():
             if actorType == 'Player':
                 self.x, self.y = actorDataList[0][0], actorDataList[0][1]
+                self.player = Player(self.map, self.x, self.y)
 
         #self.bg.add_surface(self.images.get('bck1'), 5)
         #self.bg.add_surface(self.images.get('bck2'), 3)
@@ -79,13 +79,15 @@ class GameTest(resources.game_state.GameState):
     def on_frame(self):
         #self.bg.scroll(self.bg_speed)
         self.map.update()
-        self.x += self.x_speed
-        self.y += self.y_speed
+        self.player.move(self.x_speed, self.y_speed)
+
+        self.player.updateMapDisplayPosition(self.controller.screen)
 
     def on_render(self):
         #self.bg.draw(self.controller.screen)
-        self.controller.screen.fill(0)
-        self.map.draw(self.controller.screen, self.x, self.y)
+        self.map.draw(self.controller.screen)
+        self.player.draw(self.controller.screen)
+
 
 logging.basicConfig(
     filename='log.log',

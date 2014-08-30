@@ -51,6 +51,7 @@ class Map(object):
         self.tiles = []
         self.properties = {}
         self.actors = ActorList()
+        self.displayPosition = (0, 0)
         if fromNode is not None:
             self.width = int(fromNode.attrib['width'])
             self.height = int(fromNode.attrib['height'])
@@ -111,8 +112,10 @@ class Map(object):
     def getActorList(self):
         return self.actors
 
-    def draw(self, surface, x=0, y=0, width=0, height=0, layersNames=None):
+    def draw(self, surface, layersNames=None):
         # First, we draw "parallax" layers
+        x, y = self.displayPosition
+        width, height = surface.get_size()
         for d in (self.__getParallaxLayersNames(layersNames), self.__getLayers(layersNames)):
             for layerName in d:
                 self.layers[layerName].draw(surface, x, y, width, height)
@@ -126,6 +129,19 @@ class Map(object):
 
         for ts in self.tileSets.itervalues():
             ts.update()
+
+    # Current display position of the map
+    def setDisplayPosition(self, x, y):
+        self.displayPosition = (x, y)
+
+    def getDisplayPosition(self):
+        return self.displayPosition
+
+    # Collisions
+    def getCollisions(self, rect, layersNames=None):
+        for layerName in self.__getLayers(layersNames):
+            for col in self.layers[layerName].getCollisions(rect):
+                yield col
 
     def getProperty(self, propertyName):
         '''
