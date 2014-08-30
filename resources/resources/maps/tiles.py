@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-
+import pygame
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,6 +14,10 @@ class Tile(object):
     def __init__(self, tileSet, tileId, surface, properties={}):
         self.tileSet = tileSet
         self.tileId = tileId
+        if tileSet is not None:
+            self.rect = pygame.Rect(0, 0, tileSet.tileWidth, tileSet.tileHeight)
+        else:
+            self.rect = pygame.Rect(0, 0, 0, 0)
         self.originalSurface = self.surface = surface
         self.setProperties(properties)
 
@@ -38,6 +42,9 @@ class Tile(object):
             self.animated = False
             self.animation = None
             self.animationState = None
+            
+        if self.properties.get('height') is not None:
+            self.rect.height = int(self.properties.get('height'))
 
     def update(self):
         if self.animated is False:
@@ -63,7 +70,7 @@ class Tile(object):
     # TileArray, Platform, etc.. converts coordinates of objects acordly beforw invoking it
     def draw(self, toSurface, x, y):
         if self.surface is not None:
-            toSurface.blit(self.surface, (x, y))
+            toSurface.blit(self.surface, (x, y), self.rect)
 
     def getOriginalImage(self):
         return self.originalSurface
@@ -82,6 +89,9 @@ class Tile(object):
 
     def getTileSet(self):
         return self.tileSet
+    
+    def getRect(self):
+        return self.rect
 
     def __unicode__(self):
         return 'Tile {} ({}x{}) ({})'.format(self.tileId, self.surface.get_width(), self.surface.get_height(), self.properties)

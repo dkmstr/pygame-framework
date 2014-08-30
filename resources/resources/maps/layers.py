@@ -155,7 +155,10 @@ class ArrayLayer(Layer):
             for x in xrange(xStart, xEnd):
                 tile = self.data[pos+x]
                 if tile > 0:
-                    yield (pygame.Rect(x*tileWidth, y*tileHeight, tileWidth, tileHeight), tiles[tile-1])
+                    t = tiles[tile-1]
+                    tileRect = t.getRect().move(x*tileWidth, y*tileHeight)
+                    if tileRect.colliderect(rect):
+                        yield (tileRect, t)
 
     def __iter__(self):
         '''
