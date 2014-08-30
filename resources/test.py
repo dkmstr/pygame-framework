@@ -99,3 +99,5 @@ gc.add(GameTest('state0'))
 
 #cProfile.run('gc.run()')
 gc.run()
+
+gc.quit()

@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 ######################
 class Tile(object):
     def __init__(self, tileSet, tileId, surface, properties={}):
-        self._tileSet = tileSet
-        self._id = tileId
-        self._orig_surface = self._surface = surface
+        self.tileSet = tileSet
+        self.tileId = tileId
+        self.originalSurface = self.surface = surface
         self.setProperties(properties)
 
     def setProperties(self, properties):
@@ -31,27 +31,27 @@ class Tile(object):
         if self.properties.get('animation') is not None:
             self.animated = True
             self.animation = [int(i) for i in self.properties.get('animation', '-1').split(',')]
-            self.animation_orig_delay = self.animation_delay = int(self.properties.get('delay', '1'))
-            self.animation_state = 0
-            logger.debug('Added animation for tile {}: {}'.format(self._id, self.animation))
+            self.animationOriginalDelay = self.animationDelay = int(self.properties.get('delay', '1'))
+            self.animationState = 0
+            logger.debug('Added animation for tile {}: {}'.format(self.tileId, self.animation))
         else:
             self.animated = False
             self.animation = None
-            self.animation_state = None
+            self.animationState = None
 
     def update(self):
         if self.animated is False:
             return
-        self.animation_delay -= 1
-        if self.animation_delay > 0:
+        self.animationDelay -= 1
+        if self.animationDelay > 0:
             return
-        self.animation_delay = self.animation_orig_delay
-        if self.animation_state >= len(self.animation):
-            self.animation_state = 0
+        self.animationDelay = self.animationOriginalDelay
+        if self.animationState >= len(self.animation):
+            self.animationState = 0
             self.resetImage()
         else:
-            self._surface = self._tileSet.getTile(self.animation[self.animation_state]).getImage()
-            self.animation_state += 1
+            self.surface = self.tileSet.getTile(self.animation[self.animationState]).getImage()
+            self.animationState += 1
 
     def getProperty(self, propertyName):
         '''
@@ -62,23 +62,23 @@ class Tile(object):
     # This x,y coordinates are screen coordinates
     # TileArray, Platform, etc.. converts coordinates of objects acordly beforw invoking it
     def draw(self, toSurface, x, y):
-        if self._surface is not None:
-            toSurface.blit(self._surface, (x, y))
+        if self.surface is not None:
+            toSurface.blit(self.surface, (x, y))
 
     def getImage(self):
-        return self._surface
+        return self.surface
 
     def setImage(self, surface):
-        self._surface = surface
+        self.surface = surface
 
     def resetImage(self):
-        self._surface = self._orig_surface
+        self.surface = self.originalSurface
 
     def id(self):
-        return self._id
+        return self.tileId
 
     def getTileSet(self):
-        return self._tileSet
+        return self.tileSet
 
     def __unicode__(self):
-        return 'Tile {} ({}x{}) ({})'.format(self._id, self._surface.get_width(), self._surface.get_height(), self.properties)
+        return 'Tile {} ({}x{}) ({})'.format(self.tileId, self.surface.get_width(), self.surface.get_height(), self.properties)

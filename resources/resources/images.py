@@ -15,12 +15,12 @@ class Images(object):
 
     def __init__(self, baseRes):
         logger.debug('baseRes: {}'.format(baseRes))
-        self._baseRes = baseRes
-        self._images = {}
+        self.baseRes = baseRes
+        self.images = {}
 
     def addImage(self, imgId, path):
         logger.debug('Adding image {} --> {}'.format(imgId, path))
-        self._images[imgId] = {
+        self.images[imgId] = {
             'path': resource_path(path),
             'surface': None,
         }
@@ -31,7 +31,7 @@ class Images(object):
         '''
         display_size = screen.get_size()
         logger.debug('Display size: {}'.format(display_size))
-        for imgId, img in self._images.iteritems():
+        for imgId, img in self.images.iteritems():
             try:
                 image = (pygame.image.load(img['path']))
             except:
@@ -43,7 +43,7 @@ class Images(object):
                 image = image.convert()
 
             img_size = image.get_size()
-            proportion = float(display_size[1]) / self._baseRes[1]  # Proportion is based on height, not widht
+            proportion = float(display_size[1]) / self.baseRes[1]  # Proportion is based on height, not widht
             logger.debug('Image {0} has {1} size and {2} proportion'.format(img['path'], img_size, proportion))
             img_size = (int(img_size[0] * proportion), int(img_size[1] * proportion))
             logger.debug('Image {0} has been changed to {1} size and {2} proportion'.format(img['path'], img_size, proportion))
@@ -51,4 +51,4 @@ class Images(object):
             img['surface'] = pygame.transform.scale(image, img_size)
 
     def get(self, imgId):
-        return self._images[imgId]['surface']
+        return self.images[imgId]['surface']

@@ -21,7 +21,7 @@ class GameState(object):
         self.events = 0
         self.frames = 0
         self.rendered_frames = 0
-        self.max_frame_time = int(1000.0 / self.framerate)
+        self.maxFrameTime = int(1000.0 / self.framerate)
 
     def fps(self):
         return self.clock.get_fps()
@@ -39,25 +39,25 @@ class GameState(object):
         '''
         Processes one game 'tick'
         '''
-        new_state = None
+        newState = None
 
         for event in events:
-            new_state = self.event(event)
-            if new_state is not None:
+            newState = self.event(event)
+            if newState is not None:
                 break
 
         # Executes game logic
-        if new_state is None:
-            new_state = self.frame()
+        if newState is None:
+            newState = self.frame()
 
         # Executes rendering
-        if new_state is None:
-            new_state = self.render()
+        if newState is None:
+            newState = self.render()
 
         self.clock.tick(self.framerate)
 #        self.clock.tick()
 
-        return new_state
+        return newState
 
     def event(self, ev):
         '''
@@ -108,8 +108,8 @@ class GameControl(object):
     EXIT_GAMESTATE = 'EXIT_GAME'
 
     def __init__(self, width, height):
-        self._states = {}
-        self._current = None
+        self.states = {}
+        self.current = None
         pygame.init()
 
         self.screen = pygame.display.set_mode((width, height), pygame.DOUBLEBUF | pygame.HWSURFACE)
@@ -118,20 +118,20 @@ class GameControl(object):
         state.controller = self
         state.init()
 
-        self._states[state.name] = state
-        if self._current is None:
+        self.states[state.name] = state
+        if self.current is None:
             self.switch(state.name)
 
     def switch(self, game_state):
-        if game_state not in self._states or game_state == GameControl.EXIT_GAMESTATE:
+        if game_state not in self.states or game_state == GameControl.EXIT_GAMESTATE:
             logger.debug('Received game_state {}. EXITING'.format(game_state))
             return False
 
-        if self._current is not None:
-            self._current.exit()
+        if self.current is not None:
+            self.current.exit()
 
-        self._current = self._states[game_state]
-        self._current.enter()
+        self.current = self.states[game_state]
+        self.current.enter()
         return True
 
     def run(self):
@@ -140,14 +140,16 @@ class GameControl(object):
         while True:
             counter += 1
             if counter > 100:
-                logger.debug("FPS: {}".format(self._current.fps()))
-                pygame.display.set_caption('FPS: {}'.format(self._current.fps()))
+                logger.debug("FPS: {}".format(self.current.fps()))
+                pygame.display.set_caption('FPS: {}'.format(self.current.fps()))
                 counter = 0
-            new_state = self._current.tick(pygame.event.get())
+            new_state = self.current.tick(pygame.event.get())
             if new_state is not None:
                 logger.debug('Got new state: {}'.format(new_state))
                 if self.switch(new_state) is False:
-                    pygame.quit()
                     return
             pygame.display.flip()
             # Nothing more to do, this is the basic loop
+    
+    def quit(self):
+        pygame.quit()

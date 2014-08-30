@@ -19,35 +19,35 @@ logger = logging.getLogger(__name__)
 class TileSet(object):
     def __init__(self, parentMap):
         self.name = None
-        self.tilewidth = self.tileheight = self.tilespacing = 0
-        self.image_path = ''
-        self.image_width = self.image_heigth = 0
-        self.firstgid = 0
+        self.tileWidth = self.tileHeight = self.tileSpacing = 0
+        self.imageFile = ''
+        self.imageWidth = self.imageHeight = 0
+        self.firstGid = 0
         self.surface = None
         self.tiles = []
-        self.animated_tiles = []
+        self.animatedTiles = []
         self.properties = {}
-        self.tiles_properties = {}
+        self.tilesProperties = {}
         self.parentMap = parentMap
 
     def __loadTilesProperties(self, node):
-        self.tiles_properties = {}
+        self.tilesProperties = {}
         for t in node.findall('tile'):
             tid = int(t.attrib['id'])
-            self.tiles_properties[tid] = loadProperties(t.find('properties'))
+            self.tilesProperties[tid] = loadProperties(t.find('properties'))
 
     def __loadTileSet(self, node):
         image = node.find('image')
 
         self.name = node.attrib['name']
-        self.tilewidth = int(node.attrib['tilewidth'])
-        self.tileheight = int(node.attrib['tileheight'])
-        self.tilespacing = int(node.attrib.get('spacing', 0))
-        self.image_path = image.attrib['source']
-        self.image_width = int(image.attrib['width'])
-        self.image_height = int(image.attrib['height'])
+        self.tileWidth = int(node.attrib['tilewidth'])
+        self.tileHeight = int(node.attrib['tileheight'])
+        self.tileSpacing = int(node.attrib.get('spacing', 0))
+        self.imageFile = image.attrib['source']
+        self.imageWidth = int(image.attrib['width'])
+        self.imageHeight = int(image.attrib['height'])
 
-        image = pygame.image.load(os.path.join(self.parentMap.mapPath, self.image_path))
+        image = pygame.image.load(os.path.join(self.parentMap.mapPath, self.imageFile))
 
         image = image.convert_alpha()
         image.set_alpha(0, pygame.RLEACCEL)
@@ -70,12 +70,12 @@ class TileSet(object):
         else:
             self.__loadTileSet(node)
 
-        self.firstgid = int(node.attrib['firstgid'])
+        self.firstGid = int(node.attrib['firstgid'])
 
-        logger.debug('Image path: {} {}x{}'.format(self.image_path, self.image_width, self.image_height))
+        logger.debug('Image path: {} {}x{}'.format(self.imageFile, self.imageWidth, self.imageHeight))
 
-        tilesPerRow = self.surface.get_width() / (self.tilewidth+self.tilespacing)
-        tilesRows = self.surface.get_height() / (self.tileheight+self.tilespacing)
+        tilesPerRow = self.surface.get_width() / (self.tileWidth+self.tileSpacing)
+        tilesRows = self.surface.get_height() / (self.tileHeight+self.tileSpacing)
 
         self.tiles = [None] * (tilesRows*tilesPerRow)  # Gens a dummy array of this len
 
@@ -83,16 +83,16 @@ class TileSet(object):
         for y in xrange(tilesRows):
             for x in xrange(tilesPerRow):
                 localTileId = y*tilesPerRow+x
-                tileId = self.firstgid+localTileId-1
+                tileId = self.firstGid+localTileId-1
                 # Map data contains global tile id (i.e., tile id + tileset firstgid - 1)
                 # We keep here a reference to tiles in thow places (same reference in fact)
                 self.tiles[localTileId] = Tile(self,
                     tileId,
-                    self.surface.subsurface(((self.tilewidth+self.tilespacing)*x, (self.tileheight+self.tilespacing)*y, self.tilewidth, self.tileheight)),
-                    self.tiles_properties.get(localTileId, {})
+                    self.surface.subsurface(((self.tileWidth+self.tileSpacing)*x, (self.tileHeight+self.tileSpacing)*y, self.tileWidth, self.tileHeight)),
+                    self.tilesProperties.get(localTileId, {})
                 )  # Creates reference
 
-        self.animated_tiles = [i for i in self.tiles if i.animated]
+        self.animatedTiles = [i for i in self.tiles if i.animated]
 
     def getTile(self, localTileId):
         return self.tiles[localTileId]
@@ -104,8 +104,8 @@ class TileSet(object):
         return self.properties.get(propertyName)
 
     def update(self):
-        for t in self.animated_tiles:
+        for t in self.animatedTiles:
             t.update()
 
     def __unicode__(self):
-        return 'Tileset {}: {}x{} ({})'.format(self.name, self.tilewidth, self.tileheight, self.properties)
+        return 'Tileset {}: {}x{} ({})'.format(self.name, self.tileWidth, self.tileHeight, self.properties)
