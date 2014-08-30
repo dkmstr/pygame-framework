@@ -24,7 +24,7 @@ class Layer(object):
 
     def __init__(self, parentMap=None, layerType=None, properties={}):
         self.name = None
-        self.type = layerType if layerType is not None else self.LAYER_TYPE
+        self.layerType = layerType if layerType is not None else self.LAYER_TYPE
         self.parentMap = parentMap
         self.setProperties(properties)
 
@@ -37,7 +37,7 @@ class Layer(object):
         self.visible = self.properties.get('visible', 'True') == 'True'
         self.holder = self.properties.get('holder', 'False') == 'True'
         self.parallax = self.properties.get('parallax', 'False') == 'True'
-        self.parallax_factor = (
+        self.parallaxFactor = (
             int(self.properties.get('parallax_factor_x', '100')),
             int(self.properties.get('parallax_factor_y', '100'))
         )
@@ -46,28 +46,28 @@ class Layer(object):
         pass
 
     def update(self):
-        self.on_update()
+        self.onUpdate()
 
-    def on_update(self):
+    def onUpdate(self):
         pass
 
     # Draw method for layer, better override "on_draw" so we can
     # calculate commono things here (as a parallax efect, for example)
     def draw(self, toSurface, x=0, y=0, width=0, height=0):
         if self.parallax is True:
-            x = x * self.parallax_factor[0] / 100
-            y = y * self.parallax_factor[1] / 100
+            x = x * self.parallaxFactor[0] / 100
+            y = y * self.parallaxFactor[1] / 100
 
         width = toSurface.get_width() if width <= 0 else width
         height = toSurface.get_height() if height <= 0 else height
 
-        self.on_draw(toSurface, x, y, width, height)
+        self.onDraw(toSurface, x, y, width, height)
 
-    def on_draw(self, toSurface, x, y, width, height):
+    def onDraw(self, toSurface, x, y, width, height):
         pass
 
     def getType(self):
-        return self.type
+        return self.layerType
 
     def getTileAt(self, x, y):
         return Layer.EMPTY_TILE
@@ -100,10 +100,10 @@ class ArrayLayer(Layer):
             raise Exception('No base 64 encoded')
         self.data = struct.unpack('<' + 'I'*(self.width*self.height), base64.b64decode(data.text))
 
-    def on_draw(self, toSurface, x, y, width, height):
+    def onDraw(self, toSurface, x, y, width, height):
         tiles = self.parentMap.tiles
-        tileWidth = self.parentMap.tilewidth
-        tileHeight = self.parentMap.tileheight
+        tileWidth = self.parentMap.tileWidth
+        tileHeight = self.parentMap.tileHeight
 
         xStart, xLen = x / tileWidth, (width + tileWidth - 1) / tileWidth + 1
         yStart, yLen = y / tileHeight, (height + tileHeight - 1) / tileHeight + 1
@@ -124,12 +124,12 @@ class ArrayLayer(Layer):
                     if tile > 0:
                         tiles[tile-1].draw(toSurface, (x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset)
 
-    def on_update(self):
+    def onUpdate(self):
         pass
 
     def getTileAt(self, x, y):
-        x /= self.parentMap.tilewidth
-        y /= self.parentMap.tileheight
+        x /= self.parentMap.tileWidth
+        y /= self.parentMap.tileHeight
         tile = self.data[y*self.width+x]
         if tile == 0:
             return Layer.EMPTY_TILE
@@ -151,11 +151,11 @@ class DynamicLayer(Layer):
         self.height = int(node.attrib['height'])
 
         self.setProperties(loadProperties(node.find('properties')))
-        tiles_layer_name = self.properties.get('layer', None)
+        tilesLayerName = self.properties.get('layer', None)
 
-        self.tiles_layer = self.parentMap.getLayer(tiles_layer_name)
+        self.tiles_layer = self.parentMap.getLayer(tilesLayerName)
         if self.tiles_layer is None:
-            logger.error('Linking to an unexistent layer: {}'.format(tiles_layer_name))
+            logger.error('Linking to an unexistent layer: {}'.format(tilesLayerName))
             return
 
         pathList = {}
@@ -170,16 +170,16 @@ class DynamicLayer(Layer):
                 bounce = properties.get('bounce', 'False') == 'False'
 
                 if len(polyline) > 0:
-                    orig_x, orig_y = int(obj.attrib['x']), int(obj.attrib['y'])
-                    x, y = orig_x + polyline[0][0], orig_y + polyline[0][1]
+                    origX, origY = int(obj.attrib['x']), int(obj.attrib['y'])
+                    x, y = origX + polyline[0][0], origY + polyline[0][1]
                     polyline = polyline[1:]
 
                     segments = []
                     for line in polyline:
-                        xf, yf = orig_x + line[0], orig_y + line[1]
+                        xf, yf = origX + line[0], origY + line[1]
                         segments.append(paths.PathSegment(x, y, xf-x, yf-y))
-                        x = orig_x + line[0]
-                        y = orig_y + line[1]
+                        x = origX + line[0]
+                        y = origY + line[1]
 
                     pathList[name] = paths.Path(segments, step, bounce)
 
@@ -188,12 +188,12 @@ class DynamicLayer(Layer):
                 name = obj.attrib['name']
                 properties = loadProperties(obj.find('properties'))
                 startX, startY = int(obj.attrib['x']), int(obj.attrib['y'])
-                width, height = int(obj.attrib.get('width', self.parentMap.tilewidth)), int(obj.attrib.get('height', self.parentMap.tileheight))
+                width, height = int(obj.attrib.get('width', self.parentMap.tileWidth)), int(obj.attrib.get('height', self.parentMap.tileHeight))
                 tiles = []
 
-                for y in xrange(startY, startY+height, self.parentMap.tileheight):
+                for y in xrange(startY, startY+height, self.parentMap.tileHeight):
                     t = []
-                    for x in xrange(startX, startX+width, self.parentMap.tilewidth):
+                    for x in xrange(startX, startX+width, self.parentMap.tileWidth):
                         t.append(self.tiles_layer.getTileAt(x, y))
                     tiles.append(t)
 
@@ -215,11 +215,11 @@ class DynamicLayer(Layer):
         for k in erroneous:
             del self.platforms[k]
 
-    def on_draw(self, toSurface, x, y, width, height):
+    def onDraw(self, toSurface, x, y, width, height):
         for obj in self.platforms.itervalues():
             obj.draw(toSurface, x, y)
 
-    def on_update(self):
+    def onUpdate(self):
         for obj in self.platforms.itervalues():
             obj.update()
 
@@ -242,7 +242,7 @@ class ImageLayer(Layer):
         self.setProperties(loadProperties(node.find('properties')))
         logger.debug('Loaded image Layer {}'.format(self))
 
-    def on_draw(self, toSurface, x, y, width, height):
+    def onDraw(self, toSurface, x, y, width, height):
         if width != self.cached_size[0] or height != self.cached_size[1]:
             logger.debug('Rescaling image layer to {}x{}'.format(width, height))
             self.cached_size = (width, height)

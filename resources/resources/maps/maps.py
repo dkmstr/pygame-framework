@@ -28,32 +28,32 @@ class Map(object):
 
     def __getLayers(self, layersNames):
         if layersNames is None:
-            layersNames = self.layers_names
+            layersNames = self.layerNames
         else:
-            layersNames = [l for l in layersNames if l in self.layers_names]
+            layersNames = [l for l in layersNames if l in self.layerNames]
         return layersNames
 
     def __getParallaxLayersNames(self, layersNames):
         if layersNames is None:
-            layersNames = self.parallax_names
+            layersNames = self.parallaxNames
         else:
-            layersNames = [l for l in layersNames if l in self.parallax_names]
+            layersNames = [l for l in layersNames if l in self.parallaxNames]
         return layersNames
 
     def reset(self, fromNode=None):
-        self.width = self.height = self.tilewidth = self.tileheight = 0
-        self.tilesets = {}
-        self.layers_names = []
-        self.holders_names = []
-        self.parallax_names = []
+        self.width = self.height = self.tileWidth = self.tileHeight = 0
+        self.tileSets = {}
+        self.layerNames = []
+        self.holderNames = []
+        self.parallaxNames = []
         self.layers = {}
         self.tiles = []
         self.properties = {}
         if fromNode is not None:
             self.width = int(fromNode.attrib['width'])
             self.height = int(fromNode.attrib['height'])
-            self.tilewidth = int(fromNode.attrib['tilewidth'])
-            self.tileheight = int(fromNode.attrib['tileheight'])
+            self.tileWidth = int(fromNode.attrib['tilewidth'])
+            self.tileHeight = int(fromNode.attrib['tileheight'])
             self.properties = loadProperties(fromNode.find('properties'))
 
     def load(self):
@@ -68,7 +68,7 @@ class Map(object):
             ts = TileSet(self)
             ts.load(tileSet)
 
-            self.tilesets[ts.name] = ts
+            self.tileSets[ts.name] = ts
 
             self.tiles.extend(ts.tiles)
 
@@ -91,12 +91,12 @@ class Map(object):
     def addLayer(self, layer):
         if layer.getProperty('holder') == 'True':
             logger.debug('Layer {} is a holder layer'.format(layer.name))
-            self.holders_names.append(layer.name)
+            self.holderNames.append(layer.name)
         elif layer.getProperty('parallax') == 'True':
             logger.debug('Layer {} is a parallax layer'.format(layer.name))
-            self.parallax_names.append(layer.name)
+            self.parallaxNames.append(layer.name)
         else:
-            self.layers_names.append(layer.name)
+            self.layerNames.append(layer.name)
         self.layers[layer.name] = layer
 
     def getLayer(self, layerName):
@@ -115,7 +115,7 @@ class Map(object):
         for layerName in layersNames:
             self.layers[layerName].update()
 
-        for ts in self.tilesets.itervalues():
+        for ts in self.tileSets.itervalues():
             ts.update()
 
     def getProperty(self, propertyName):
@@ -125,32 +125,32 @@ class Map(object):
         return self.properties.get(propertyName)
 
     def __unicode__(self):
-        return 'Map {}: {}x{} with tile of  ({})'.format(self.path, self.width, self.height, self.tilewidth, self.tileheight, self.properties)
+        return 'Map {}: {}x{} with tile of  ({})'.format(self.path, self.width, self.height, self.tileWidth, self.tileHeight, self.properties)
 
 
 class Maps(object):
     def __init__(self):
-        self._maps = {}
+        self.maps = {}
 
     def add(self, mapId, path):
-        self._maps[mapId] = Map(mapId, path)
+        self.maps[mapId] = Map(mapId, path)
 
     def load(self, mapId=None, force=False):
         if mapId is None:
-            for mId in self._maps:
+            for mId in self.maps:
                 self.load(mId, force)
             return
 
-        if mapId not in self._maps:
+        if mapId not in self.maps:
             return False
 
-        m = self._maps[mapId]
+        m = self.maps[mapId]
         m.load()
 
     def get(self, mapId):
-        return self._maps[mapId]
+        return self.maps[mapId]
 
     def __unicode__(self):
         r = ''
-        for v in self._maps:
+        for v in self.maps:
             r += unicode(v)
