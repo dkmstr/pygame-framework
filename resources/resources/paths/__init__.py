@@ -48,14 +48,19 @@ class PathSegment(object):
 # Path               #
 ######################
 class Path(object):
-    def __init__(self, segments, step, bounce=False):
+    def __init__(self, segments, properties):
         self.segments = segments
-        self.step = step
+        self.properties = properties
         self.reset()
+
+    def updateAttributes(self):
+        self.step = int(self.properties.get('step', '1'))
+        self.bounce = self.properties.get('bounce', 'False') == 'False'
 
     def reset(self):
         self.segment = 0
         self.segment_pos = 0
+        self.updateAttributes()
 
     def iterate(self):
         if self.segment >= len(self.segments):

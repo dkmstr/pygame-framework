@@ -26,10 +26,14 @@ class ObjectWithPath(object):
         y = self.rect.top - y
         for row in self.tiles:
             xx = x
+            yy = 0
             for t in row:
+                size = t.getSize()
                 t.draw(toSurface, xx, y)  # tile drawing is in screen coordinates, that is what we have on x & y
-                xx += t.getTileSet().tileWidth
-            y += t.getTileSet().tileHeight
+                xx += size[0]
+                if size[1] > yy:
+                    yy = size[1]
+            y += yy
 
     def update(self):
         self.rect.left, self.rect.top = self.path.iterate()

@@ -92,6 +92,9 @@ class Tile(object):
     
     def getRect(self):
         return self.rect
+    
+    def getSize(self):
+        return (self.rect.width, self.rect.height)
 
     def __unicode__(self):
         return 'Tile {} ({}x{}) ({})'.format(self.tileId, self.surface.get_width(), self.surface.get_height(), self.properties)

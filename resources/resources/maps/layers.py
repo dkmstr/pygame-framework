@@ -149,10 +149,14 @@ class ArrayLayer(Layer):
         xEnd = (rect.right + tileWidth - 2) / tileWidth
         yStart = rect.top / tileHeight
         yEnd = (rect.bottom + tileHeight - 2) / tileHeight
-
+        
         for y in xrange(yStart, yEnd):
+            if y < 0 or y >= self.height:
+                continue
             pos = self.width * y
             for x in xrange(xStart, xEnd):
+                if x < 0 or x >= self.width:
+                    continue
                 tile = self.data[pos+x]
                 if tile > 0:
                     t = tiles[tile-1]
@@ -191,12 +195,9 @@ class DynamicLayer(Layer):
         self.setProperties(loadProperties(node.find('properties')))
         tilesLayerName = self.properties.get('layer', None)
 
-        self.tiles_layer = self.parentMap.getLayer(tilesLayerName)
-        if self.tiles_layer is None:
-            logger.error('Linking to an unexistent layer: {}'.format(tilesLayerName))
-            return
+        self.tilesLayer = self.parentMap.getLayer(tilesLayerName)
 
-        pathList = {}
+        self.paths = {}
         self.platforms = {}
 
         for obj in node.findall('object'):
@@ -204,8 +205,6 @@ class DynamicLayer(Layer):
                 name = obj.attrib['name']
                 properties = loadProperties(obj.find('properties'))
                 polyline = [[int(v) for v in i.split(',')] for i in obj.find('polyline').attrib['points'].split(' ')]
-                step = int(properties.get('step', '1'))
-                bounce = properties.get('bounce', 'False') == 'False'
 
                 if len(polyline) > 0:
                     origX, origY = int(obj.attrib['x']), int(obj.attrib['y'])
@@ -219,10 +218,14 @@ class DynamicLayer(Layer):
                         x = origX + line[0]
                         y = origY + line[1]
 
-                    pathList[name] = paths.Path(segments, step, bounce)
+                    self.paths[name] = paths.Path(segments, properties)
 
-                    logger.debug('Path {} {}'.format(name, pathList[name]))
+                    logger.debug('Path {} {}'.format(name, self.paths[name]))
             elif obj.attrib['type'] == 'platform':
+                if self.tilesLayer is None:
+                    logger.error('Linking to an unexistent layer: {}. Skypped'.format(tilesLayerName))
+                    continue
+                
                 name = obj.attrib['name']
                 properties = loadProperties(obj.find('properties'))
                 startX, startY = int(obj.attrib['x']), int(obj.attrib['y'])
@@ -232,7 +235,7 @@ class DynamicLayer(Layer):
                 for y in xrange(startY, startY+height, self.parentMap.tileHeight):
                     t = []
                     for x in xrange(startX, startX+width, self.parentMap.tileWidth):
-                        t.append(self.tiles_layer.getTileAt(x, y))
+                        t.append(self.tilesLayer.getTileAt(x, y))
                     tiles.append(t)
 
                 p = ObjectWithPath(startX, startY, width, height, properties.get('path', None), tiles, properties.get('sticky', False))
@@ -245,7 +248,7 @@ class DynamicLayer(Layer):
         erroneous = []
         for k, p in self.platforms.iteritems():
             try:
-                p.path = pathList[p.path]
+                p.path = self.paths[p.path]
             except:
                 logger.error('Path {} doesn\'t exists!!'.format(p.path))
                 erroneous.append(k)
@@ -265,11 +268,17 @@ class DynamicLayer(Layer):
         for obj in self.platforms.itervalues():
             if obj.collide(rect):
                 yield (obj.getRect(), obj)
+                
+    def getObject(self, objecName):
+        return self.platforms.get(objecName)
+    
+    def getPath(self, pathName):
+        return self.paths.get(pathName)
 
     def __iter__(self):
         for obj in self.platforms.itervalues():
             yield obj
-
+            
     def __unicode__(self):
         return 'Dinamyc Layer'
 
