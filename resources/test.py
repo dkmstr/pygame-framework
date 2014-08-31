@@ -7,6 +7,7 @@ import pygame
 from pygame.locals import *
 import resources
 from player import Player
+from resources.maps.actors import actorsFactory
 
 WIDTH = 1024
 HEIGHT = 768
@@ -31,6 +32,8 @@ class GameTest(resources.game_state.GameState):
         #self.bg = parallax.ParallaxSurface((WIDTH, HEIGHT), pygame.RLEACCEL)
 
     def on_init(self):
+        # Register actors types
+        actorsFactory.registerType('Player', Player)
         #self.images.addImage('bck1', 'data/images/far-background.png')
         #self.images.addImage('bck2', 'data/images/near-background.png')
         #self.images.load(self.controller.screen)
@@ -39,10 +42,7 @@ class GameTest(resources.game_state.GameState):
         self.maps.load()
 
         self.map = self.maps.get('level0')
-        for actorType, actorDataList in self.map.getActorList().iteritems():
-            if actorType == 'Player':
-                self.x, self.y = actorDataList[0][0], actorDataList[0][1]
-                self.player = Player(self.map, self.x, self.y)
+        self.player = list(self.map.getActors('Player'))[0]
 
         #self.bg.add_surface(self.images.get('bck1'), 5)
         #self.bg.add_surface(self.images.get('bck2'), 3)
@@ -86,7 +86,7 @@ class GameTest(resources.game_state.GameState):
     def on_render(self):
         #self.bg.draw(self.controller.screen)
         self.map.draw(self.controller.screen)
-        self.player.draw(self.controller.screen)
+        #self.player.draw(self.controller.screen)
 
 
 logging.basicConfig(
@@ -101,9 +101,9 @@ gc = resources.game_state.GameControl(WIDTH, HEIGHT)
 gc.add(GameTest('state0'))
 #gc.add(GameTest('state1'))
 
-import cProfile
+#import cProfile
 
-cProfile.run('gc.run()')
-#gc.run()
+#cProfile.run('gc.run()')
+gc.run()
 
 gc.quit()

@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 class Player(Actor):
-    def __init__(self, map, x, y):
-        self.map = map
+    def __init__(self, parentMap, actorType, x=0, y=0):
+        Actor.__init__(self, parentMap, actorType, x, y)
         self.rect = pygame.Rect(x, y, 69, 69)
         self.image1 = pygame.Surface((69, 69))
         self.image2 = pygame.Surface((69, 69))
@@ -22,7 +22,7 @@ class Player(Actor):
     def checkXCollisions(self, offset):
         if offset == 0:
             return
-        for c in self.map.getCollisions(self.rect):
+        for c in self.parentMap.getCollisions(self.rect):
             colRect = c[0]
             if offset > 0:
                 self.rect.right = colRect.left - 1
@@ -30,11 +30,11 @@ class Player(Actor):
                 self.rect.left = colRect.right + 1
             return True
         return False
-    
+
     def checkYCollisions(self, offset):
         if offset == 0:
             return
-        for c in self.map.getCollisions(self.rect):
+        for c in self.parentMap.getCollisions(self.rect):
             colRect = c[0]
             if offset > 0:
                 self.rect.bottom = colRect.top - 1
@@ -45,7 +45,7 @@ class Player(Actor):
 
     def move(self, xOffset, yOffset):
         if xOffset == 0 and yOffset == 0:
-            pass # Check someting pushing, from where
+            pass  # Check someting pushing, from where
         else:
             self.rect.x += xOffset
             self.checkXCollisions(xOffset)
@@ -53,7 +53,7 @@ class Player(Actor):
             self.checkYCollisions(yOffset)
 
         collisions = None
-        for collision in self.map.getCollisions(self.rect):
+        for collision in self.parentMap.getCollisions(self.rect):
             collisions = True
             break
 
@@ -74,7 +74,7 @@ class Player(Actor):
         return self.rect.y
 
     def draw(self, toSurface):
-        mapDisplay = self.map.getDisplayPosition()
+        mapDisplay = self.parentMap.getDisplayPosition()
         x, y = self.rect.x - mapDisplay[0], self.rect.y - mapDisplay[1]
         #print x, y
         toSurface.blit(self.image, (x, y))
@@ -85,7 +85,7 @@ class Player(Actor):
         boundariesX = (200-70, 200)
         boundariesY = (180-70, 180)
 
-        xMap, yMap = self.map.getDisplayPosition()
+        xMap, yMap = self.parentMap.getDisplayPosition()
         if xMap > self.rect.x - boundariesX[0] and xMap < self.rect.x:
             xMap = self.rect.x - boundariesX[0]
         elif xMap + w - self.rect.x < boundariesX[1]:
@@ -96,4 +96,4 @@ class Player(Actor):
         elif yMap + h - self.rect.y < boundariesY[1]:
             yMap = self.rect.y - h + boundariesY[1]
 
-        self.map.setDisplayPosition(xMap, yMap)
+        self.parentMap.setDisplayPosition(xMap, yMap)

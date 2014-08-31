@@ -7,34 +7,27 @@ logger = logging.getLogger(__name__)
 
 
 class Actor(object):
-    def __init__(self):
+    def __init__(self, parentMap, actorType, x=0, y=0):
+        self.parentMap = parentMap
+        self._x = x
+        self._y = y
+        self.actorType = actorType
+        
+    def draw(self, toSurface):
+        pass
+    
+    def update(self):
         pass
 
 
-class ActorList(object):
+class ActorsFactory(object):
     def __init__(self):
-        self.actors = {}
-
-    def addActorsFromArrayLayer(self, arrayLayer):
-        '''
-        Initializes the actor list from an array layer
-        '''
-        logger.debug('Adding actors from {}'.format(arrayLayer))
-        # Sort actors by type, we can later iterate this dictionary
-        for actor in arrayLayer:
-            actorType = actor[2].getProperty('type')
-            if actorType is None:
-                logger.error('Found an actor without type: {} (ignored)'.format(actor[2]))
-                continue
-            try:
-                self.actors[actorType].append(actor)
-            except:
-                self.actors[actorType] = [actor]
-
-        logger.debug(unicode(self))
-
-    def iteritems(self):
-        return self.actors.iteritems()
-
-    def __unicode__(self):
-        return 'Actors: {}, ({})'.format(len(self.actors), self.actors)
+        self.actorTypes = {}
+        
+    def registerType(self, actorTypeName, actorType):
+        self.actorTypes[actorTypeName] = actorType
+        
+    def getActor(self, actorType):
+        return self.actorTypes.get(actorType)
+    
+actorsFactory = ActorsFactory()

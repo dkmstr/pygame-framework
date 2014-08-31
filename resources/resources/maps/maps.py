@@ -6,12 +6,14 @@ import xml.etree.ElementTree as ET
 
 from resources.util import resource_path
 from resources.maps.tileset import TileSet
+
 from resources.maps.layers import ArrayLayer
 from resources.maps.layers import DynamicLayer
 from resources.maps.layers import ImageLayer
+from resources.maps.layers import ActorsLayer
+
 from resources.maps.utils import loadProperties
 from resources.maps.utils import checkTrue
-from resources.maps.actors import ActorList
 
 import logging
 
@@ -31,10 +33,8 @@ class Map(object):
         self.tileSets = {}
         self.layerNames = []
         self.holderNames = []
-        self.parallaxNames = []
         self.layers = {}
         self.tiles = []
-        self.actors = ActorList()
         self.displayPosition = (0, 0)
         self.reset()
 
@@ -45,23 +45,14 @@ class Map(object):
             layersNames = [l for l in layersNames if l in self.layerNames]
         return layersNames
 
-    def __getParallaxLayersNames(self, layersNames):
-        if layersNames is None:
-            layersNames = self.parallaxNames
-        else:
-            layersNames = [l for l in layersNames if l in self.parallaxNames]
-        return layersNames
-
     def reset(self, fromNode=None):
         self.width = self.height = self.tileWidth = self.tileHeight = 0
         self.tileSets = {}
         self.layerNames = []
         self.holderNames = []
-        self.parallaxNames = []
         self.layers = {}
         self.tiles = []
         self.properties = {}
-        self.actors = ActorList()
         self.displayPosition = (0, 0)
         if fromNode is not None:
             self.width = int(fromNode.attrib['width'])
@@ -104,32 +95,32 @@ class Map(object):
 
     def addLayer(self, layer):
         logger.debug('Adding layer {} to layer list (visible: {})'.format(layer, layer.visible))
-        if checkTrue(layer.getProperty('actors')):
-            self.actors.addActorsFromArrayLayer(layer)
-            return   # This layer is completly removed
-        elif checkTrue(layer.getProperty('holder')):
+        if checkTrue(layer.getProperty('holder')):
             logger.debug('Layer {} is a holder layer'.format(layer.name))
             self.holderNames.append(layer.name)
-        elif checkTrue(layer.getProperty('parallax')):
-            logger.debug('Layer {} is a parallax layer'.format(layer.name))
-            self.parallaxNames.append(layer.name)
         else:
             self.layerNames.append(layer.name)
+            
+        if checkTrue(layer.getProperty('actors')):
+            layer = ActorsLayer(self, layer)
+            
         self.layers[layer.name] = layer
 
     def getLayer(self, layerName):
         return self.layers.get(layerName)
 
-    def getActorList(self):
-        return self.actors
+    def getActors(self, actorType=None, layersNames=None):
+        for layerName in self.__getLayers(layersNames):
+            if checkTrue(self.layers[layerName].getProperty('actors')):
+                for actor in self.layers[layerName].getActors(actorType):
+                    yield actor
 
     def draw(self, surface, layersNames=None):
         # First, we draw "parallax" layers
         x, y = self.displayPosition
         width, height = surface.get_size()
-        for d in (self.__getParallaxLayersNames(layersNames), self.__getLayers(layersNames)):
-            for layerName in d:
-                self.layers[layerName].draw(surface, x, y, width, height)
+        for layerName in self.__getLayers(layersNames):
+            self.layers[layerName].draw(surface, x, y, width, height)
 
     def update(self, layersNames=None):
         # Keep order intact
@@ -150,6 +141,9 @@ class Map(object):
     # Collisions
     def getCollisions(self, rect, layersNames=None):
         for layerName in self.__getLayers(layersNames):
+            if checkTrue(self.layers[layerName].getProperty('parallax')):
+                continue
+
             for col in self.layers[layerName].getCollisions(rect):
                 yield col
 

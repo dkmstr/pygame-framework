@@ -11,6 +11,8 @@ from resources.maps.objects import ObjectWithPath
 from resources.maps.utils import loadProperties
 from resources.maps.utils import checkTrue
 
+from resources.maps.actors import actorsFactory
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -99,11 +101,12 @@ class Layer(object):
 ######################
 class ArrayLayer(Layer):
     LAYER_TYPE = 'array'
+
     def __init__(self, parentMap=None, layerType=None, properties=None):
         Layer.__init__(self, parentMap, layerType, properties)
         self.width = self.height = 0
         self.data = []
-        
+
     def load(self, node):
         self.name = node.attrib['name']
         self.width = int(node.attrib['width'])
@@ -161,7 +164,7 @@ class ArrayLayer(Layer):
         xEnd = (rect.right + tileWidth - 2) / tileWidth
         yStart = rect.top / tileHeight
         yEnd = (rect.bottom + tileHeight - 2) / tileHeight
-        
+
         for y in xrange(yStart, yEnd):
             if y < 0 or y >= self.height:  # Skips out of bounds rows
                 continue
@@ -198,6 +201,7 @@ class ArrayLayer(Layer):
 ######################
 class DynamicLayer(Layer):
     LAYER_TYPE = 'dynamic'
+
     def __init__(self, parentMap=None, layerType=None, properties=None):
         Layer.__init__(self, parentMap, layerType, properties)
         self.width = self.height = 0
@@ -243,7 +247,7 @@ class DynamicLayer(Layer):
                 if self.tilesLayer is None:
                     logger.error('Linking to an unexistent layer: {}. Skypped'.format(tilesLayerName))
                     continue
-                
+
                 name = obj.attrib['name']
                 properties = loadProperties(obj.find('properties'))
                 startX, startY = int(obj.attrib['x']), int(obj.attrib['y'])
@@ -286,23 +290,24 @@ class DynamicLayer(Layer):
         for obj in self.platforms.itervalues():
             if obj.collide(rect):
                 yield (obj.getRect(), obj)
-                
+
     def getObject(self, objecName):
         return self.platforms.get(objecName)
-    
+
     def getPath(self, pathName):
         return self.paths.get(pathName)
 
     def __iter__(self):
         for obj in self.platforms.itervalues():
             yield obj
-            
+
     def __unicode__(self):
         return 'Dinamyc Layer'
 
 
 class ImageLayer(Layer):
     LAYER_TYPE = 'image'
+
     def __init__(self, parentMap=None, layerType=None, properties=None):
         Layer.__init__(self, parentMap, layerType, properties)
         self.width = self.height = 0
@@ -332,3 +337,45 @@ class ImageLayer(Layer):
 
     def __unicode__(self):
         return 'Image Layer: {}'.format(self.image_path)
+
+
+class ActorsLayer(Layer):
+    LAYER_TYPE = 'actors'
+
+    def __init__(self, parentMap, arrayLayer):
+        Layer.__init__(self, parentMap)
+
+        self.name = arrayLayer.name
+        self.width = self.height = 0
+        self.actors = []
+        self.setProperties(arrayLayer.properties)
+
+        logger.debug('Adding actors from {}'.format(arrayLayer))
+        # Sort actors by type, we can later iterate this dictionary
+        for actor in arrayLayer:
+            x, y, actorType = actor[0], actor[1], actor[2].getProperty('type')
+            if actorType is None:
+                logger.error('Found an actor without type: {} (ignored)'.format(actorType))
+                continue
+            aClass = actorsFactory.getActor(actorType)
+            if aClass is None:
+                logger.error('Found an unregistered actor class: {}'.format(actorType))
+                continue
+            self.actors.append(aClass(self.parentMap, actorType, x, y))
+
+        logger.debug(unicode(self))
+        
+    def onDraw(self, toSurface, x, y, width, height):
+        for actor in self.actors:
+            actor.draw(toSurface)
+        
+    def onUpdate(self):
+        for actor in self.actors:
+            actor.update()
+
+    def getActors(self, actorType=None):
+        for actor in self.actors:
+            if actorType is None:
+                yield actor
+            elif actor.actorType == actorType:
+                yield actor
