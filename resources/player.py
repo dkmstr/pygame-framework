@@ -47,10 +47,12 @@ class Player(Actor):
         if xOffset == 0 and yOffset == 0:
             pass  # Is something pushes this, this will be calculated elsewhere
         else:
-            self.rect.x += xOffset
-            self.checkXCollisions(xOffset)
-            self.rect.y += yOffset
-            self.checkYCollisions(yOffset)
+            if xOffset:
+                self.rect.x += xOffset
+                self.checkXCollisions(xOffset)
+            if yOffset:
+                self.rect.y += yOffset
+                self.checkYCollisions(yOffset)
 
         collisions = None
         for collision in self.parentMap.getCollisions(self.rect):

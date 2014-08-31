@@ -8,7 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 class ObjectWithPath(object):
-    def __init__(self, origX, origY, width, height, path, tiles, sticky):
+    def __init__(self, parentLayer, origX, origY, width, height, path, tiles, sticky):
+        self.parentLayer = parentLayer
         self.rect = pygame.Rect(origX, origY, width, height)
         self.path = path
         self.tiles = tiles

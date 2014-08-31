@@ -260,7 +260,7 @@ class DynamicLayer(Layer):
                         t.append(self.tilesLayer.getTileAt(x, y))
                     tiles.append(t)
 
-                p = ObjectWithPath(startX, startY, width, height, properties.get('path', None), tiles, properties.get('sticky', False))
+                p = ObjectWithPath(self, startX, startY, width, height, properties.get('path', None), tiles, properties.get('sticky', False))
                 self.platforms[obj.attrib['name']] = p
 
                 logger.debug('Platform {}'.format(p))
