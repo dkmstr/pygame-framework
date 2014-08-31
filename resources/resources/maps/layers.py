@@ -44,7 +44,9 @@ class Layer(object):
     def updateAttributes(self):
         self.visible = checkTrue(self.properties.get('visible', 'True'))
         self.holder = checkTrue(self.properties.get('holder', 'False'))
+        self.actor = checkTrue(self.properties.get('actors', 'False'))
         self.parallax = checkTrue(self.properties.get('parallax', 'False'))
+        
         self.parallaxFactor = (
             int(self.properties.get('parallax_factor_x', '100')),
             int(self.properties.get('parallax_factor_y', '100'))
@@ -347,7 +349,7 @@ class ActorsLayer(Layer):
 
         self.name = arrayLayer.name
         self.width = self.height = 0
-        self.actors = []
+        self.actorList = []
         self.setProperties(arrayLayer.properties)
 
         logger.debug('Adding actors from {}'.format(arrayLayer))
@@ -361,20 +363,20 @@ class ActorsLayer(Layer):
             if aClass is None:
                 logger.error('Found an unregistered actor class: {}'.format(actorType))
                 continue
-            self.actors.append(aClass(self.parentMap, actorType, x, y))
+            self.actorList.append(aClass(self.parentMap, actorType, x, y))
 
         logger.debug(unicode(self))
         
     def onDraw(self, toSurface, x, y, width, height):
-        for actor in self.actors:
+        for actor in self.actorList:
             actor.draw(toSurface)
         
     def onUpdate(self):
-        for actor in self.actors:
+        for actor in self.actorList:
             actor.update()
 
     def getActors(self, actorType=None):
-        for actor in self.actors:
+        for actor in self.actorList:
             if actorType is None:
                 yield actor
             elif actor.actorType == actorType:

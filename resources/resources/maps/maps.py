@@ -30,27 +30,19 @@ class Map(object):
         self.mapPath = os.path.dirname(self.mapFile)
         self.properties = properties if properties is not None else {}
         self.width = self.height = self.tileWidth = self.tileHeight = 0
-        self.tileSets = {}
-        self.layerNames = []
-        self.holderNames = []
-        self.layers = {}
+        self.tileSets = []
+        self.layers = []
         self.tiles = []
         self.displayPosition = (0, 0)
         self.reset()
-
-    def __getLayers(self, layersNames):
-        if layersNames is None:
-            layersNames = self.layerNames
-        else:
-            layersNames = [l for l in layersNames if l in self.layerNames]
-        return layersNames
+        
+    def getRenderingLayers(self):
+        return [l for l in self.layers if l.holder is False and l.visible is True]
 
     def reset(self, fromNode=None):
         self.width = self.height = self.tileWidth = self.tileHeight = 0
-        self.tileSets = {}
-        self.layerNames = []
-        self.holderNames = []
-        self.layers = {}
+        self.tileSets = []
+        self.layers = []
         self.tiles = []
         self.properties = {}
         self.displayPosition = (0, 0)
@@ -73,8 +65,7 @@ class Map(object):
             ts = TileSet(self)
             ts.load(tileSet)
 
-            self.tileSets[ts.name] = ts
-
+            self.tileSets.append(ts)
             self.tiles.extend(ts.tiles)
 
         # Load Layer
@@ -94,41 +85,36 @@ class Map(object):
                 self.addLayer(l)
 
     def addLayer(self, layer):
-        logger.debug('Adding layer {} to layer list (visible: {})'.format(layer, layer.visible))
-        if checkTrue(layer.getProperty('holder')):
-            logger.debug('Layer {} is a holder layer'.format(layer.name))
-            self.holderNames.append(layer.name)
-        else:
-            self.layerNames.append(layer.name)
-            
-        if checkTrue(layer.getProperty('actors')):
+        if layer.actor:
             layer = ActorsLayer(self, layer)
             
-        self.layers[layer.name] = layer
+        self.layers.append(layer)
 
     def getLayer(self, layerName):
-        return self.layers.get(layerName)
+        for l in self.layers:
+            if l.name == layerName:
+                return l
+        return None
 
-    def getActors(self, actorType=None, layersNames=None):
-        for layerName in self.__getLayers(layersNames):
-            if checkTrue(self.layers[layerName].getProperty('actors')):
-                for actor in self.layers[layerName].getActors(actorType):
+    def getActors(self, actorType=None):
+        for layer in self.layers:
+            if layer.actor:
+                for actor in layer.getActors(actorType):
                     yield actor
 
-    def draw(self, surface, layersNames=None):
+    def draw(self, surface):
         # First, we draw "parallax" layers
         x, y = self.displayPosition
         width, height = surface.get_size()
-        for layerName in self.__getLayers(layersNames):
-            self.layers[layerName].draw(surface, x, y, width, height)
+        for layer in self.getRenderingLayers():
+            layer.draw(surface, x, y, width, height)
 
-    def update(self, layersNames=None):
+    def update(self):
         # Keep order intact
-        for layerName in self.__getLayers(layersNames):
-            if self.layers[layerName].visible:
-                self.layers[layerName].update()
+        for layer in self.getRenderingLayers():
+                layer.update()
 
-        for ts in self.tileSets.itervalues():
+        for ts in self.tileSets:
             ts.update()
 
     # Current display position of the map
@@ -139,12 +125,12 @@ class Map(object):
         return self.displayPosition
 
     # Collisions
-    def getCollisions(self, rect, layersNames=None):
-        for layerName in self.__getLayers(layersNames):
-            if checkTrue(self.layers[layerName].getProperty('parallax')):
+    def getCollisions(self, rect):
+        for layer in self.getRenderingLayers():
+            if layer.parallax is True:
                 continue
-
-            for col in self.layers[layerName].getCollisions(rect):
+            
+            for col in layer.getCollisions(rect):
                 yield col
 
     def getProperty(self, propertyName):
