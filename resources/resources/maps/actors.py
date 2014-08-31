@@ -13,8 +13,18 @@ class Actor(object):
         self.parentMap = parentMap
         self.actorType = actorType
         
+    def move(self, xOffset, yOffset):
+        self.rect.left += xOffset
+        self.rect.top += yOffset
+        
     def setPosition(self, x, y):
-        self.rect = pygame.Rect(x, y, 70, 70)
+        self.rect.top, self.rect.left = x, y
+        
+    def getRect(self):
+        return self.rect
+    
+    def collide(self, rect):
+        return self.rect.colliderect(rect)
         
     def draw(self, toSurface):
         pass

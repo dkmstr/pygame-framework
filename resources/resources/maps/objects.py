@@ -37,7 +37,28 @@ class ObjectWithPath(object):
             y += yy
 
     def update(self):
+        xOffset, yOffset = self.rect.left, self.rect.top
         self.rect.left, self.rect.top = self.path.iterate()
+        xOffset, yOffset = self.rect.left - xOffset, self.rect.top - yOffset
+        # First we check what any actor collided moves acordly
+        for c in self.parentLayer.parentMap.getActorsCollisions(self.rect):
+            actorRect, actor = c  # Rect is a "reference" to actor position, so modifying it will modify actor's position
+            if xOffset > 0:
+                actorRect.left = self.rect.right
+            elif xOffset < 0:
+                actorRect.right = self.rect.left
+            if yOffset > 0:
+                actorRect.top = self.rect.bottom
+            elif yOffset < 0:
+                actorRect.bottom = self.rect.top
+        # Now, it we are "sticky", we move any actor that is "over" this item
+        # Sticky is only sticky for actors that are ON this object
+        if self.sticky and xOffset != 0:
+            # Inflate rect at top to detect collision
+            rect = pygame.Rect(self.rect.left, self.rect.top-2, self.rect.width, self.rect.height)
+            for c in self.parentLayer.parentMap.getActorsCollisions(rect):
+                actorRect, actor = c  # Rect is a "reference" to actor position, so modifying it will modify actor's position
+                actor.move(xOffset, 0)
 
     def getRect(self):
         return self.rect

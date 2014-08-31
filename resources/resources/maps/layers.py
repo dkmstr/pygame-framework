@@ -262,7 +262,7 @@ class DynamicLayer(Layer):
                         t.append(self.tilesLayer.getTileAt(x, y))
                     tiles.append(t)
 
-                p = ObjectWithPath(self, startX, startY, width, height, properties.get('path', None), tiles, properties.get('sticky', False))
+                p = ObjectWithPath(self, startX, startY, width, height, properties.get('path', None), tiles, checkTrue(properties.get('sticky', False)))
                 self.platforms[obj.attrib['name']] = p
 
                 logger.debug('Platform {}'.format(p))
@@ -374,6 +374,11 @@ class ActorsLayer(Layer):
     def onUpdate(self):
         for actor in self.actorList:
             actor.update()
+            
+    def getCollisions(self, rect):
+        for actor in self.actorList:
+            if actor.collide(rect):
+                yield (actor.getRect(), actor)
 
     def getActors(self, actorType=None):
         for actor in self.actorList:

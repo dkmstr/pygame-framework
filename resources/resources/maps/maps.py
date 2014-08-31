@@ -38,6 +38,12 @@ class Map(object):
         
     def getRenderingLayers(self):
         return [l for l in self.layers if l.holder is False and l.visible is True]
+    
+    def getActorsLayers(self):
+        return [l for l in self.layers if l.actor is True]
+    
+    def getCollisionsLayers(self):
+        return [l for l in self.layers if l.holder is False and l.visible is True and l.actor is False and l.parallax is False]
 
     def reset(self, fromNode=None):
         self.width = self.height = self.tileWidth = self.tileHeight = 0
@@ -97,10 +103,9 @@ class Map(object):
         return None
 
     def getActors(self, actorType=None):
-        for layer in self.layers:
-            if layer.actor:
-                for actor in layer.getActors(actorType):
-                    yield actor
+        for layer in self.getActorsLayers():
+            for actor in layer.getActors(actorType):
+                yield actor
 
     def draw(self, surface):
         # First, we draw "parallax" layers
@@ -126,10 +131,15 @@ class Map(object):
 
     # Collisions
     def getCollisions(self, rect):
-        for layer in self.getRenderingLayers():
+        for layer in self.getCollisionsLayers():
             if layer.parallax is True:
                 continue
             
+            for col in layer.getCollisions(rect):
+                yield col
+                
+    def getActorsCollisions(self, rect):
+        for layer in self.getActorsLayers():
             for col in layer.getCollisions(rect):
                 yield col
 
