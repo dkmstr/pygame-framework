@@ -9,6 +9,7 @@ from resources import paths
 from resources.maps.tiles import Tile
 from resources.maps.objects import ObjectWithPath
 from resources.maps.utils import loadProperties
+from resources.maps.utils import checkTrue
 
 import logging
 
@@ -26,7 +27,8 @@ class Layer(object):
         self.name = None
         self.layerType = layerType if layerType is not None else self.LAYER_TYPE
         self.parentMap = parentMap
-        self.visible = self.holder = self.parallax = False
+        self.visible = True
+        self.holder = self.parallax = False
         self.parallaxFactor = ()
         self.properties = {}
         self.setProperties(properties)
@@ -38,9 +40,9 @@ class Layer(object):
         self.updateAttributes()
 
     def updateAttributes(self):
-        self.visible = self.properties.get('visible', 'True') == 'True'
-        self.holder = self.properties.get('holder', 'False') == 'True'
-        self.parallax = self.properties.get('parallax', 'False') == 'True'
+        self.visible = checkTrue(self.properties.get('visible', 'True'))
+        self.holder = checkTrue(self.properties.get('holder', 'False'))
+        self.parallax = checkTrue(self.properties.get('parallax', 'False'))
         self.parallaxFactor = (
             int(self.properties.get('parallax_factor_x', '100')),
             int(self.properties.get('parallax_factor_y', '100'))

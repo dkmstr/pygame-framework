@@ -103,14 +103,14 @@ class Map(object):
                 self.addLayer(l)
 
     def addLayer(self, layer):
-        logger.debug('Adding layer {} to layer list'.format(layer))
+        logger.debug('Adding layer {} to layer list (visible: {})'.format(layer, layer.visible))
         if checkTrue(layer.getProperty('actors')):
             self.actors.addActorsFromArrayLayer(layer)
             return   # This layer is completly removed
-        elif layer.getProperty('holder') == 'True':
+        elif checkTrue(layer.getProperty('holder')):
             logger.debug('Layer {} is a holder layer'.format(layer.name))
             self.holderNames.append(layer.name)
-        elif layer.getProperty('parallax') == 'True':
+        elif checkTrue(layer.getProperty('parallax')):
             logger.debug('Layer {} is a parallax layer'.format(layer.name))
             self.parallaxNames.append(layer.name)
         else:
@@ -132,11 +132,10 @@ class Map(object):
                 self.layers[layerName].draw(surface, x, y, width, height)
 
     def update(self, layersNames=None):
-        layersNames = self.__getLayers(layersNames)
-
         # Keep order intact
-        for layerName in layersNames:
-            self.layers[layerName].update()
+        for layerName in self.__getLayers(layersNames):
+            if self.layers[layerName].visible:
+                self.layers[layerName].update()
 
         for ts in self.tileSets.itervalues():
             ts.update()
