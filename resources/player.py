@@ -10,14 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 class Player(Actor):
-    def __init__(self, parentMap, actorType, x=0, y=0):
-        Actor.__init__(self, parentMap, actorType, x, y)
-        self.rect = pygame.Rect(x, y, 69, 69)
-        self.image1 = pygame.Surface((69, 69))
-        self.image2 = pygame.Surface((69, 69))
+    def __init__(self, parentMap, actorType, x=0, y=0, w=0, h=0):
+        Actor.__init__(self, parentMap, actorType, x, y, 60, 69)
+        self.image1 = pygame.Surface((self.rect.width, self.rect.height))
+        self.image2 = pygame.Surface((self.rect.width, self.rect.height))
         self.image1.fill(0)
         self.image2.fill(0xFF0000)
         self.image = self.image1
+        self.xSpeed = self.ySpeed = 0
         
     def checkXCollisions(self, offset):
         if offset == 0:
@@ -45,7 +45,7 @@ class Player(Actor):
 
     def move(self, xOffset, yOffset):
         if xOffset == 0 and yOffset == 0:
-            pass  # Check someting pushing, from where
+            pass  # Is something pushes this, this will be calculated elsewhere
         else:
             self.rect.x += xOffset
             self.checkXCollisions(xOffset)
@@ -61,17 +61,9 @@ class Player(Actor):
             self.image = self.image2
         else:
             self.image = self.image1
-
-    def setPosition(self, x, y):
-        self.rect = pygame.Rect(x, y, 70, 70)
-
-    @property
-    def x(self):
-        return self.rect.x
-
-    @property
-    def y(self):
-        return self.rect.y
+            
+    def update(self):
+        self.move(self.xSpeed, self.ySpeed)
 
     def draw(self, toSurface):
         mapDisplay = self.parentMap.getDisplayPosition()

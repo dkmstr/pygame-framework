@@ -21,7 +21,7 @@ class GameTest(resources.game_state.GameState):
     def __init__(self, name):
         super(GameTest, self).__init__(name)
 
-        self.x_speed = self.y_speed = self.bg_speed = 0
+        self.bg_speed = 0
 
         # self.images = resources.images.Images((1280, 2880))
         self.maps = resources.maps.Maps()
@@ -59,27 +59,27 @@ class GameTest(resources.game_state.GameState):
         if key == K_q:
             return resources.game_state.GameControl.EXIT_GAMESTATE
         elif key == K_RIGHT:
-            self.x_speed = BASE_SPEED
+            self.player.xSpeed = BASE_SPEED
             self.bg_speed = BASE_SPEED
         elif key == K_LEFT:
-            self.x_speed = -BASE_SPEED
+            self.player.xSpeed = -BASE_SPEED
             self.bg_speed = -BASE_SPEED
         elif key == K_UP:
-            self.y_speed = -BASE_SPEED
+            self.player.ySpeed = -BASE_SPEED
         elif key == K_DOWN:
-            self.y_speed = BASE_SPEED
+            self.player.ySpeed = BASE_SPEED
 
     def on_keyup(self, key):
         if key in (K_RIGHT, K_LEFT):
-            self.x_speed = 0
+            self.player.xSpeed = 0
             self.bg_speed = 0
         elif key in (K_UP, K_DOWN):
-            self.y_speed = 0
+            self.player.ySpeed = 0
 
     def on_frame(self):
         #self.bg.scroll(self.bg_speed)
         self.map.update()
-        self.player.move(self.x_speed, self.y_speed)
+        #self.player.move(self.x_speed, self.y_speed)
 
         self.player.updateMapDisplayPosition(self.controller.screen)
 
