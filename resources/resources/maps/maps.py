@@ -5,12 +5,13 @@ import os
 import xml.etree.ElementTree as ET
 
 from resources.util import resource_path
-from tileset import TileSet
-from layers import ArrayLayer
-from layers import DynamicLayer
-from layers import ImageLayer
-from utils import loadProperties
-from actors import ActorList
+from resources.maps.tileset import TileSet
+from resources.maps.layers import ArrayLayer
+from resources.maps.layers import DynamicLayer
+from resources.maps.layers import ImageLayer
+from resources.maps.utils import loadProperties
+from resources.maps.utils import checkTrue
+from resources.maps.actors import ActorList
 
 import logging
 
@@ -21,10 +22,20 @@ logger = logging.getLogger(__name__)
 # Map                #
 ######################
 class Map(object):
-    def __init__(self, mapId, path, properties={}):
+    def __init__(self, mapId, path, properties=None):
         self.id = mapId
         self.mapFile = resource_path(path)
         self.mapPath = os.path.dirname(self.mapFile)
+        self.properties = properties if properties is not None else {}
+        self.width = self.height = self.tileWidth = self.tileHeight = 0
+        self.tileSets = {}
+        self.layerNames = []
+        self.holderNames = []
+        self.parallaxNames = []
+        self.layers = {}
+        self.tiles = []
+        self.actors = ActorList()
+        self.displayPosition = (0, 0)
         self.reset()
 
     def __getLayers(self, layersNames):
@@ -93,7 +104,7 @@ class Map(object):
 
     def addLayer(self, layer):
         logger.debug('Adding layer {} to layer list'.format(layer))
-        if layer.getProperty('actors') == 'True':
+        if checkTrue(layer.getProperty('actors')):
             self.actors.addActorsFromArrayLayer(layer)
             return   # This layer is completly removed
         elif layer.getProperty('holder') == 'True':
@@ -150,7 +161,7 @@ class Map(object):
         return self.properties.get(propertyName)
 
     def __unicode__(self):
-        return 'Map {}: {}x{} with tile of  ({})'.format(self.path, self.width, self.height, self.tileWidth, self.tileHeight, self.properties)
+        return 'Map {}: {}x{} with tile of  ({}x{}) and {} properties'.format(self.mapFile, self.width, self.height, self.tileWidth, self.tileHeight, self.properties)
 
 
 class Maps(object):
@@ -176,6 +187,5 @@ class Maps(object):
         return self.maps[mapId]
 
     def __unicode__(self):
-        r = ''
-        for v in self.maps:
-            r += unicode(v)
+        return [unicode(v) for v in self.maps].join(',')
+        

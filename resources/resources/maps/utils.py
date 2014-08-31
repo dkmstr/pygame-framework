@@ -13,3 +13,8 @@ def loadProperties(node):
             logger.debug('Found property {}={}'.format(p.attrib['name'], p.attrib['value']))
             props[p.attrib['name']] = p.attrib['value']
     return props
+
+def checkTrue(value):
+    return unicode(value).lower() == 'true'
+
+    

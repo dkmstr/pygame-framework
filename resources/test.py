@@ -101,9 +101,9 @@ gc = resources.game_state.GameControl(WIDTH, HEIGHT)
 gc.add(GameTest('state0'))
 #gc.add(GameTest('state1'))
 
-#import cProfile
+import cProfile
 
-#cProfile.run('gc.run()')
-gc.run()
+cProfile.run('gc.run()')
+#gc.run()
 
 gc.quit()

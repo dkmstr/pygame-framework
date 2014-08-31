@@ -6,9 +6,9 @@ import struct
 import pygame
 import os
 from resources import paths
-from tiles import Tile
-from objects import ObjectWithPath
-from utils import loadProperties
+from resources.maps.tiles import Tile
+from resources.maps.objects import ObjectWithPath
+from resources.maps.utils import loadProperties
 
 import logging
 
@@ -22,14 +22,18 @@ class Layer(object):
     LAYER_TYPE = 'default'
     EMPTY_TILE = Tile(None, 0, None)
 
-    def __init__(self, parentMap=None, layerType=None, properties={}):
+    def __init__(self, parentMap=None, layerType=None, properties=None):
         self.name = None
         self.layerType = layerType if layerType is not None else self.LAYER_TYPE
         self.parentMap = parentMap
+        self.visible = self.holder = self.parallax = False
+        self.parallaxFactor = ()
+        self.properties = {}
         self.setProperties(properties)
 
     def setProperties(self, properties):
-        self.properties = properties
+        if properties is not None:
+            self.properties = properties
         # Set custom "flags" based on properties
         self.updateAttributes()
 
@@ -70,6 +74,7 @@ class Layer(object):
         return self.layerType
 
     def getTileAt(self, x, y):
+        x, y = y, x  # Avoid pylint unused
         return Layer.EMPTY_TILE
 
     def isVisible(self):
@@ -77,6 +82,7 @@ class Layer(object):
 
     # Collisions
     def getCollisions(self, rect):
+        del rect   # Avoid pylint unused
         return ()
 
     def getProperty(self, propertyName):
@@ -91,7 +97,11 @@ class Layer(object):
 ######################
 class ArrayLayer(Layer):
     LAYER_TYPE = 'array'
-
+    def __init__(self, parentMap=None, layerType=None, properties=None):
+        Layer.__init__(self, parentMap, layerType, properties)
+        self.width = self.height = 0
+        self.data = []
+        
     def load(self, node):
         self.name = node.attrib['name']
         self.width = int(node.attrib['width'])
@@ -151,11 +161,11 @@ class ArrayLayer(Layer):
         yEnd = (rect.bottom + tileHeight - 2) / tileHeight
         
         for y in xrange(yStart, yEnd):
-            if y < 0 or y >= self.height:
+            if y < 0 or y >= self.height:  # Skips out of bounds rows
                 continue
             pos = self.width * y
             for x in xrange(xStart, xEnd):
-                if x < 0 or x >= self.width:
+                if x < 0 or x >= self.width:  # Skips out of bounds columns
                     continue
                 tile = self.data[pos+x]
                 if tile > 0:
@@ -186,6 +196,12 @@ class ArrayLayer(Layer):
 ######################
 class DynamicLayer(Layer):
     LAYER_TYPE = 'dynamic'
+    def __init__(self, parentMap=None, layerType=None, properties=None):
+        Layer.__init__(self, parentMap, layerType, properties)
+        self.width = self.height = 0
+        self.tilesLayer = None
+        self.paths = {}
+        self.platforms = {}
 
     def load(self, node):
         self.name = node.attrib['name']
@@ -249,7 +265,7 @@ class DynamicLayer(Layer):
         for k, p in self.platforms.iteritems():
             try:
                 p.path = self.paths[p.path]
-            except:
+            except KeyError:
                 logger.error('Path {} doesn\'t exists!!'.format(p.path))
                 erroneous.append(k)
 
@@ -285,6 +301,12 @@ class DynamicLayer(Layer):
 
 class ImageLayer(Layer):
     LAYER_TYPE = 'image'
+    def __init__(self, parentMap=None, layerType=None, properties=None):
+        Layer.__init__(self, parentMap, layerType, properties)
+        self.width = self.height = 0
+        self.image_path = self.image = None
+        self.cached_size = (-1, -1)
+        self.cached_image = None
 
     def load(self, node):
         logger.debug('Loading image Layer')

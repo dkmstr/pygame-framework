@@ -5,8 +5,9 @@ import pygame
 import os
 import xml.etree.ElementTree as ET
 
-from tiles import Tile
-from utils import loadProperties
+from resources.maps.tiles import Tile
+from resources.maps.utils import loadProperties
+from resources.maps.utils import checkTrue
 
 import logging
 
@@ -61,7 +62,7 @@ class TileSet(object):
         logger.debug('Loading external tileset: {}'.format(path))
         tree = ET.parse(os.path.join(self.parentMap.mapPath, path))
         root = tree.getroot()  # Map element
-        self.__loadTileSet(self.parentMap.mapPath, root)
+        self.__loadTileSet(root)
 
     def load(self, node):
         logger.debug('Loading tileset in path {}'.format(self.parentMap.mapPath))
