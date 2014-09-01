@@ -21,15 +21,13 @@ SCREEN_BORDER_Y = 180
 class Player(Actor):
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
         Actor.__init__(self, parentMap, fromTile, actorType, x, y, 52, 66)
-        self.image1 = pygame.Surface((self.rect.width, self.rect.height))
-        self.image2 = pygame.Surface((self.rect.width, self.rect.height))
-        self.image1.fill(0)
-        self.image2.fill(0xFF0000)
-        self.image = self.image1
         self.xSpeed = self.ySpeed = 0
         self.animationRight = FilesAnimation('data/actors/rp1_walk*.png', 10)
         self.animationLeft = FlippedAnimation(self.animationRight)
         self.animation = self.animationRight
+        
+        # For debugging
+        self.actorsCollisions = False
 
     def checkXCollisions(self, offset):
         if offset == 0:
@@ -92,10 +90,14 @@ class Player(Actor):
             self.animation.iterate()
 
         self.move(self.xSpeed/100, self.ySpeed/100)
+        
+        self.actorsCollisions = False
+        for c in self.parentMap.getActorsCollisions(self.rect, exclude=self):
+            self.actorsCollisions = True
 
     def draw(self, toSurface):
         x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y)
-        self.animation.draw(toSurface, x, y)
+        self.animation.draw(toSurface, x, y, None if self.actorsCollisions is False else 'laplacian')
 
     def updateMapDisplayPosition(self, displaySurface):
         w, h = displaySurface.get_size()

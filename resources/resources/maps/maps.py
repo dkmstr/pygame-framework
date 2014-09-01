@@ -143,10 +143,12 @@ class Map(object):
             for col in layer.getCollisions(rect):
                 yield col
 
-    def getActorsCollisions(self, rect):
+    def getActorsCollisions(self, rect, **kwargs):
+        skip = kwargs.get('exclude')
         for layer in self.getActorsLayers():
             for col in layer.getCollisions(rect):
-                yield col
+                if col[1] is not skip:
+                    yield col
 
     def getProperty(self, propertyName):
         '''

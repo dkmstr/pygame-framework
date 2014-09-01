@@ -30,8 +30,11 @@ class Animation(object):
     def get(self):
         return self.images[self.position]
     
-    def draw(self, toSurface, x, y):
-        toSurface.blit(self.images[self.position], (x, y))
+    def draw(self, toSurface, x, y, effect=None):
+        image = self.images[self.position]
+        if effect == 'laplacian':
+            image = pygame.transform.laplacian(image)
+        toSurface.blit(image, (x, y))
 
 
 class FilesAnimation(Animation):
