@@ -7,13 +7,8 @@ import xml.etree.ElementTree as ET
 from resources.util import resource_path
 from resources.maps.tileset import TileSet
 
-from resources.maps.layers import ArrayLayer
-from resources.maps.layers import DynamicLayer
-from resources.maps.layers import ImageLayer
-from resources.maps.layers import ActorsLayer
-
+from resources import layers
 from resources.maps.utils import loadProperties
-from resources.maps.utils import checkTrue
 
 import logging
 
@@ -35,13 +30,13 @@ class Map(object):
         self.tiles = []
         self.displayPosition = (0, 0)
         self.reset()
-        
+
     def getRenderingLayers(self):
         return [l for l in self.layers if l.holder is False and l.visible is True]
-    
+
     def getActorsLayers(self):
         return [l for l in self.layers if l.actor is True]
-    
+
     def getCollisionsLayers(self):
         return [l for l in self.layers if l.holder is False and l.visible is True and l.actor is False and l.parallax is False]
 
@@ -80,9 +75,9 @@ class Map(object):
         # exists. To avoit problems, always put (if posible) linked tiles layers at bottom in tiled so they get
         # loaded FIRST
         t = {
-            'layer': ArrayLayer,
-            'objectgroup': DynamicLayer,
-            'imagelayer': ImageLayer
+            'layer': layers.ArrayLayer,
+            'objectgroup': layers.DynamicLayer,
+            'imagelayer': layers.ImageLayer
         }
         for elem in root:
             if elem.tag in ('layer', 'objectgroup', 'imagelayer'):
@@ -92,8 +87,8 @@ class Map(object):
 
     def addLayer(self, layer):
         if layer.actor:
-            layer = ActorsLayer(self, layer)
-            
+            layer = layers.ActorsLayer(self, layer)
+
         self.layers.append(layer)
 
     def getLayer(self, layerName):
@@ -134,10 +129,10 @@ class Map(object):
         for layer in self.getCollisionsLayers():
             if layer.parallax is True:
                 continue
-            
+
             for col in layer.getCollisions(rect):
                 yield col
-                
+
     def getActorsCollisions(self, rect):
         for layer in self.getActorsLayers():
             for col in layer.getCollisions(rect):
@@ -177,4 +172,3 @@ class Maps(object):
 
     def __unicode__(self):
         return [unicode(v) for v in self.maps].join(',')
-        

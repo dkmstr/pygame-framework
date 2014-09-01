@@ -9,6 +9,9 @@ import resources
 from player import Player
 from resources.maps.actors import actorsFactory
 
+import tempfile
+import os
+
 WIDTH = 1024
 HEIGHT = 768
 
@@ -88,9 +91,8 @@ class GameTest(resources.game_state.GameState):
         self.map.draw(self.controller.screen)
         #self.player.draw(self.controller.screen)
 
-
 logging.basicConfig(
-    filename='log.log',
+    filename=os.path.join(tempfile.gettempdir(), 'log.log'),
     filemode='w',
     format='%(levelname)s %(asctime)s %(module)s %(funcName)s %(lineno)d %(message)s',
     level=logging.DEBUG

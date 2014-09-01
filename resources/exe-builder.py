@@ -15,6 +15,7 @@
 try:
     from distutils.core import setup
     import py2exe, pygame
+    import py2exe2msi.command
     from modulefinder import Module
     import glob, fnmatch
     import sys, os, shutil
@@ -53,7 +54,7 @@ class BuildExe:
         self.project_url = "about:none"
  
         #Version of program
-        self.project_version = "0.0"
+        self.project_version = "0.1"
  
         #License of the program
         self.license = "MyApps License"
@@ -85,7 +86,7 @@ class BuildExe:
         self.zipfile_name = None
  
         #Dist directory
-        self.dist_dir ='exe'
+        self.dist_dir ='dist'
  
     ## Code from DistUtils tutorial at http://wiki.python.org/moin/Distutils/Tutorial
     ## Originally borrowed from wxPython's setup and config files
@@ -154,13 +155,16 @@ class BuildExe:
                 'icon_resources': [(0, self.icon_file)],
                 'copyright': self.copyright
             }],
-            options = {'py2exe': {'optimize': 2, 'bundle_files': 1, 'compressed': True, \
-                                  'excludes': self.exclude_modules, 'packages': self.extra_modules, \
-                                  'dll_excludes': self.exclude_dll,
-                                  'includes': self.extra_scripts} },
+            options = {
+		 'py2exe': {'optimize': 2, 'bundle_files': 1, 'compressed': True, \
+                            'excludes': self.exclude_modules, 'packages': self.extra_modules, \
+                            'dll_excludes': self.exclude_dll,
+                             'includes': self.extra_scripts},
+		 'py2exe2msi': { 'pfiles_dir': 'Test Game', 'upgrade_code': 'a6b8227c-3177-11e4-bae4-10feed05884b'}
+	    },
             zipfile = self.zipfile_name,
             data_files = extra_datas,
-            dist_dir = self.dist_dir
+            #dist_dir = self.dist_dir
             )
         
         if os.path.isdir('build'): #Clean up build dir
