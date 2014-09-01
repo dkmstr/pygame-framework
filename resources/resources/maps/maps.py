@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import os
+import pygame
 import xml.etree.ElementTree as ET
 
 from resources.util import resource_path
@@ -29,6 +30,7 @@ class Map(object):
         self.layers = []
         self.tiles = []
         self.displayPosition = (0, 0)
+        self.boundary = pygame.Rect(0, 0, 0, 0)
         self.reset()
 
     def getRenderingLayers(self):
@@ -53,6 +55,11 @@ class Map(object):
             self.tileWidth = int(fromNode.attrib['tilewidth'])
             self.tileHeight = int(fromNode.attrib['tileheight'])
             self.properties = loadProperties(fromNode.find('properties'))
+            self.boundary = pygame.Rect(0, 0, self.width*self.tileHeight, self.height*self.tileHeight)
+        else:
+            self.width = self.height = self.tileWidth = self.tileHeight = 0
+            self.properties = {}
+            self.boundary = pygame.Rect(0, 0, 0, 0)
 
     def load(self):
         tree = ET.parse(self.mapFile)
@@ -123,6 +130,9 @@ class Map(object):
 
     def getDisplayPosition(self):
         return self.displayPosition
+    
+    def translateCoordinates(self, x, y):
+        return (x - self.displayPosition[0], y - self.displayPosition[1])
 
     # Collisions
     def getCollisions(self, rect):
@@ -143,6 +153,10 @@ class Map(object):
         Obtains a property associated whit this map
         '''
         return self.properties.get(propertyName)
+    
+    def getRect(self):
+        return self.boundary
+        
 
     def __unicode__(self):
         return 'Map {}: {}x{} with tile of  ({}x{}) and {} properties'.format(self.mapFile, self.width, self.height, self.tileWidth, self.tileHeight, self.properties)

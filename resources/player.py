@@ -1,24 +1,36 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from resources.maps.actors import Actor
+from resources.actors import Actor
+from resources.animation import FilesAnimation
+from resources.animation import FlippedAnimation
 
 import pygame
+
 import logging
 
 logger = logging.getLogger(__name__)
 
+BASE_X_SPEED = 4 * 100
+BASE_Y_SPEED = 8 * 100
+
+SCREEN_BORDER_X = 300
+SCREEN_BORDER_Y = 180
+
 
 class Player(Actor):
-    def __init__(self, parentMap, actorType, x=0, y=0, w=0, h=0):
-        Actor.__init__(self, parentMap, actorType, x, y, 60, 69)
+    def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
+        Actor.__init__(self, parentMap, fromTile, actorType, x, y, 52, 66)
         self.image1 = pygame.Surface((self.rect.width, self.rect.height))
         self.image2 = pygame.Surface((self.rect.width, self.rect.height))
         self.image1.fill(0)
         self.image2.fill(0xFF0000)
         self.image = self.image1
         self.xSpeed = self.ySpeed = 0
-        
+        self.animationRight = FilesAnimation('data/actors/rp1_walk*.png', 10)
+        self.animationLeft = FlippedAnimation(self.animationRight)
+        self.animation = self.animationRight
+
     def checkXCollisions(self, offset):
         if offset == 0:
             return
@@ -35,6 +47,7 @@ class Player(Actor):
         if offset == 0:
             return
         for c in self.parentMap.getCollisions(self.rect):
+            self.ySpeed = 0
             colRect = c[0]
             if offset > 0:
                 self.rect.bottom = colRect.top - 1
@@ -43,41 +56,52 @@ class Player(Actor):
             return True
         return False
 
+    def getCollisions(self):
+        for c in self.parentMap.getCollisions(self.rect):
+            yield c
+
     def move(self, xOffset, yOffset):
         if xOffset == 0 and yOffset == 0:
             pass  # Is something pushes this, this will be calculated elsewhere
         else:
             if xOffset:
                 self.rect.x += xOffset
+                self.rect.clamp_ip(self.boundary)
                 self.checkXCollisions(xOffset)
             if yOffset:
                 self.rect.y += yOffset
+                self.rect.clamp_ip(self.boundary)
                 self.checkYCollisions(yOffset)
 
-        collisions = None
-        for collision in self.parentMap.getCollisions(self.rect):
-            collisions = True
-            break
-
-        if collisions is not None:
-            self.image = self.image2
+    def calculateGravity(self):
+        if self.ySpeed == 0:
+            self.ySpeed = 800  # Faster than falling platforms or it will be doing "strange things"
         else:
-            self.image = self.image1
-            
+            # Temporary to tests
+            self.ySpeed += 35
+
     def update(self):
-        self.move(self.xSpeed, self.ySpeed)
+
+        self.calculateGravity()
+        if self.xSpeed != 0:
+            if self.xSpeed > 0:
+                self.animation = self.animationRight
+            else:
+                self.animation = self.animationLeft
+                
+            self.animation.iterate()
+
+        self.move(self.xSpeed/100, self.ySpeed/100)
 
     def draw(self, toSurface):
-        mapDisplay = self.parentMap.getDisplayPosition()
-        x, y = self.rect.x - mapDisplay[0], self.rect.y - mapDisplay[1]
-        #print x, y
-        toSurface.blit(self.image, (x, y))
+        x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y)
+        self.animation.draw(toSurface, x, y)
 
     def updateMapDisplayPosition(self, displaySurface):
         w, h = displaySurface.get_size()
 
-        boundariesX = (200-70, 200)
-        boundariesY = (180-70, 180)
+        boundariesX = (SCREEN_BORDER_X-self.rect.width, SCREEN_BORDER_X)
+        boundariesY = (SCREEN_BORDER_Y-self.rect.height, SCREEN_BORDER_Y)
 
         xMap, yMap = self.parentMap.getDisplayPosition()
         if xMap > self.rect.x - boundariesX[0] and xMap < self.rect.x:
@@ -91,3 +115,19 @@ class Player(Actor):
             yMap = self.rect.y - h + boundariesY[1]
 
         self.parentMap.setDisplayPosition(xMap, yMap)
+
+    # Custom players method
+    def stop(self):
+        self.xSpeed = 0
+        self.animationRight.reset()
+        self.animationLeft.reset()
+    
+    def goLeft(self):
+        self.xSpeed = -BASE_X_SPEED
+        
+    def goRight(self):
+        self.xSpeed = BASE_X_SPEED
+        
+    def jump(self):
+        self.ySpeed = -BASE_Y_SPEED
+        

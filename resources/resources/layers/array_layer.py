@@ -31,19 +31,20 @@ class ArrayLayer(Layer):
             raise Exception('No base 64 encoded')
         self.data = struct.unpack('<' + 'I'*(self.width*self.height), base64.b64decode(data.text))
 
-    def onDraw(self, toSurface, x, y, width, height):
+    def onDraw(self, toSurface, rect):
         tiles = self.parentMap.tiles
         tileWidth = self.parentMap.tileWidth
         tileHeight = self.parentMap.tileHeight
 
-        xStart, xLen = x / tileWidth, (width + tileWidth - 1) / tileWidth + 1
-        yStart, yLen = y / tileHeight, (height + tileHeight - 1) / tileHeight + 1
+        xStart, xLen = rect.x / tileWidth, (rect.width + tileWidth - 1) / tileWidth + 1
+        yStart, yLen = rect.y / tileHeight, (rect.height + tileHeight - 1) / tileHeight + 1
 
-        if xStart > width or yStart > height:
-            return
+        # If drawing zone is outside map, skip
+        # if xStart > self.width or yStart > self.height or xStart + xLen < 0 or yStart + yLen < 0:
+        #    return
 
-        xOffset = x % tileWidth
-        yOffset = y % tileHeight
+        xOffset = rect.x % tileWidth
+        yOffset = rect.y % tileHeight
 
         xEnd = self.width if xStart+xLen > self.width else xStart+xLen
         yEnd = self.height if yStart+yLen > self.height else yStart+yLen

@@ -7,7 +7,8 @@ import pygame
 from pygame.locals import *
 import resources
 from player import Player
-from resources.maps.actors import actorsFactory
+from items import *
+from resources.actors import actorsFactory
 
 import tempfile
 import os
@@ -51,7 +52,7 @@ class GameTest(resources.game_state.GameState):
         #self.bg.add_surface(self.images.get('bck2'), 3)
 
     def on_enter(self):
-        pygame.mixer.music.load(resources.util.resource_path('data/sound/CrEEP_0.ogg'))
+        pygame.mixer.music.load(resources.util.resource_path('data/sound/journey_3.ogg'))
         pygame.mixer.music.play(-1)
 
     def on_exit(self):
@@ -62,22 +63,19 @@ class GameTest(resources.game_state.GameState):
         if key == K_q:
             return resources.game_state.GameControl.EXIT_GAMESTATE
         elif key == K_RIGHT:
-            self.player.xSpeed = BASE_SPEED
-            self.bg_speed = BASE_SPEED
+            self.player.goRight()
         elif key == K_LEFT:
-            self.player.xSpeed = -BASE_SPEED
-            self.bg_speed = -BASE_SPEED
+            self.player.goLeft()
         elif key == K_UP:
-            self.player.ySpeed = -BASE_SPEED
+            self.player.jump()
         elif key == K_DOWN:
-            self.player.ySpeed = BASE_SPEED
+            pass
 
     def on_keyup(self, key):
         if key in (K_RIGHT, K_LEFT):
-            self.player.xSpeed = 0
-            self.bg_speed = 0
+            self.player.stop()
         elif key in (K_UP, K_DOWN):
-            self.player.ySpeed = 0
+            pass
 
     def on_frame(self):
         #self.bg.scroll(self.bg_speed)

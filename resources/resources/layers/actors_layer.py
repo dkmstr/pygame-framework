@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from resources.maps.actors import actorsFactory
+import pygame
+from resources.actors import actorsFactory
 from resources.layers.layer import Layer
 
 import logging
@@ -23,7 +24,7 @@ class ActorsLayer(Layer):
         logger.debug('Adding actors from {}'.format(arrayLayer))
         # Sort actors by type, we can later iterate this dictionary
         for actor in arrayLayer:
-            x, y, actorType = actor[0], actor[1], actor[2].getProperty('type')
+            x, y, tile, actorType = actor[0], actor[1], actor[2], actor[2].getProperty('type')
             if actorType is None:
                 logger.error('Found an actor without type: {} (ignored)'.format(actorType))
                 continue
@@ -31,13 +32,14 @@ class ActorsLayer(Layer):
             if aClass is None:
                 logger.error('Found an unregistered actor class: {}'.format(actorType))
                 continue
-            self.actorList.append(aClass(self.parentMap, actorType, x, y))
+            self.actorList.append(aClass(self.parentMap, tile, actorType, x, y))
 
         logger.debug(unicode(self))
 
-    def onDraw(self, toSurface, x, y, width, height):
+    def onDraw(self, toSurface, rect):
         for actor in self.actorList:
-            actor.draw(toSurface)
+            if actor.collide(rect): # Only draws if actor is visible
+                actor.draw(toSurface)
 
     def onUpdate(self):
         for actor in self.actorList:

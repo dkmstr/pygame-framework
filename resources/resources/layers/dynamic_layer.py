@@ -73,7 +73,7 @@ class DynamicLayer(Layer):
                         t.append(self.tilesLayer.getTileAt(x, y))
                     tiles.append(t)
 
-                p = ObjectWithPath(self, startX, startY, width, height, properties.get('path', None), tiles, checkTrue(properties.get('sticky', False)))
+                p = ObjectWithPath(self, startX, startY, width, height, properties.get('path', None), tiles, checkTrue(properties.get('sticky', 'True')))
                 self.platforms[obj.attrib['name']] = p
 
                 logger.debug('Platform {}'.format(p))
@@ -91,9 +91,10 @@ class DynamicLayer(Layer):
         for k in erroneous:
             del self.platforms[k]
 
-    def onDraw(self, toSurface, x, y, width, height):
+    def onDraw(self, toSurface, rect):
         for obj in self.platforms.itervalues():
-            obj.draw(toSurface, x, y)
+            if obj.collide(rect):
+                obj.draw(toSurface, rect.x, rect.y)
 
     def onUpdate(self):
         for obj in self.platforms.itervalues():

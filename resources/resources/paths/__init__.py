@@ -39,7 +39,7 @@ class PathSegment(object):
         if self.x_at_end(x) and self.y_at_end(y):
             return None  # Out of line
         return (x, y)
-
+    
     def __unicode__(self):
         return 'PathSegment: ({},{})-({},{}) {},{}'.format(self.x, self.y, self.x + self.x_offset, self.y + self.y_offset, self.x_step, self.y_step)
 
@@ -76,6 +76,12 @@ class Path(object):
         else:
             self.segment_pos += 1
         return pos
+    
+    def save(self):
+        self.saved = (self.segment, self.segment_pos)
+        
+    def restore(self):
+        self.segment, self.segment_pos = self.saved
 
     def __unicode__(self):
         return 'Path: {}'.format([unicode(s) for s in self.segments])

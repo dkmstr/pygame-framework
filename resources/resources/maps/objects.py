@@ -37,20 +37,34 @@ class ObjectWithPath(object):
             y += yy
 
     def update(self):
-        xOffset, yOffset = self.rect.left, self.rect.top
+        x, y = self.rect.left, self.rect.top
+        self.path.save()
         self.rect.left, self.rect.top = self.path.iterate()
-        xOffset, yOffset = self.rect.left - xOffset, self.rect.top - yOffset
+        xOffset, yOffset = self.rect.left - x, self.rect.top - y
         # First we check what any actor collided moves acordly
         for c in self.parentLayer.parentMap.getActorsCollisions(self.rect):
             actorRect, actor = c  # Rect is a "reference" to actor position, so modifying it will modify actor's position
-            if xOffset > 0:
-                actorRect.left = self.rect.right
-            elif xOffset < 0:
-                actorRect.right = self.rect.left
-            if yOffset > 0:
-                actorRect.top = self.rect.bottom
-            elif yOffset < 0:
-                actorRect.bottom = self.rect.top
+            if yOffset > 0 or xOffset != 0:
+                self.path.restore()
+                self.rect.left, self.rect.top = x, y
+            else:
+                # If actor collides in new position, do not move
+                bottom = actor.rect.bottom
+                actor.rect.bottom = self.rect.top
+                for c in actor.getCollisions():
+                    actor.rect.bottom = bottom
+                    self.path.restore()
+                    self.rect.left, self.rect.top = x, y
+                
+                
+            #if xOffset > 0:
+                #actorRect.left = self.rect.right
+            #elif xOffset < 0:
+                #actorRect.right = self.rect.left
+            #if yOffset > 0:
+                #actorRect.top = self.rect.bottom
+            #elif yOffset < 0:
+                #actorRect.bottom = self.rect.top
         # Now, it we are "sticky", we move any actor that is "over" this item
         # Sticky is only sticky for actors that are ON this object
         if self.sticky and xOffset != 0:

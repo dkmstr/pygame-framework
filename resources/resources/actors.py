@@ -8,9 +8,14 @@ logger = logging.getLogger(__name__)
 
 
 class Actor(object):
-    def __init__(self, parentMap, actorType, x=0, y=0, w=0, h=0):
+    def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
+        size = fromTile.getSize()
+        w = size[0] if w is None else w
+        h = size[1] if h is None else h
         self.rect = pygame.Rect(x, y, w, h)
+        self.tile = fromTile
         self.parentMap = parentMap
+        self.boundary = self.parentMap.getRect()
         self.actorType = actorType
         
     def move(self, xOffset, yOffset):
@@ -27,10 +32,12 @@ class Actor(object):
         return self.rect.colliderect(rect)
         
     def draw(self, toSurface):
-        pass
-    
+        x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y)
+        self.tile.draw(toSurface, x, y)
+
     def update(self):
         pass
+    
 
 class ActorsFactory(object):
     def __init__(self):

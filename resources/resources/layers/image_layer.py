@@ -33,10 +33,10 @@ class ImageLayer(Layer):
         self.setProperties(loadProperties(node.find('properties')))
         logger.debug('Loaded image Layer {}'.format(self))
 
-    def onDraw(self, toSurface, x, y, width, height):
-        if width != self.cached_size[0] or height != self.cached_size[1]:
-            logger.debug('Rescaling image layer to {}x{}'.format(width, height))
-            self.cached_size = (width, height)
+    def onDraw(self, toSurface, rect):
+        if rect.width != self.cached_size[0] or rect.height != self.cached_size[1]:
+            logger.debug('Rescaling image layer to {}x{}'.format(rect.width, rect.height))
+            self.cached_size = (rect.width, rect.height)
             self.cached_image = pygame.transform.scale(self.image, self.cached_size).convert()
 
         toSurface.blit(self.cached_image, (0, 0))

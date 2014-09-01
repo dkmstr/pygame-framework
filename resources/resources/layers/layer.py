@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import pygame
 from resources.maps.tiles import Tile
 from resources.maps.utils import checkTrue
 
@@ -59,9 +60,11 @@ class Layer(object):
         width = toSurface.get_width() if width <= 0 else width
         height = toSurface.get_height() if height <= 0 else height
 
-        self.onDraw(toSurface, x, y, width, height)
+        rect = pygame.Rect(x, y, width, height)
+        
+        self.onDraw(toSurface, rect)
 
-    def onDraw(self, toSurface, x, y, width, height):
+    def onDraw(self, toSurface, rect):
         pass
 
     def getType(self):
