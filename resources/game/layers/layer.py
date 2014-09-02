@@ -73,6 +73,10 @@ class Layer(object):
     def getTileAt(self, x, y):
         x, y = y, x  # Avoid pylint unused
         return Layer.EMPTY_TILE
+    
+    def removeTileAt(self, x, y):
+        x, y = y, x  # Avoif pylint unused
+        pass
 
     def isVisible(self):
         return self.visible

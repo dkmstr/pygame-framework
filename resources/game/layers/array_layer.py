@@ -29,7 +29,7 @@ class ArrayLayer(Layer):
         data = node.find('data')
         if data.attrib['encoding'] != 'base64':
             raise Exception('No base 64 encoded')
-        self.data = struct.unpack('<' + 'I'*(self.width*self.height), base64.b64decode(data.text))
+        self.data = list(struct.unpack('<' + 'I'*(self.width*self.height), base64.b64decode(data.text)))
 
     def onDraw(self, toSurface, rect):
         tiles = self.parentMap.tiles
@@ -67,6 +67,11 @@ class ArrayLayer(Layer):
         if tile == 0:
             return Layer.EMPTY_TILE
         return self.parentMap.tiles[tile-1]
+    
+    def removeTileAt(self, x, y):
+        x /= self.parentMap.tileWidth
+        y /= self.parentMap.tileHeight
+        self.data[y*self.width+x] = 0
 
     def getCollisions(self, rect):
         tiles = self.parentMap.tiles

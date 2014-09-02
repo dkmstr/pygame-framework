@@ -29,6 +29,7 @@ class Actor(object):
 
     def setPosition(self, x, y):
         self.rect.top, self.rect.left = x, y
+        self.rect.clamp_ip(self.boundary)
 
     def getRect(self):
         return self.rect.move(self.xOffset, self.yOffset)
@@ -39,14 +40,21 @@ class Actor(object):
         return self.rect.move(self.xOffset, self.yOffset).colliderect(rect)
 
     def draw(self, toSurface):
+        if self.impact:
+            return
         x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y)
         self.tile.draw(toSurface, x, y)
 
     def update(self):
         return not self.impact
     
-    def hit(self, sender):
-        self.impact = True
+    def notify(self, sender, message):
+        '''
+        Used so we can notify things to actors
+        By default, it checks if 'hit' is the message, and simply sets "impact" to true
+        '''
+        if message == 'hit':
+            self.impact = True
 
 
 class ActorsFactory(object):

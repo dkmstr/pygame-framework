@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 BASE_X_SPEED = 4 * 100
-BASE_Y_SPEED = 8 * 100
+BASE_Y_SPEED = 10 * 100
 
 SCREEN_BORDER_X = 300
 SCREEN_BORDER_Y = 180
@@ -27,6 +27,9 @@ class Player(Actor):
         self.animationRight = FlippedAnimation(self.animationLeft)
         self.animation = self.animationRight
         self.keys = {}
+        
+        # What the player has
+        self.hasYellowKey = False
 
     def checkXCollisions(self, offset):
         if offset == 0:
@@ -43,31 +46,41 @@ class Player(Actor):
     def checkYCollisions(self, offset):
         if offset == 0:
             return
+        
         for c in self.parentMap.getCollisions(self.rect):
             self.ySpeed = 0
             colRect = c[0]
             if offset > 0:
-                self.rect.bottom = colRect.top - 1
+                if self.rect.bottom > colRect.top - 1:
+                    self.rect.bottom = colRect.top - 1
             else:
-                self.rect.top = colRect.bottom + 1
-            return True
-        return False
+                if self.rect.top < colRect.bottom + 1:
+                    self.rect.top = colRect.bottom + 1
 
-    def getCollisions(self):
+    def checkActionsOnCollision(self):
         for c in self.parentMap.getCollisions(self.rect):
-            yield c
+            colRect, element, layer = c
+            if element.hasProperty('needsYellowKey') and self.hasYellowKey:
+                logger.debug('We have the yellow key and we are colliding with a yellow key needing brick!')
+                layer.removeTileAt(colRect.x, colRect.y)
+                soundsStore.get('open_lock').play()
+        
+    def getCollisions(self):
+        return self.parentMap.getCollisions(self.rect)
 
     def move(self, xOffset, yOffset):
         if xOffset == 0 and yOffset == 0:
             pass  # Is something pushes this, this will be calculated elsewhere
         else:
             if xOffset:
-                self.rect.x += xOffset
+                self.rect.left += xOffset
                 self.rect.clamp_ip(self.boundary)
+                self.checkActionsOnCollision()
                 self.checkXCollisions(xOffset)
             if yOffset:
-                self.rect.y += yOffset
+                self.rect.top += yOffset
                 self.rect.clamp_ip(self.boundary)
+                self.checkActionsOnCollision()
                 self.checkYCollisions(yOffset)
 
     def calculateGravity(self):
@@ -92,7 +105,7 @@ class Player(Actor):
         self.actorsCollisions = False
         for c in self.parentMap.getActorsCollisions(self.rect, exclude=self):
             actorRect, actor = c
-            actor.hit(self)
+            actor.notify(self, 'hit')
             
         return True  # IF we return false, we will get removed!! :)
 
@@ -136,6 +149,12 @@ class Player(Actor):
     def jump(self):
         self.ySpeed = -BASE_Y_SPEED
         
+       
+    def notify(self, sender, message):
+        if message == 'YellowKey':
+            logger.debug('Player has got yellow key')
+            self.hasYellowKey = True
 
 soundsStore.storeSoundFile('foot_left', 'step_grass_l.ogg', volume=0.3)
 soundsStore.storeSoundFile('foot_right', 'step_grass_r.ogg', volume=0.3)
+soundsStore.storeSoundFile('open_lock', 'open_lock.ogg')

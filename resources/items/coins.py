@@ -15,8 +15,8 @@ class Coin(Actor):
         Actor.__init__(self, parentMap, fromTile, actorType, x, y, w, h)
         self.soundGetCoin = soundsStore.get('pop')
 
-    def hit(self, sender):
-        Actor.hit(self, sender)
+    def notify(self, sender, message):
+        Actor.notify(self, sender, message)
         self.soundGetCoin.play()
 
 actorsFactory.registerType('BronceCoin', Coin)

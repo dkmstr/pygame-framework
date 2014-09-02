@@ -18,12 +18,6 @@ class ObjectWithPath(object):
         self.properties = {}
         self.setProperties(properties)
 
-    def setProperties(self, properties):
-        self.properties = properties
-
-        self.path = self.properties.get('path', None)
-        self.sticky = checkTrue(properties.get('sticky', 'True'))
-
     def draw(self, toSurface, x, y):
         '''
         Draws to specied surface, to coords x, y
@@ -60,7 +54,7 @@ class ObjectWithPath(object):
             else:
                 # If actor collides in new position, do not move
                 bottom = actor.rect.bottom
-                actor.rect.bottom = self.rect.top
+                actor.rect.bottom = self.rect.top - 1
                 for c in actor.getCollisions():
                     actor.rect.bottom = bottom
                     self.path.restore()
@@ -82,6 +76,21 @@ class ObjectWithPath(object):
             for c in self.parentLayer.parentMap.getActorsCollisions(rect):
                 actorRect, actor = c  # Rect is a "reference" to actor position, so modifying it will modify actor's position
                 actor.move(xOffset, 0)
+
+    def setProperties(self, properties):
+        self.properties = properties
+
+        self.path = self.properties.get('path', None)
+        self.sticky = checkTrue(properties.get('sticky', 'True'))
+
+    def getProperty(self, propertyName):
+        '''
+        Obtains a property associated whit this tileset
+        '''
+        return self.properties.get(propertyName)
+    
+    def hasProperty(self, prop):
+        return prop in self.properties
 
     def getRect(self):
         return self.rect

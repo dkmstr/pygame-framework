@@ -16,10 +16,10 @@ class Key(Actor):
 
         self.soundGetKey = soundsStore.get('key')
 
-    def hit(self, sender):
-        Actor.hit(self, sender)
+    def notify(self, sender, message):
+        Actor.notify(self, sender, message)
         self.soundGetKey.play()
-        sender.keys['yellowKey'] = True
+        sender.notify(self, self.actorType)
 
 
 actorsFactory.registerType('YellowKey', Key)

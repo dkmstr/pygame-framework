@@ -19,11 +19,8 @@ class Tile(object):
         else:
             self.rect = pygame.Rect(0, 0, 0, 0)
         self.originalSurface = self.surface = surface
+        self.properties = {}
         self.setProperties(properties)
-
-    def setProperties(self, properties):
-        self.properties = properties
-        self.updateAttributes()
 
     def updateAttributes(self):
         '''
@@ -67,11 +64,18 @@ class Tile(object):
             self.surface = self.tileSet.getTile(self.animation[self.animationState-1]).getOriginalImage()
             self.animationState += 1
 
+    def setProperties(self, properties):
+        self.properties = properties
+        self.updateAttributes()
+
     def getProperty(self, propertyName):
         '''
         Obtains a property associated whit this tileset
         '''
         return self.properties.get(propertyName)
+    
+    def hasProperty(self, prop):
+        return prop in self.properties
 
     # This x,y coordinates are screen coordinates
     # TileArray, Platform, etc.. converts coordinates of objects acordly beforw invoking it

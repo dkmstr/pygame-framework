@@ -145,7 +145,7 @@ class Map(object):
                 continue
 
             for col in layer.getCollisions(rect):
-                yield col
+                yield (col[0], col[1], layer)
 
     def getActorsCollisions(self, rect, **kwargs):
         skip = kwargs.get('exclude')
