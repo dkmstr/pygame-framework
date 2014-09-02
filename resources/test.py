@@ -29,7 +29,7 @@ class GameTest(resources.game_state.GameState):
 
         # self.images = resources.images.Images((1280, 2880))
         self.maps = resources.maps.Maps()
-        self.maps.add('level0', 'data/test/level-test-0.tmx')
+        self.maps.add('level0', 'data/maps/level-test-0.tmx')
         #self.maps.add('level0', 'data/maps/level.tmx')
 
         self.map = None

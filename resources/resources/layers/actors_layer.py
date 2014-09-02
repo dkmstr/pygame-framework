@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import pygame
 from resources.actors import actorsFactory
 from resources.layers.layer import Layer
 
@@ -38,7 +37,7 @@ class ActorsLayer(Layer):
 
     def onDraw(self, toSurface, rect):
         for actor in self.actorList:
-            if actor.collide(rect): # Only draws if actor is visible
+            if actor.collide(rect):  # Only draws if actor is visible
                 actor.draw(toSurface)
 
     def onUpdate(self):

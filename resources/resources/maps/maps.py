@@ -6,10 +6,10 @@ import pygame
 import xml.etree.ElementTree as ET
 
 from resources.util import resource_path
+from resources.util import loadProperties
 from resources.maps.tileset import TileSet
 
 from resources import layers
-from resources.maps.utils import loadProperties
 
 import logging
 
@@ -130,7 +130,7 @@ class Map(object):
 
     def getDisplayPosition(self):
         return self.displayPosition
-    
+
     def translateCoordinates(self, x, y):
         return (x - self.displayPosition[0], y - self.displayPosition[1])
 
@@ -155,10 +155,9 @@ class Map(object):
         Obtains a property associated whit this map
         '''
         return self.properties.get(propertyName)
-    
+
     def getRect(self):
         return self.boundary
-        
 
     def __unicode__(self):
         return 'Map {}: {}x{} with tile of  ({}x{}) and {} properties'.format(self.mapFile, self.width, self.height, self.tileWidth, self.tileHeight, self.properties)

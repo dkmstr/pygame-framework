@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import pygame
 import os
-from resources.maps.utils import loadProperties
+from resources.util import loadProperties
 from resources.layers.layer import Layer
 
 import logging

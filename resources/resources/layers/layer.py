@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import pygame
 from resources.maps.tiles import Tile
-from resources.maps.utils import checkTrue
+from resources.util import checkTrue
 
 import logging
 

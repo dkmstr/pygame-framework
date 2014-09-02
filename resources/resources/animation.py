@@ -29,7 +29,7 @@ class Animation(object):
 
     def get(self):
         return self.images[self.position]
-    
+
     def draw(self, toSurface, x, y, effect=None):
         image = self.images[self.position]
         if effect == 'laplacian':
@@ -47,8 +47,9 @@ class FilesAnimation(Animation):
         for i in self.images:
             i.set_alpha(0, pygame.RLEACCEL)
 
+
 class FlippedAnimation(Animation):
     def __init__(self, animation):
         Animation.__init__(self, animation.baseDelay, animation.startingPosition)
-        
-        self.images = [pygame.transform.flip(i,True,False) for i in animation.images]
+
+        self.images = [pygame.transform.flip(i, True, False) for i in animation.images]

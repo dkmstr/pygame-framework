@@ -6,8 +6,7 @@ import os
 import xml.etree.ElementTree as ET
 
 from resources.maps.tiles import Tile
-from resources.maps.utils import loadProperties
-from resources.maps.utils import checkTrue
+from resources.util import loadProperties
 
 import logging
 

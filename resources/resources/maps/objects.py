@@ -3,17 +3,26 @@ from __future__ import unicode_literals
 
 import pygame
 import logging
+from resources.util import checkTrue
 
 logger = logging.getLogger(__name__)
 
 
 class ObjectWithPath(object):
-    def __init__(self, parentLayer, origX, origY, width, height, path, tiles, sticky):
+    def __init__(self, parentLayer, origX, origY, width, height, tiles, properties):
         self.parentLayer = parentLayer
         self.rect = pygame.Rect(origX, origY, width, height)
-        self.path = path
+        self.path = None
         self.tiles = tiles
-        self.sticky = sticky
+        self.sticky = False
+        self.properties = {}
+        self.setProperties(properties)
+
+    def setProperties(self, properties):
+        self.properties = properties
+
+        self.path = self.properties.get('path', None)
+        self.sticky = checkTrue(properties.get('sticky', 'True'))
 
     def draw(self, toSurface, x, y):
         '''
@@ -38,13 +47,14 @@ class ObjectWithPath(object):
 
     def update(self):
         x, y = self.rect.left, self.rect.top
-        self.path.save()
+        self.path.save()  # Keeps a copy before iterating, so if we collide we can return back
         self.rect.left, self.rect.top = self.path.iterate()
         xOffset, yOffset = self.rect.left - x, self.rect.top - y
+
         # First we check what any actor collided moves acordly
         for c in self.parentLayer.parentMap.getActorsCollisions(self.rect):
-            actorRect, actor = c  # Rect is a "reference" to actor position, so modifying it will modify actor's position
-            if yOffset > 0 or xOffset != 0:
+            actorRect, actor = c  # actorRect is a "reference" to actor position, so modifying it will modify actor's position
+            if yOffset > 0 or xOffset != 0:  # Do not move if we moved down, left or right
                 self.path.restore()
                 self.rect.left, self.rect.top = x, y
             else:
@@ -55,8 +65,7 @@ class ObjectWithPath(object):
                     actor.rect.bottom = bottom
                     self.path.restore()
                     self.rect.left, self.rect.top = x, y
-                
-                
+
             #if xOffset > 0:
                 #actorRect.left = self.rect.right
             #elif xOffset < 0:

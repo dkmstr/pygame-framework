@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import base64
 import struct
-from resources.maps.utils import loadProperties
+from resources.util import loadProperties
 from resources.layers.layer import Layer
 
 import logging

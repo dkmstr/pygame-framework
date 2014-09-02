@@ -3,8 +3,7 @@ from __future__ import unicode_literals
 
 from resources import paths
 from resources.maps.objects import ObjectWithPath
-from resources.maps.utils import loadProperties
-from resources.maps.utils import checkTrue
+from resources.util import loadProperties
 from resources.layers.layer import Layer
 
 import logging
@@ -73,7 +72,7 @@ class DynamicLayer(Layer):
                         t.append(self.tilesLayer.getTileAt(x, y))
                     tiles.append(t)
 
-                p = ObjectWithPath(self, startX, startY, width, height, properties.get('path', None), tiles, checkTrue(properties.get('sticky', 'True')))
+                p = ObjectWithPath(self, startX, startY, width, height, tiles, properties)
                 self.platforms[obj.attrib['name']] = p
 
                 logger.debug('Platform {}'.format(p))

@@ -42,9 +42,16 @@ class Tile(object):
             self.animated = False
             self.animation = None
             self.animationState = None
-            
+
         if self.properties.get('height') is not None:
             self.rect.height = int(self.properties.get('height'))
+        if self.properties.get('width') is not None:
+            self.rect.width = int(self.properties.get('width'))
+        if self.properties.get('left') is not None:
+            self.rect.left = int(self.properties.get('left'))
+        if self.properties.get('top') is not None:
+            self.rect.top = int(self.properties.get('top'))
+            logger.debug('RECT: {}'.format(self.rect))
 
     def update(self):
         if self.animated is False:
@@ -72,7 +79,7 @@ class Tile(object):
         size = toSurface.get_size()
         rect = self.rect.move(x, y)
         if self.surface is not None and rect.right > 0 and rect.left < size[0] and rect.bottom > 0 and rect.top < size[1]:
-            toSurface.blit(self.surface, (x, y), self.rect)
+            toSurface.blit(self.surface, (x, y))
 
     def getOriginalImage(self):
         return self.originalSurface
@@ -91,10 +98,10 @@ class Tile(object):
 
     def getTileSet(self):
         return self.tileSet
-    
+
     def getRect(self):
         return self.rect
-    
+
     def getSize(self):
         return (self.rect.width, self.rect.height)
 
