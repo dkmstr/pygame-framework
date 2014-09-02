@@ -20,6 +20,7 @@ class Actor(object):
         self.parentMap = parentMap
         self.boundary = self.parentMap.getRect()
         self.actorType = actorType
+        self.active = True
 
     def move(self, xOffset, yOffset):
         self.rect.left += xOffset

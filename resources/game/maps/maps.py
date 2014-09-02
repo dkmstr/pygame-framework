@@ -109,6 +109,10 @@ class Map(object):
             for actor in layer.getActors(actorType):
                 yield actor
 
+    def removeActor(self, actor):
+        for layer in self.getActorsLayers():
+            layer.removeActor(actor)
+
     def draw(self, surface):
         # First, we draw "parallax" layers
         x, y = self.displayPosition

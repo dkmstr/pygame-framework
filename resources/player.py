@@ -24,9 +24,6 @@ class Player(Actor):
         self.animationLeft = FlippedAnimation(self.animationRight)
         self.animation = self.animationRight
 
-        # For debugging
-        self.actorsCollisions = False
-
     def checkXCollisions(self, offset):
         if offset == 0:
             return
@@ -84,18 +81,19 @@ class Player(Actor):
                 self.animation = self.animationRight
             else:
                 self.animation = self.animationLeft
-                
+
             self.animation.iterate()
 
         self.move(self.xSpeed/100, self.ySpeed/100)
-        
+
         self.actorsCollisions = False
         for c in self.parentMap.getActorsCollisions(self.rect, exclude=self):
-            self.actorsCollisions = True
+            actorRect, actor = c
+            self.parentMap.removeActor(actor)
 
     def draw(self, toSurface):
         x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y)
-        self.animation.draw(toSurface, x, y, None if self.actorsCollisions is False else 'laplacian')
+        self.animation.draw(toSurface, x, y)
 
     def updateMapDisplayPosition(self, displaySurface):
         w, h = displaySurface.get_size()

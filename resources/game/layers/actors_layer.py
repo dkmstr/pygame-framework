@@ -55,3 +55,10 @@ class ActorsLayer(Layer):
                 yield actor
             elif actor.actorType == actorType:
                 yield actor
+
+    def removeActor(self, actor):
+        try:
+            self.actorList.remove(actor)
+        except ValueError:
+            return False
+        return True
