@@ -5,10 +5,10 @@ from __future__ import unicode_literals
 import logging
 import pygame
 from pygame.locals import *
-import resources
+import game
 from player import Player
 from items import *
-from resources.actors import actorsFactory
+from game.actors import actorsFactory
 
 import tempfile
 import os
@@ -19,7 +19,7 @@ HEIGHT = 768
 BASE_SPEED = 8
 
 
-class GameTest(resources.game_state.GameState):
+class GameTest(game.game_state.GameState):
     framerate = 50
 
     def __init__(self, name):
@@ -27,8 +27,8 @@ class GameTest(resources.game_state.GameState):
 
         self.bg_speed = 0
 
-        # self.images = resources.images.Images((1280, 2880))
-        self.maps = resources.maps.Maps()
+        # self.images = game.images.Images((1280, 2880))
+        self.maps = game.maps.Maps()
         self.maps.add('level0', 'data/maps/level-test-0.tmx')
         #self.maps.add('level0', 'data/maps/level.tmx')
 
@@ -52,7 +52,7 @@ class GameTest(resources.game_state.GameState):
         #self.bg.add_surface(self.images.get('bck2'), 3)
 
     def on_enter(self):
-        pygame.mixer.music.load(resources.util.resource_path('data/sound/journey_3.ogg'))
+        pygame.mixer.music.load(game.util.resource_path('data/sound/journey_3.ogg'))
         pygame.mixer.music.play(-1)
 
     def on_exit(self):
@@ -61,7 +61,7 @@ class GameTest(resources.game_state.GameState):
 
     def on_keydown(self, key):
         if key == K_q:
-            return resources.game_state.GameControl.EXIT_GAMESTATE
+            return game.game_state.GameControl.EXIT_GAMESTATE
         elif key == K_RIGHT:
             self.player.goRight()
         elif key == K_LEFT:
@@ -97,7 +97,7 @@ logging.basicConfig(
 )
 
 
-gc = resources.game_state.GameControl(WIDTH, HEIGHT)
+gc = game.game_state.GameControl(WIDTH, HEIGHT)
 gc.add(GameTest('state0'))
 #gc.add(GameTest('state1'))
 

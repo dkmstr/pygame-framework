@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 
 import base64
 import struct
-from resources.util import loadProperties
-from resources.layers.layer import Layer
+from game.util import loadProperties
+from game.layers.layer import Layer
 
 import logging
 

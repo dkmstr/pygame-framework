@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import pygame
 import glob
 
-from resources.util import resource_path
+from game.util import resource_path
 
 import logging
 

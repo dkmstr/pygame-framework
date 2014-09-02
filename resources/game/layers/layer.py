@@ -2,8 +2,8 @@
 from __future__ import unicode_literals
 
 import pygame
-from resources.maps.tiles import Tile
-from resources.util import checkTrue
+from game.maps.tiles import Tile
+from game.util import checkTrue
 
 import logging
 

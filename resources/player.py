@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from resources.actors import Actor
-from resources.animation import FilesAnimation
-from resources.animation import FlippedAnimation
-
-import pygame
+from game.actors import Actor
+from game.animation import FilesAnimation
+from game.animation import FlippedAnimation
 
 import logging
 
@@ -25,7 +23,7 @@ class Player(Actor):
         self.animationRight = FilesAnimation('data/actors/rp1_walk*.png', 10)
         self.animationLeft = FlippedAnimation(self.animationRight)
         self.animation = self.animationRight
-        
+
         # For debugging
         self.actorsCollisions = False
 

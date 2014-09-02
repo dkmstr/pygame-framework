@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import pygame
 import logging
-from resources.util import checkTrue
+from game.util import checkTrue
 
 logger = logging.getLogger(__name__)
 

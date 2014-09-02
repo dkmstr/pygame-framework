@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pygame
-from resources.util import resource_path
+from game.util import resource_path
 
 import logging
 

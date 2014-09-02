@@ -5,11 +5,11 @@ import os
 import pygame
 import xml.etree.ElementTree as ET
 
-from resources.util import resource_path
-from resources.util import loadProperties
-from resources.maps.tileset import TileSet
+from game.util import resource_path
+from game.util import loadProperties
+from game.maps.tileset import TileSet
 
-from resources import layers
+from game import layers
 
 import logging
 

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from resources import paths
-from resources.maps.objects import ObjectWithPath
-from resources.util import loadProperties
-from resources.layers.layer import Layer
+from game import paths
+from game.maps.objects import ObjectWithPath
+from game.util import loadProperties
+from game.layers.layer import Layer
 
 import logging
 

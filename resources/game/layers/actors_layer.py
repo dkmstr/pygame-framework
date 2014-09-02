@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from resources.actors import actorsFactory
-from resources.layers.layer import Layer
+from game.actors import actorsFactory
+from game.layers.layer import Layer
 
 import logging
 
