@@ -137,5 +137,5 @@ class Player(Actor):
         self.ySpeed = -BASE_Y_SPEED
         
 
-soundsStore.storeFile('foot_left', 'step_grass_l.ogg', volume=0.3)
-soundsStore.storeFile('foot_right', 'step_grass_r.ogg', volume=0.3)
+soundsStore.storeSoundFile('foot_left', 'step_grass_l.ogg', volume=0.3)
+soundsStore.storeSoundFile('foot_right', 'step_grass_r.ogg', volume=0.3)

@@ -14,7 +14,7 @@ class Coin(Actor):
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
         Actor.__init__(self, parentMap, fromTile, actorType, x, y, w, h)
         self.soundGetCoin = soundsStore.get('pop')
-        
+
     def hit(self, sender):
         Actor.hit(self, sender)
         self.soundGetCoin.play()
@@ -24,4 +24,4 @@ actorsFactory.registerType('SilverCoin', Coin)
 actorsFactory.registerType('GoldCoin', Coin)
 
 # Register and load sounds for coins
-soundsStore.storeFile('pop', 'coin.ogg')
+soundsStore.storeSoundFile('pop', 'coin.ogg')

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from game.sound.sound import Sound
-from game.sound.sound import SoundsStore
+from game.sound import sound
 
-soundsStore = SoundsStore()
+soundsStore = sound.SoundsStore()
