@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from game.actors import Actor
 from game.animation import FilesAnimation
 from game.animation import FlippedAnimation
+from game.sound import soundsStore
 
 import logging
 
@@ -20,9 +21,12 @@ class Player(Actor):
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
         Actor.__init__(self, parentMap, fromTile, actorType, x, y, 52, 66)
         self.xSpeed = self.ySpeed = 0
-        self.animationRight = FilesAnimation('data/actors/rp1_walk*.png', 10)
-        self.animationLeft = FlippedAnimation(self.animationRight)
+        self.animationLeft = FilesAnimation('data/actors/player1/player*.png', 2, 8)
+        self.animationLeft.associateSound(4, soundsStore.get('foot_left'))
+        self.animationLeft.associateSound(12, soundsStore.get('foot_right'))
+        self.animationRight = FlippedAnimation(self.animationLeft)
         self.animation = self.animationRight
+        self.keys = {}
 
     def checkXCollisions(self, offset):
         if offset == 0:
@@ -74,7 +78,6 @@ class Player(Actor):
             self.ySpeed += 35
 
     def update(self):
-
         self.calculateGravity()
         if self.xSpeed != 0:
             if self.xSpeed > 0:
@@ -89,12 +92,16 @@ class Player(Actor):
         self.actorsCollisions = False
         for c in self.parentMap.getActorsCollisions(self.rect, exclude=self):
             actorRect, actor = c
-            self.parentMap.removeActor(actor)
+            actor.hit(self)
+            
+        return True  # IF we return false, we will get removed!! :)
 
     def draw(self, toSurface):
+        if self.ySpeed == 0:
+            self.animation.play()
         x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y)
         self.animation.draw(toSurface, x, y)
-
+        
     def updateMapDisplayPosition(self, displaySurface):
         w, h = displaySurface.get_size()
 
@@ -129,3 +136,6 @@ class Player(Actor):
     def jump(self):
         self.ySpeed = -BASE_Y_SPEED
         
+
+soundsStore.storeFile('foot_left', 'step_grass_l.ogg', volume=0.3)
+soundsStore.storeFile('foot_right', 'step_grass_r.ogg', volume=0.3)

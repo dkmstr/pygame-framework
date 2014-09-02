@@ -520,20 +520,19 @@
 	"buffers":
 	[
 		{
-			"file": "resources/player.py",
+			"file": "resources/game/maps/maps.py",
 			"settings":
 			{
-				"buffer_size": 4259,
+				"buffer_size": 6059,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "resources/resources/animation.py",
+			"file": "resources/game/layers/actors_layer.py",
 			"settings":
 			{
-				"buffer_size": 1484,
-				"line_ending": "Unix",
-				"name": "animation.py"
+				"buffer_size": 2024,
+				"line_ending": "Unix"
 			}
 		}
 	],
@@ -647,36 +646,65 @@
 	[
 		"/home/dkmaster/projects/pygame",
 		"/home/dkmaster/projects/pygame/resources",
-		"/home/dkmaster/projects/pygame/resources/resources",
-		"/home/dkmaster/projects/pygame/resources/resources/maps"
+		"/home/dkmaster/projects/pygame/resources/game",
+		"/home/dkmaster/projects/pygame/resources/game/layers",
+		"/home/dkmaster/projects/pygame/resources/game/maps",
+		"/home/dkmaster/projects/pygame/resources/game/paths",
+		"/home/dkmaster/projects/pygame/resources/items"
 	],
 	"file_history":
 	[
+		"/home/dkmaster/projects/pygame/resources/items/coins.py",
+		"/home/dkmaster/projects/pygame/resources/game/actors.py",
+		"/home/dkmaster/projects/pygame/resources/player.py",
+		"/home/dkmaster/projects/pygame/resources/items/keys.py",
+		"/home/dkmaster/projects/pygame/resources/game/images.py",
+		"/home/dkmaster/projects/pygame/resources/game/paths/__init__.py",
+		"/home/dkmaster/projects/pygame/resources/game/layers/layer.py",
+		"/home/dkmaster/projects/pygame/resources/game/maps/tiles.py",
+		"/home/dkmaster/projects/pygame/resources/game/maps/tileset.py",
+		"/home/dkmaster/projects/pygame/resources/game/maps/objects.py",
+		"/home/dkmaster/projects/pygame/resources/game/maps/__init__.py",
+		"/home/dkmaster/projects/pygame/resources/game/maps/maps.py",
+		"/home/dkmaster/projects/pygame/resources/parallax.py",
+		"/home/dkmaster/projects/pygame/resources/game/sprite.py",
+		"/home/dkmaster/projects/pygame/resources/game/layers/array_layer.py",
+		"/home/dkmaster/projects/pygame/resources/game/layers/image_layer.py",
+		"/home/dkmaster/projects/pygame/resources/game/layers/dynamic_layer.py",
+		"/home/dkmaster/projects/pygame/resources/game/layers/actors_layer.py",
+		"/home/dkmaster/projects/pygame/resources/game/layers/__init__.py",
+		"/home/dkmaster/projects/pygame/resources/game/util.py",
+		"/home/dkmaster/projects/pygame/resources/game/game_state.py",
+		"/home/dkmaster/projects/pygame/resources/game/animation.py",
+		"/home/dkmaster/projects/pygame/resources/game/__init__.py",
+		"/home/dkmaster/projects/pygame/resources/items/__init__.py",
+		"/home/dkmaster/projects/pygame/resources/exe-builder.py",
+		"/home/dkmaster/projects/pygame/resources/log.log",
+		"/home/dkmaster/projects/pygame/resources/test.py",
+		"/home/dkmaster/projects/pygame/resources/resources/util.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/objects.py",
 		"/home/dkmaster/projects/pygame/resources/resources/maps/tileset.py",
 		"/home/dkmaster/projects/pygame/resources/resources/layers/layer.py",
-		"/home/dkmaster/projects/pygame/resources/resources/images.py",
-		"/home/dkmaster/projects/pygame/resources/resources/layers/dynamic_layer.py",
-		"/home/dkmaster/projects/pygame/resources/resources/maps/maps.py",
-		"/home/dkmaster/projects/pygame/resources/test.py",
-		"/home/dkmaster/projects/pygame/resources/resources/layers/__init__.py",
 		"/home/dkmaster/projects/pygame/resources/resources/layers/actors_layer.py",
-		"/home/dkmaster/projects/pygame/resources/resources/layers/image_layer.py",
 		"/home/dkmaster/projects/pygame/resources/resources/layers/array_layer.py",
+		"/home/dkmaster/projects/pygame/resources/resources/layers/dynamic_layer.py",
+		"/home/dkmaster/projects/pygame/resources/resources/layers/image_layer.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/maps.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/utils.py",
+		"/home/dkmaster/projects/pygame/resources/resources/animation.py",
+		"/home/dkmaster/projects/pygame/resources/resources/maps/tiles.py",
+		"/home/dkmaster/projects/pygame/resources/resources/actors.py",
+		"/home/dkmaster/projects/pygame/resources/resources/images.py",
+		"/home/dkmaster/projects/pygame/resources/resources/layers/__init__.py",
 		"/home/dkmaster/projects/pygame/resources/resources/maps/layers.py",
-		"/home/dkmaster/projects/pygame/resources/player.py",
 		"/home/dkmaster/projects/pygame/resources/resources/rendering/__init__.py",
 		"/home/dkmaster/projects/pygame/resources/resources/game_state.py",
 		"/home/dkmaster/projects/pygame/resources/resources/sprite.py",
-		"/home/dkmaster/projects/pygame/resources/resources/maps/objects.py",
 		"/home/dkmaster/projects/pygame/resources/resources/maps/actors.py",
-		"/home/dkmaster/projects/pygame/resources/resources/maps/tiles.py",
 		"/home/dkmaster/projects/pygame/resources/resources/paths/__init__.py",
 		"/home/dkmaster/projects/pygame/resources/resources/maps/__init__.py",
 		"/home/dkmaster/projects/pygame/resources/resources/__init__.py",
-		"/home/dkmaster/projects/pygame/resources/resources/maps/utils.py",
 		"/home/dkmaster/projects/pygame/resources/resources/maps.py",
-		"/home/dkmaster/projects/pygame/resources/resources/util.py",
-		"/home/dkmaster/projects/pygame/resources/parallax.py",
 		"/home/dkmaster/projects/pygame/resources/test_windows.spec",
 		"/home/dkmaster/projects/pygame/game/test.py",
 		"/home/dkmaster/projects/pygame/resources/test.spec",
@@ -753,33 +781,7 @@
 		"/home/dkmaster/projects/udsenterprise.com/uds_search/templates/uds_search/includes/pagination.html",
 		"/home/dkmaster/projects/udsenterprise.com/biblion/utils.py",
 		"/home/dkmaster/projects/udsenterprise.com/knowledge/utils.py",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/templatetags/biblion_tags.py",
-		"/home/dkmaster/projects/udsenterprise.com/django_notify/models.py",
-		"/home/dkmaster/projects/udsenterprise.com/uds_filer/admin.py",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/templates/biblion/mail/comment_added.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/mail.py",
-		"/home/dkmaster/projects/udsenterprise.com/udsenterprise_com/filer/__init__.py",
-		"/home/dkmaster/projects/udsenterprise.com/uds_carousel/templates/uds_carousel/plugin.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_filer/filer/__init__.py",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/templates/biblion/rss_item.xml",
-		"/home/dkmaster/projects/udsenterprise.com/udsenterprise_com/util/decorators.py",
-		"/home/dkmaster/projects/udsenterprise.com/env/lib/python2.7/site-packages/cmsplugin_filer_file/templates/cmsplugin_filer_file/plugins/file/default.html",
-		"/home/dkmaster/projects/udsenterprise.com/udsenterprise_com/util/__init__.py",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/forms.py",
-		"/home/dkmaster/projects/udsenterprise.com/udsenterprise_com/templates/components/social.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/util.py",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/templates/biblion/comment_added.html",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/templates/biblion/atom_feed.xml",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/templates/biblion/new_post.html",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/templates/biblion/atom_entry.xml",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/templates/biblion/tagsline.html",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/templates/biblion/dateline_stale.html",
-		"/home/dkmaster/projects/udsenterprise.com/udsenterprise_com/templates/components/header.html",
-		"/home/dkmaster/projects/udsenterprise.com/udsenterprise_com/static/css/components/_variables.scss",
-		"/home/dkmaster/projects/udsenterprise.com/udsenterprise_com/static/css/udsenterprise.scss",
-		"/home/dkmaster/projects/udsenterprise.com/udsenterprise_com/templates/404.html",
-		"/home/dkmaster/projects/udsenterprise.com/biblion/templates/biblion/blog_section_list.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/views.py"
+		"/home/dkmaster/projects/udsenterprise.com/biblion/templatetags/biblion_tags.py"
 	],
 	"find":
 	{
@@ -798,6 +800,7 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"resources",
 			"parallax_factor_y",
 			"resource",
 			"resId",
@@ -924,8 +927,7 @@
 			"H2",
 			"render",
 			"rendeer",
-			"context = RequestContext",
-			"render(request, "
+			"context = RequestContext"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -933,6 +935,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"game",
 			"img",
 			"imgId",
 			"_images",
@@ -1000,19 +1003,19 @@
 			[
 				{
 					"buffer": 0,
-					"file": "resources/player.py",
+					"file": "resources/game/maps/maps.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4259,
+						"buffer_size": 6059,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								363,
-								363
+								3836,
+								3836
 							]
 						],
 						"settings":
@@ -1126,7 +1129,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1512.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -1134,24 +1137,23 @@
 				},
 				{
 					"buffer": 1,
-					"file": "resources/resources/animation.py",
+					"file": "resources/game/layers/actors_layer.py",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1484,
+						"buffer_size": 2024,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								1928,
+								1928
 							]
 						],
 						"settings":
 						{
-							"auto_name": "animation.py",
 							"codeintel": true,
 							"codeintel_config":
 							{
@@ -1260,8 +1262,8 @@
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.x": -0.0,
+						"translation.y": 270.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,

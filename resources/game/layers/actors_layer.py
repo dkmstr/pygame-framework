@@ -41,8 +41,9 @@ class ActorsLayer(Layer):
                 actor.draw(toSurface)
 
     def onUpdate(self):
-        for actor in self.actorList:
-            actor.update()
+        toRemove = [actor for actor in self.actorList if actor.update() is False]
+        for actorToRemove in toRemove:
+            self.removeActor(actorToRemove)
 
     def getCollisions(self, rect):
         for actor in self.actorList:

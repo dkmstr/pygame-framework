@@ -52,8 +52,9 @@ class GameTest(game.game_state.GameState):
         #self.bg.add_surface(self.images.get('bck2'), 3)
 
     def on_enter(self):
-        pygame.mixer.music.load(game.util.resource_path('data/sound/journey_3.ogg'))
-        pygame.mixer.music.play(-1)
+        #pygame.mixer.music.load(game.util.resource_path('data/sound/journey_3.ogg'))
+        #pygame.mixer.music.play(-1)
+        pass
 
     def on_exit(self):
         pygame.mixer.music.stop()

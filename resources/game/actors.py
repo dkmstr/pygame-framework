@@ -6,8 +6,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 class Actor(object):
+    EMPTY_RECT = pygame.Rect(0, 0, 0, 0)
+    
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
         tileRect = fromTile.getRect()
         w = tileRect.width if w is None else w
@@ -20,7 +21,7 @@ class Actor(object):
         self.parentMap = parentMap
         self.boundary = self.parentMap.getRect()
         self.actorType = actorType
-        self.active = True
+        self.impact = False
 
     def move(self, xOffset, yOffset):
         self.rect.left += xOffset
@@ -33,6 +34,8 @@ class Actor(object):
         return self.rect.move(self.xOffset, self.yOffset)
 
     def collide(self, rect):
+        if self.impact:
+            return False
         return self.rect.move(self.xOffset, self.yOffset).colliderect(rect)
 
     def draw(self, toSurface):
@@ -40,7 +43,10 @@ class Actor(object):
         self.tile.draw(toSurface, x, y)
 
     def update(self):
-        pass
+        return not self.impact
+    
+    def hit(self, sender):
+        self.impact = True
 
 
 class ActorsFactory(object):

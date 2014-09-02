@@ -16,12 +16,21 @@ class Animation(object):
         self.images = []
         self.position = self.startingPosition = startingPosition
         self.baseDelay = self.delay = delay
+        self.associatedSounds = {}
+
+    def associateSound(self, frame, sound):
+        self.associatedSounds[frame] = sound
 
     def iterate(self):
         self.delay -= 1
         if self.delay <= 0:
             self.delay = self.baseDelay
             self.position = (self.position + 1) % len(self.images)
+            
+    def getPosition(self, inPercent=False):
+        if inPercent:
+            return 100 * self.position / len(self.images)
+        return self.position
 
     def reset(self):
         self.position = self.startingPosition
@@ -35,11 +44,27 @@ class Animation(object):
         if effect == 'laplacian':
             image = pygame.transform.laplacian(image)
         toSurface.blit(image, (x, y))
+        
+    def play(self):
+        # Only play sounds on start of delays
+        if self.delay == self.baseDelay:
+            snd = self.associatedSounds.get(self.position)
+            if snd is not None:
+                snd.play()
+        
+    def copy(self):
+        '''
+        Returns a "partial copy" of this animation
+        This means that we return same reference to images, but own control variables
+        '''
+        anim = Animation(self.baseDelay, self.startingPosition)
+        anim.associatedSounds = self.associatedSounds
+        anim.images = self.images
 
 
 class FilesAnimation(Animation):
     def __init__(self, fileListPattern, delay, startingPosition=0):
-        Animation.__init__(self, delay)
+        Animation.__init__(self, delay, startingPosition)
         files = sorted(glob.glob(resource_path(fileListPattern)))
 
         # Load image files
@@ -51,5 +76,19 @@ class FilesAnimation(Animation):
 class FlippedAnimation(Animation):
     def __init__(self, animation):
         Animation.__init__(self, animation.baseDelay, animation.startingPosition)
+        self.associatedSounds = animation.associatedSounds
 
         self.images = [pygame.transform.flip(i, True, False) for i in animation.images]
+
+class AnimationsStore(object):
+    def __init__(self):
+        self.animations = {}
+
+    def store(self, animationName, animation):
+        self.animations[animationName] = animation
+
+    def get(self, animationName):
+        return self.animations[animationName].copy()
+
+animationStore = AnimationsStore()
+    
