@@ -21,7 +21,9 @@ class GameState(object):
         self.events = 0
         self.frames = 0
         self.rendered_frames = 0
-        self.maxFrameTime = int(1000.0 / self.framerate)
+        self.frameSkip = 0
+        self.frameSkipCount = 0
+        self.dirty = False
 
     def fps(self):
         return self.clock.get_fps()
@@ -77,10 +79,24 @@ class GameState(object):
         ''' game logic '''
         self.frames += 1
         return self.on_frame()
+            
 
     def render(self):
         self.rendered_frames += 1
-        return self.on_render()
+        
+        self.dirty = False
+        self.frames += 1
+        if self.frameSkip > 0:
+            self.frameSkipCount += 1
+            if self.frameSkipCount > self.frameSkip:
+                self.frameSkipCount = 0
+                self.dirty = True
+        else:
+            self.dirty = True
+                
+        if self.dirty:
+            return self.on_render()
+        return None
 
     def on_init(self):
         print "Base on_init called!!!"
@@ -138,17 +154,24 @@ class GameControl(object):
         logger.debug('Running main loop')
         counter = 0
         while True:
+            
             counter += 1
             if counter > 100:
-                logger.debug("FPS: {}".format(self.current.fps()))
-                pygame.display.set_caption('FPS: {}'.format(self.current.fps()))
+                #logger.debug("FPS: {}, FrameSkip: {}".format(self.current.fps(), self.current.frameSkip))
+                pygame.display.set_caption("FPS: {}, FrameSkip: {}".format(self.current.fps(), self.current.frameSkip))
+                if 120 * self.current.fps() / 100 < self.current.framerate:
+                    self.current.frameSkip += 1
                 counter = 0
+                
             new_state = self.current.tick(pygame.event.get())
             if new_state is not None:
                 logger.debug('Got new state: {}'.format(new_state))
                 if self.switch(new_state) is False:
                     return
-            pygame.display.flip()
+            # Skip flip of displays if we do not reach required frame rate
+                
+            if self.current.dirty:
+                pygame.display.flip()
             # Nothing more to do, this is the basic loop
     
     def quit(self):

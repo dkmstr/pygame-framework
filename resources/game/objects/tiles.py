@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import pygame
 import logging
+from game.util import checkTrue
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ class Tile(object):
             self.animation = None
             self.animationState = None
 
+        # Optimized rect for collisions
         if self.properties.get('height') is not None:
             self.rect.height = int(self.properties.get('height'))
         if self.properties.get('width') is not None:
@@ -49,7 +51,20 @@ class Tile(object):
         if self.properties.get('top') is not None:
             self.rect.top = int(self.properties.get('top'))
             logger.debug('RECT: {}'.format(self.rect))
+            
+        # Possible attributes
+        self.lethal = checkTrue(self.properties.get('lethal', 'False'))
 
+    def setProperties(self, properties):
+        self.properties = properties
+        self.updateAttributes()
+
+    def getProperty(self, propertyName):
+        '''
+        Obtains a property associated whit this tileset
+        '''
+        return self.properties.get(propertyName)
+    
     def update(self):
         if self.animated is False:
             return
@@ -64,16 +79,6 @@ class Tile(object):
             self.surface = self.tileSet.getTile(self.animation[self.animationState-1]).getOriginalImage()
             self.animationState += 1
 
-    def setProperties(self, properties):
-        self.properties = properties
-        self.updateAttributes()
-
-    def getProperty(self, propertyName):
-        '''
-        Obtains a property associated whit this tileset
-        '''
-        return self.properties.get(propertyName)
-    
     def hasProperty(self, prop):
         return prop in self.properties
 

@@ -68,10 +68,11 @@ class ArrayLayer(Layer):
             return Layer.EMPTY_TILE
         return self.parentMap.tiles[tile-1]
     
-    def removeTileAt(self, x, y):
+    def removeObjectAt(self, x, y):
         x /= self.parentMap.tileWidth
         y /= self.parentMap.tileHeight
         self.data[y*self.width+x] = 0
+        
 
     def getCollisions(self, rect):
         tiles = self.parentMap.tiles

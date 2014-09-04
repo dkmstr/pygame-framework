@@ -95,11 +95,13 @@ class GameTest(game.game_state.GameState):
         #self.player.move(self.x_speed, self.y_speed)
 
         self.player.updateMapDisplayPosition(self.controller.screen)
+        return None
 
     def on_render(self):
         #self.bg.draw(self.controller.screen)
         self.map.draw(self.controller.screen)
         #self.player.draw(self.controller.screen)
+        return None
 
 gc = game.game_state.GameControl(WIDTH, HEIGHT)
 gc.add(GameTest('state0'))

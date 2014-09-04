@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from game import paths
-from game.maps.objects import ObjectWithPath
+from game.objects import ObjectWithPath
 from game.util import loadProperties
 from game.layers.layer import Layer
 

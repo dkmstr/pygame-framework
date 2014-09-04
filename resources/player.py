@@ -11,10 +11,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 BASE_X_SPEED = 4 * 100
-BASE_Y_SPEED = 10 * 100
+BASE_Y_SPEED = 8 * 100
 
 SCREEN_BORDER_X = 300
 SCREEN_BORDER_Y = 180
+
+COLLISION_CACHE_EXTEND = 40
+COLLISION_CACHE_THRESHOLD = 10
 
 
 class Player(Actor):
@@ -27,12 +30,41 @@ class Player(Actor):
         self.animationRight = FlippedAnimation(self.animationLeft)
         self.animation = self.animationRight
         self.keys = {}
+        self.collisionsCache = None  # First is objects collisions cache, second is actors collisions cache
+        self.cachedX = self.cachedY = -100000
+        self.updateCacheCount = 0
+        
         
         # What the player has
         self.hasYellowKey = False
+        
+    def resetCollisionsCache(self):
+        logger.debug('Reseting collision cache')
+        self.collisionsCache = None
+        self.cachedX, self.cachedY =  self.rect.x, self.rect.y  # Will be updated on this possition
+        
+        self.updateCacheCount += 1
+        logger.debug('Cache will be updated for {} time'.format(self.updateCacheCount))
+        
+    def updateCollisionCache(self):
+        if abs(self.cachedX - self.rect.x) > COLLISION_CACHE_THRESHOLD or abs(self.cachedY - self.rect.y) > COLLISION_CACHE_THRESHOLD:
+            self.resetCollisionsCache()
+            
+        if self.collisionsCache is None:
+            logger.debug('Updating collisions cache for objects and actors')
+            self.collisionsCache = (
+                self.parentMap.getPossibleCollisions(self.rect, COLLISION_CACHE_EXTEND, COLLISION_CACHE_EXTEND),
+                self.parentMap.getPossibleActorsCollisions(self.rect, COLLISION_CACHE_EXTEND, COLLISION_CACHE_EXTEND, exclude=self)
+            )
+            
 
     def getCollisions(self):
-        return self.parentMap.getCollisions(self.rect)
+        self.updateCollisionCache()
+        return self.parentMap.getCollisions(self.rect, self.collisionsCache[0])
+    
+    def getActorsCollisions(self):
+        self.updateCollisionCache()
+        return self.parentMap.getActorsCollisions(self.rect, self.collisionsCache[1])
 
     def checkXCollisions(self, offset):
         if offset == 0:
@@ -63,15 +95,20 @@ class Player(Actor):
     def checkActionsOnCollision(self):
         for c in self.getCollisions():
             colRect, element, layer = c
+            if element.lethal is True:
+                # Die!! :-)
+                pass
             if element.hasProperty('needsYellowKey') and self.hasYellowKey:
                 logger.debug('We have the yellow key and we are colliding with a yellow key needing brick!')
-                layer.removeTileAt(colRect.x, colRect.y)
+                layer.removeObjectAt(colRect.x, colRect.y)
+                self.resetCollisionsCache()
                 soundsStore.get('open_lock').play()
 
     def move(self, xOffset, yOffset):
         if xOffset == 0 and yOffset == 0:
             pass  # Is something pushes this, this will be calculated elsewhere
         else:
+            #self.resetCollisionsCache()
             if xOffset:
                 self.rect.left += xOffset
                 self.rect.clamp_ip(self.boundary)
@@ -88,7 +125,8 @@ class Player(Actor):
             self.ySpeed = 800  # Faster than falling platforms or it will be doing "strange things"
         else:
             # Temporary to tests
-            self.ySpeed += 35
+            if self.ySpeed < 1600:
+                self.ySpeed += 35
 
     def update(self):
         self.calculateGravity()
@@ -103,8 +141,7 @@ class Player(Actor):
         self.move(self.xSpeed/100, self.ySpeed/100)
 
         if self.xSpeed != 0 or self.ySpeed != 0:
-            self.actorsCollisions = False
-            for c in self.parentMap.getActorsCollisions(self.rect, exclude=self):
+            for c in self.getActorsCollisions():
                 actorRect, actor, actorLayer = c
                 actor.notify(self, 'hit')
             
@@ -155,6 +192,8 @@ class Player(Actor):
         if message == 'YellowKey':
             logger.debug('Player has got yellow key')
             self.hasYellowKey = True
+        elif message == 'moved':
+            self.updateCollisionCache()
 
 soundsStore.storeSoundFile('foot_left', 'step_grass_l.ogg', volume=0.3)
 soundsStore.storeSoundFile('foot_right', 'step_grass_r.ogg', volume=0.3)

@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import pygame
-from game.maps.tiles import Tile
 from game.util import checkTrue
 
 import logging
@@ -12,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 class Layer(object):
     LAYER_TYPE = 'default'
-    EMPTY_TILE = Tile(None, 0, None)
 
     def __init__(self, parentMap=None, layerType=None, properties=None):
         self.name = None
@@ -72,7 +70,7 @@ class Layer(object):
 
     def getTileAt(self, x, y):
         x, y = y, x  # Avoid pylint unused
-        return Layer.EMPTY_TILE
+        return None
     
     def removeTileAt(self, x, y):
         x, y = y, x  # Avoif pylint unused

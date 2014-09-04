@@ -139,20 +139,58 @@ class Map(object):
         return (x - self.displayPosition[0], y - self.displayPosition[1])
 
     # Collisions
-    def getCollisions(self, rect):
-        for layer in self.getCollisionsLayers():
-            if layer.parallax is True:
-                continue
-
-            for col in layer.getCollisions(rect):
-                yield (col[0], col[1], layer)
-
-    def getActorsCollisions(self, rect, **kwargs):
-        skip = kwargs.get('exclude')
-        for layer in self.getActorsLayers():
-            for col in layer.getCollisions(rect):
-                if col[1] is not skip:
+    def getCollisions(self, rect, possibleCollisions=None):
+        '''
+        If a list of possible collisions is passed in, only this
+        elements are used to test collisions
+        '''
+        if possibleCollisions is not None:
+            for col in possibleCollisions:
+                if col[0].colliderect(rect):
                     yield col
+        
+        else:
+            for layer in self.getCollisionsLayers():
+                if layer.parallax is True:
+                    continue
+    
+                for col in layer.getCollisions(rect):
+                    yield (col[0], col[1], layer)
+                
+    def getPossibleCollisions(self, rect, xRange=32, yRange=32):
+        '''
+        If needs to get check collisions more than once, this optimizes 
+        a lot the process limiting the objects to check
+        '''
+        rect = rect.inflate(2*xRange, 2*yRange)
+        
+        return [col for col in self.getCollisions(rect)]
+    
+    def getActorsCollisions(self, rect, possibleCollisions=None, exclude=None):
+        '''
+        If a list of possible collisions is passed in, only this
+        elements are used to test collisions
+        '''
+        if possibleCollisions is not None:
+            for col in possibleCollisions:
+                if col[0].colliderect(rect):
+                    yield col
+        else:
+            for layer in self.getActorsLayers():
+                for col in layer.getCollisions(rect):
+                    if col[1] is not exclude:
+                        yield col
+
+    def getPossibleActorsCollisions(self, rect, xRange=1000, yRange=1000, exclude=None):
+        '''
+        If needs to get check collisions more than once, this optimizes 
+        a lot the process limiting the objects to check
+        xRange and yRange should be big enought to ensure that the "destination" actor
+        (wich also moves) won't hit us without knowing it
+        '''
+        rect = rect.inflate(2*xRange, 2*yRange)
+        
+        return [col for col in self.getActorsCollisions(rect) if col[1] is not exclude]
 
     def getProperty(self, propertyName):
         '''

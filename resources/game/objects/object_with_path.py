@@ -55,10 +55,13 @@ class ObjectWithPath(object):
                 # If actor collides in new position, do not move
                 bottom = actor.rect.bottom
                 actor.rect.bottom = self.rect.top - 1
-                for c in actor.getCollisions():
+                if any(actor.getCollisions()):
                     actor.rect.bottom = bottom
                     self.path.restore()
                     self.rect.left, self.rect.top = x, y
+                else:
+                    actor.notify(self, 'moved')
+                
 
             #if xOffset > 0:
                 #actorRect.left = self.rect.right
@@ -83,12 +86,15 @@ class ObjectWithPath(object):
         self.path = self.properties.get('path', None)
         self.sticky = checkTrue(properties.get('sticky', 'True'))
 
+        # Possible attributes
+        self.lethal = checkTrue(self.properties.get('lethal', 'False'))
+
     def getProperty(self, propertyName):
         '''
         Obtains a property associated whit this tileset
         '''
         return self.properties.get(propertyName)
-    
+
     def hasProperty(self, prop):
         return prop in self.properties
 

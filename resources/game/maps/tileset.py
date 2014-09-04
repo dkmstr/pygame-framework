@@ -5,7 +5,7 @@ import pygame
 import os
 import xml.etree.ElementTree as ET
 
-from game.maps.tiles import Tile
+from game.objects import Tile
 from game.util import loadProperties
 
 import logging
