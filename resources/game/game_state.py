@@ -156,11 +156,14 @@ class GameControl(object):
         while True:
             
             counter += 1
-            if counter > 100:
+            if counter > 50:
                 #logger.debug("FPS: {}, FrameSkip: {}".format(self.current.fps(), self.current.frameSkip))
                 pygame.display.set_caption("FPS: {}, FrameSkip: {}".format(self.current.fps(), self.current.frameSkip))
                 if 120 * self.current.fps() / 100 < self.current.framerate:
                     self.current.frameSkip += 1
+                # If we have a frameskip and we are "almost" at full speed
+                if self.current.frameSkip > 0 and 103 * self.current.fps() / 100 > self.current.framerate:
+                    self.current.frameSkip -= 1
                 counter = 0
                 
             new_state = self.current.tick(pygame.event.get())
