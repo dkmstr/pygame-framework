@@ -135,13 +135,6 @@ class Player(Actor):
 
         self.parentMap.setDisplayPosition(xMap, yMap)
 
-    # Custom "get collision":
-    def getRect(self):
-        return self.rect
-    
-    def collide(self, rect):
-        return self.rect.colliderect(rect)
-
     # Custom players method
     def stop(self):
         self.xSpeed = 0
