@@ -48,7 +48,7 @@ class ActorsLayer(Layer):
     def getCollisions(self, rect):
         for actor in self.actorList:
             if actor.collide(rect):
-                yield (actor.getRect(), actor)
+                yield (actor.getRect(), actor, self)
 
     def getActors(self, actorType=None):
         for actor in self.actorList:

@@ -16,28 +16,37 @@ class Actor(object):
         self.xOffset = tileRect.left
         self.yOffset = tileRect.top
 
+        self.colRect = None
         self.rect = pygame.Rect(x, y, w, h)
+        self.rectUpdated()
+        
         self.tile = fromTile
         self.parentMap = parentMap
         self.boundary = self.parentMap.getRect()
         self.actorType = actorType
         self.impact = False
+        
+    def rectUpdated(self):
+        self.colRect = self.rect.move(self.xOffset, self.yOffset)        
 
     def move(self, xOffset, yOffset):
         self.rect.left += xOffset
         self.rect.top += yOffset
+        self.rect.clamp_ip(self.boundary)
+        self.rectUpdated()
 
     def setPosition(self, x, y):
         self.rect.top, self.rect.left = x, y
         self.rect.clamp_ip(self.boundary)
+        self.rectUpdated()
 
     def getRect(self):
-        return self.rect.move(self.xOffset, self.yOffset)
+        return self.colRect
 
     def collide(self, rect):
         if self.impact:
             return False
-        return self.rect.move(self.xOffset, self.yOffset).colliderect(rect)
+        return  self.colRect.colliderect(rect)
 
     def draw(self, toSurface):
         if self.impact:

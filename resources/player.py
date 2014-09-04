@@ -31,10 +31,13 @@ class Player(Actor):
         # What the player has
         self.hasYellowKey = False
 
+    def getCollisions(self):
+        return self.parentMap.getCollisions(self.rect)
+
     def checkXCollisions(self, offset):
         if offset == 0:
             return
-        for c in self.parentMap.getCollisions(self.rect):
+        for c in self.getCollisions():
             colRect = c[0]
             if offset > 0:
                 self.rect.right = colRect.left - 1
@@ -47,7 +50,7 @@ class Player(Actor):
         if offset == 0:
             return
         
-        for c in self.parentMap.getCollisions(self.rect):
+        for c in self.getCollisions():
             self.ySpeed = 0
             colRect = c[0]
             if offset > 0:
@@ -58,15 +61,12 @@ class Player(Actor):
                     self.rect.top = colRect.bottom + 1
 
     def checkActionsOnCollision(self):
-        for c in self.parentMap.getCollisions(self.rect):
+        for c in self.getCollisions():
             colRect, element, layer = c
             if element.hasProperty('needsYellowKey') and self.hasYellowKey:
                 logger.debug('We have the yellow key and we are colliding with a yellow key needing brick!')
                 layer.removeTileAt(colRect.x, colRect.y)
                 soundsStore.get('open_lock').play()
-        
-    def getCollisions(self):
-        return self.parentMap.getCollisions(self.rect)
 
     def move(self, xOffset, yOffset):
         if xOffset == 0 and yOffset == 0:
@@ -102,10 +102,11 @@ class Player(Actor):
 
         self.move(self.xSpeed/100, self.ySpeed/100)
 
-        self.actorsCollisions = False
-        for c in self.parentMap.getActorsCollisions(self.rect, exclude=self):
-            actorRect, actor = c
-            actor.notify(self, 'hit')
+        if self.xSpeed != 0 or self.ySpeed != 0:
+            self.actorsCollisions = False
+            for c in self.parentMap.getActorsCollisions(self.rect, exclude=self):
+                actorRect, actor, actorLayer = c
+                actor.notify(self, 'hit')
             
         return True  # IF we return false, we will get removed!! :)
 
@@ -133,6 +134,13 @@ class Player(Actor):
             yMap = self.rect.y - h + boundariesY[1]
 
         self.parentMap.setDisplayPosition(xMap, yMap)
+
+    # Custom "get collision":
+    def getRect(self):
+        return self.rect
+    
+    def collide(self, rect):
+        return self.rect.colliderect(rect)
 
     # Custom players method
     def stop(self):

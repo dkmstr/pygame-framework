@@ -47,7 +47,7 @@ class ObjectWithPath(object):
 
         # First we check what any actor collided moves acordly
         for c in self.parentLayer.parentMap.getActorsCollisions(self.rect):
-            actorRect, actor = c  # actorRect is a "reference" to actor position, so modifying it will modify actor's position
+            actorRect, actor, actorLayer = c  # actorRect is a "reference" to actor position, so modifying it will modify actor's position
             if yOffset > 0 or xOffset != 0:  # Do not move if we moved down, left or right
                 self.path.restore()
                 self.rect.left, self.rect.top = x, y
@@ -74,7 +74,7 @@ class ObjectWithPath(object):
             # Inflate rect at top to detect collision
             rect = pygame.Rect(self.rect.left, self.rect.top-2, self.rect.width, self.rect.height)
             for c in self.parentLayer.parentMap.getActorsCollisions(rect):
-                actorRect, actor = c  # Rect is a "reference" to actor position, so modifying it will modify actor's position
+                actorRect, actor, actorLayer = c  # Rect is a "reference" to actor position, so modifying it will modify actor's position
                 actor.move(xOffset, 0)
 
     def setProperties(self, properties):
