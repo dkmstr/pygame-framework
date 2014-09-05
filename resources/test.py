@@ -104,6 +104,8 @@ class GameTest(game.game_state.GameState):
         return None
 
 gc = game.game_state.GameControl(WIDTH, HEIGHT)
+pygame.font.init()
+
 gc.add(GameTest('state0'))
 #gc.add(GameTest('state1'))
 
@@ -111,5 +113,7 @@ import cProfile
 
 cProfile.run('gc.run()', os.path.join(tempfile.gettempdir(), 'test.stats'))
 #gc.run()
+
+pygame.font.quit()
 
 gc.quit()

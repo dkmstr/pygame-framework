@@ -10,13 +10,47 @@ logger = logging.getLogger(__name__)
 
 class FadingTextEffect(Effect):
     def __init__(self, x, y, text, fontSize=60, fontColor=(0, 0, 0), ticks=200):
-        # TODO: Initilalize this correctly
         Effect.__init__(self, pygame.Rect(x, y, 0, 0))
-        pygame.font.init()
+
+        
         font = pygame.font.Font(None, fontSize)
-        self.textSurface = font.render(text, True, fontColor)
-        size = self.textSurface.get_size()
-        self.rect.width, self.rect.height = size[0], size[1]
+        
+        # First, calculate containing rect needed space
+        txtLines = text.splitlines()
+        
+        for txt in txtLines:
+            txtSize = font.size(txt)
+            self.rect.width = txtSize[0] if self.rect.width < txtSize[0] else self.rect.width
+            self.rect.height += txtSize[1]
+        
+        borderSize = 2 * (fontSize / 8)
+        if borderSize < 4:
+            borderSize = 4
+            
+        halfBorderSize = borderSize / 2
+        
+        self.rect.width += borderSize
+        self.rect.height += borderSize
+            
+        self.textSurface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        self.textSurface.fill((0, 0, 200, 255))
+        
+        tmpSurface = self.textSurface.subsurface(pygame.Rect(halfBorderSize, halfBorderSize, self.rect.width-borderSize, self.rect.height-borderSize))
+        tmpSurface.fill((255, 255, 255, 0))
+        tmpSurface = None
+        
+        #self.textSurface = self.textSurface.convert_alpha()
+
+        # Center speech bubble
+        self.rect.top -= self.textSurface.get_size()[1]
+        self.rect.left -= self.textSurface.get_size()[0] / 2
+        
+        yPos = halfBorderSize
+        for txt in txtLines:
+            tmpSurface = font.render(txt, True, fontColor)
+            self.textSurface.blit(tmpSurface, ((self.rect.width-tmpSurface.get_size()[0])/2, yPos))
+            yPos += tmpSurface.get_size()[1]
+
         self.ticks = self.totalTicks = ticks
 
     def update(self):

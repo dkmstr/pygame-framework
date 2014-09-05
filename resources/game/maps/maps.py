@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 
 from game.util import resource_path
 from game.util import loadProperties
-from game.maps.tileset import TileSet
+from game.tiles import TileSet
 
 from game import layers
 

@@ -531,7 +531,7 @@
 			"file": "resources/game/maps/maps.py",
 			"settings":
 			{
-				"buffer_size": 7528,
+				"buffer_size": 8062,
 				"line_ending": "Unix"
 			}
 		}
@@ -1143,7 +1143,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7528,
+						"buffer_size": 8062,
 						"regions":
 						{
 						},
@@ -1230,7 +1230,7 @@
 		[
 			[
 				"",
-				"~/sublime/udsenterprise-web.sublime-project"
+				"~/sublime/openuds.sublime-project"
 			]
 		],
 		"width": 380.0

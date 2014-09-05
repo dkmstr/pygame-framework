@@ -4,11 +4,12 @@ from __future__ import unicode_literals
 import pygame
 import logging
 from game.util import checkTrue
+from game.objects.graphic_object import GraphicObject
 
 logger = logging.getLogger(__name__)
 
 
-class ObjectWithPath(object):
+class ObjectWithPath(GraphicObject):
     def __init__(self, parentLayer, origX, origY, width, height, tiles, properties):
         self.parentLayer = parentLayer
         self.rect = pygame.Rect(origX, origY, width, height)

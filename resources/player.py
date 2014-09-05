@@ -106,7 +106,7 @@ class Player(Actor):
                     self.resetCollisionsCache()
                     soundsStore.get('open_lock').play()
                 else:
-                    self.parentMap.addEffect('jqntlla', FadingTextEffect(colRect.x-50, colRect.y, 'Look for Yellow Key'))
+                    self.parentMap.addEffect('jqntlla', FadingTextEffect(colRect.x+colRect.width/2, colRect.y-10, 'You need\nthe Yellow Key', 24))
 
     def move(self, xOffset, yOffset):
         if xOffset == 0 and yOffset == 0:
