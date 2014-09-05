@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import pygame
 from game.effects import Effect
+from game import dialog
 
 import logging
 
@@ -31,13 +32,14 @@ class FadingTextEffect(Effect):
         
         self.rect.width += borderSize
         self.rect.height += borderSize
-            
-        self.textSurface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
-        self.textSurface.fill((0, 0, 200, 255))
+         
+        self.textSurface = dialog.dialogBuilder.genDialog(self.rect.width, self.rect.height, dialog.TRANSPARENT)
+        #self.textSurface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
+        #self.textSurface.fill((0, 0, 200, 255))
         
-        tmpSurface = self.textSurface.subsurface(pygame.Rect(halfBorderSize, halfBorderSize, self.rect.width-borderSize, self.rect.height-borderSize))
-        tmpSurface.fill((255, 255, 255, 0))
-        tmpSurface = None
+        #tmpSurface = self.textSurface.subsurface(pygame.Rect(halfBorderSize, halfBorderSize, self.rect.width-borderSize, self.rect.height-borderSize))
+        #tmpSurface.fill((255, 255, 255, 0))
+        #tmpSurface = None
         
         #self.textSurface = self.textSurface.convert_alpha()
 

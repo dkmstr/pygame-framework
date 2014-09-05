@@ -72,7 +72,7 @@ class Layer(object):
         x, y = y, x  # Avoid pylint unused
         return None
     
-    def removeTileAt(self, x, y):
+    def removeObjectAt(self, x, y):
         x, y = y, x  # Avoif pylint unused
         pass
 

@@ -60,7 +60,7 @@ class ArrayLayer(Layer):
     def onUpdate(self):
         pass
 
-    def getTileAt(self, x, y):
+    def getObjectAt(self, x, y):
         x /= self.parentMap.tileWidth
         y /= self.parentMap.tileHeight
         tile = self.data[y*self.width+x]

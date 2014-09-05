@@ -69,7 +69,7 @@ class DynamicLayer(Layer):
                 for y in xrange(startY, startY+height, self.parentMap.tileHeight):
                     t = []
                     for x in xrange(startX, startX+width, self.parentMap.tileWidth):
-                        t.append(self.tilesLayer.getTileAt(x, y))
+                        t.append(self.tilesLayer.getObjectAt(x, y))
                     tiles.append(t)
 
                 p = ObjectWithPath(self, startX, startY, width, height, tiles, properties)
