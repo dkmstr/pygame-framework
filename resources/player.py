@@ -5,6 +5,7 @@ from game.actors import Actor
 from game.animation import FilesAnimation
 from game.animation import FlippedAnimation
 from game.sound import soundsStore
+from game.effects import FadingTextEffect
 
 import logging
 
@@ -98,11 +99,14 @@ class Player(Actor):
             if element.lethal is True:
                 # Die!! :-)
                 pass
-            if element.hasProperty('needsYellowKey') and self.hasYellowKey:
-                logger.debug('We have the yellow key and we are colliding with a yellow key needing brick!')
-                layer.removeObjectAt(colRect.x, colRect.y)
-                self.resetCollisionsCache()
-                soundsStore.get('open_lock').play()
+            if element.hasProperty('needsYellowKey'):
+                if self.hasYellowKey:
+                    logger.debug('We have the yellow key and we are colliding with a yellow key needing brick!')
+                    layer.removeObjectAt(colRect.x, colRect.y)
+                    self.resetCollisionsCache()
+                    soundsStore.get('open_lock').play()
+                else:
+                    self.parentMap.addEffect('jqntlla', FadingTextEffect(colRect.x-50, colRect.y, 'Look for Yellow Key'))
 
     def move(self, xOffset, yOffset):
         if xOffset == 0 and yOffset == 0:

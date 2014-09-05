@@ -64,7 +64,7 @@ class GameTest(game.game_state.GameState):
         #self.bg.add_surface(self.images.get('bck2'), 3)
 
     def on_enter(self):
-        soundsStore.get('level0').play()
+        #soundsStore.get('level0').play()
         pass
 
     def on_exit(self):

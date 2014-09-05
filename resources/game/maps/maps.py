@@ -29,6 +29,7 @@ class Map(object):
         self.tileSets = []
         self.layers = []
         self.tiles = []
+        self.effectsLayer = None
         self.displayPosition = (0, 0)
         self.boundary = pygame.Rect(0, 0, 0, 0)
         self.reset()
@@ -46,6 +47,7 @@ class Map(object):
         self.width = self.height = self.tileWidth = self.tileHeight = 0
         self.tileSets = []
         self.layers = []
+        self.effectsLayer = layers.EffectsLayer(self)
         self.tiles = []
         self.properties = {}
         self.displayPosition = (0, 0)
@@ -112,6 +114,9 @@ class Map(object):
     def removeActor(self, actor):
         for layer in self.getActorsLayers():
             layer.removeActor(actor)
+            
+    def addEffect(self, effectId, effect):
+        self.effectsLayer.addEffect(effectId, effect)
 
     def draw(self, surface):
         # First, we draw "parallax" layers
@@ -120,13 +125,20 @@ class Map(object):
         for layer in self.getRenderingLayers():
             layer.draw(surface, x, y, width, height)
 
+        # draw effects layer
+        self.effectsLayer.draw(surface, x, y, width, height)
+
     def update(self):
         # Keep order intact
         for layer in self.getRenderingLayers():
                 layer.update()
 
+        # Update tilesets (for animations)
         for ts in self.tileSets:
             ts.update()
+            
+        # Update effects layer
+        self.effectsLayer.update()
 
     # Current display position of the map
     def setDisplayPosition(self, x, y):
