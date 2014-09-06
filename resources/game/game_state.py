@@ -126,7 +126,11 @@ class GameControl(object):
     def __init__(self, width, height):
         self.states = {}
         self.current = None
+        
+        # Initializes all used libraries
         pygame.init()
+        pygame.mixer.init()
+        pygame.font.init()
 
         self.screen = pygame.display.set_mode((width, height), pygame.DOUBLEBUF | pygame.HWSURFACE)
 
@@ -178,4 +182,6 @@ class GameControl(object):
             # Nothing more to do, this is the basic loop
     
     def quit(self):
+        pygame.font.quit()
+        pygame.mixer.quit()
         pygame.quit()

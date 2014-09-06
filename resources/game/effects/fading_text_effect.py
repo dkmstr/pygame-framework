@@ -33,7 +33,7 @@ class FadingTextEffect(Effect):
         self.rect.width += borderSize
         self.rect.height += borderSize
          
-        self.textSurface = dialog.dialogBuilder.genDialog(self.rect.width, self.rect.height, dialog.TRANSPARENT)
+        self.textSurface = dialog.Dialog.builder.genDialog(self.rect.width, self.rect.height, dialog.TRANSPARENT)
         #self.textSurface = pygame.Surface(self.rect.size, pygame.SRCALPHA)
         #self.textSurface.fill((0, 0, 200, 255))
         

@@ -29,3 +29,9 @@ def loadProperties(node):
 
 def checkTrue(value):
     return unicode(value).lower() == 'true'
+
+
+class classProperty(property):
+    """Subclass property to make classmethod properties possible"""
+    def __get__(self, cls, owner):
+        return classmethod(self.fget).__get__(None, owner)()

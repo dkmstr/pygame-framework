@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from game.actors import Actor
 from game.animation import FilesAnimation
 from game.animation import FlippedAnimation
-from game.sound import soundsStore
+from game.sound.sound import SoundsStore
 from game.effects import FadingTextEffect
 
 import logging
@@ -24,10 +24,16 @@ COLLISION_CACHE_THRESHOLD = 10
 class Player(Actor):
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
         Actor.__init__(self, parentMap, fromTile, actorType, x, y, 52, 66)
+
+        # Used sounds
+        SoundsStore.store.storeSoundFile('foot_left', 'step_grass_l.ogg', volume=0.3)
+        SoundsStore.store.storeSoundFile('foot_right', 'step_grass_r.ogg', volume=0.3)
+        SoundsStore.store.storeSoundFile('open_lock', 'open_lock.ogg')
+        
         self.xSpeed = self.ySpeed = 0
         self.animationLeft = FilesAnimation('data/actors/player1/player*.png', 2, 8)
-        self.animationLeft.associateSound(4, soundsStore.get('foot_left'))
-        self.animationLeft.associateSound(12, soundsStore.get('foot_right'))
+        self.animationLeft.associateSound(4, SoundsStore.store.get('foot_left'))
+        self.animationLeft.associateSound(12, SoundsStore.store.get('foot_right'))
         self.animationRight = FlippedAnimation(self.animationLeft)
         self.animation = self.animationRight
         self.keys = {}
@@ -198,7 +204,3 @@ class Player(Actor):
             self.hasYellowKey = True
         elif message == 'moved':
             self.updateCollisionCache()
-
-soundsStore.storeSoundFile('foot_left', 'step_grass_l.ogg', volume=0.3)
-soundsStore.storeSoundFile('foot_right', 'step_grass_r.ogg', volume=0.3)
-soundsStore.storeSoundFile('open_lock', 'open_lock.ogg')

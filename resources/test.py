@@ -21,7 +21,7 @@ from player import Player
 from items import *
 import game
 from game.actors import actorsFactory
-from game.sound import soundsStore
+from game.sound.sound import SoundsStore
 
 WIDTH = 1024
 HEIGHT = 768
@@ -48,7 +48,7 @@ class GameTest(game.game_state.GameState):
     def on_init(self):
         # Register actors types
         actorsFactory.registerType('Player', Player)
-        soundsStore.storeMusicFile('level0', 'journey_3.ogg')
+        SoundsStore.store.storeMusicFile('level0', 'journey_3.ogg')
         
         #self.images.addImage('bck1', 'data/images/far-background.png')
         #self.images.addImage('bck2', 'data/images/near-background.png')
@@ -104,7 +104,6 @@ class GameTest(game.game_state.GameState):
         return None
 
 gc = game.game_state.GameControl(WIDTH, HEIGHT)
-pygame.font.init()
 
 gc.add(GameTest('state0'))
 #gc.add(GameTest('state1'))
@@ -113,7 +112,5 @@ import cProfile
 
 cProfile.run('gc.run()', os.path.join(tempfile.gettempdir(), 'test.stats'))
 #gc.run()
-
-pygame.font.quit()
 
 gc.quit()
