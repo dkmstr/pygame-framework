@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import pygame
 import logging
 from game.util import checkTrue
+from game.objects import GraphicObject
 
 logger = logging.getLogger(__name__)
 
@@ -11,23 +12,19 @@ logger = logging.getLogger(__name__)
 ######################
 # Tile               #
 ######################
-class Tile(object):
+class Tile(GraphicObject):
     def __init__(self, tileSet, tileId, surface, properties={}):
+        GraphicObject.__init__(self, pygame.Rect(0, 0, tileSet.tileWidth, tileSet.tileHeight) if tileSet else None, properties)
+        
         self.tileSet = tileSet
         self.tileId = tileId
-        if tileSet is not None:
-            self.rect = pygame.Rect(0, 0, tileSet.tileWidth, tileSet.tileHeight)
-        else:
-            self.rect = pygame.Rect(0, 0, 0, 0)
         self.originalSurface = self.surface = surface
-        self.properties = {}
-        self.setProperties(properties)
 
     def updateAttributes(self):
+        GraphicObject.updateAttributes(self)
         '''
         Updates attributes of the object because properties was set
         '''
-        self.sticky = self.properties.get('sticky', 'False') == 'True'
         self.delay = int(self.properties.get('delay', '0'))
         # Animation ids of tiles are relative to tileset
         if self.properties.get('animation') is not None:
@@ -35,7 +32,6 @@ class Tile(object):
             self.animation = [int(i) for i in self.properties.get('animation', '-1').split(',')]
             self.animationOriginalDelay = self.animationDelay = int(self.properties.get('delay', '1'))
             self.animationState = 0
-            logger.debug('Added animation for tile {}: {}'.format(self.tileId, self.animation))
         else:
             self.animated = False
             self.animation = None
@@ -50,21 +46,8 @@ class Tile(object):
             self.rect.left = int(self.properties.get('left'))
         if self.properties.get('top') is not None:
             self.rect.top = int(self.properties.get('top'))
-            logger.debug('RECT: {}'.format(self.rect))
+        logger.debug('RECT: {}'.format(self.rect))
             
-        # Possible attributes
-        self.lethal = checkTrue(self.properties.get('lethal', 'False'))
-
-    def setProperties(self, properties):
-        self.properties = properties
-        self.updateAttributes()
-
-    def getProperty(self, propertyName):
-        '''
-        Obtains a property associated whit this tileset
-        '''
-        return self.properties.get(propertyName)
-    
     def update(self):
         if self.animated is False:
             return
@@ -78,9 +61,6 @@ class Tile(object):
         else:
             self.surface = self.tileSet.getTile(self.animation[self.animationState-1]).getOriginalImage()
             self.animationState += 1
-
-    def hasProperty(self, prop):
-        return prop in self.properties
 
     # This x,y coordinates are screen coordinates
     # TileArray, Platform, etc.. converts coordinates of objects acordly beforw invoking it

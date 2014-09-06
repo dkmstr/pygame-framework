@@ -31,6 +31,8 @@ class Player(Actor):
         SoundsStore.store.storeSoundFile('open_lock', 'open_lock.ogg')
         
         self.xSpeed = self.ySpeed = 0
+        self.inLadder = False
+        
         self.animationLeft = FilesAnimation('data/actors/player1/player*.png', 2, 8)
         self.animationLeft.associateSound(4, SoundsStore.store.get('foot_left'))
         self.animationLeft.associateSound(12, SoundsStore.store.get('foot_right'))
@@ -77,7 +79,9 @@ class Player(Actor):
         if offset == 0:
             return
         for c in self.getCollisions():
-            colRect = c[0]
+            colRect, obj, layer = c
+            if obj.blocks is False:
+                continue
             if offset > 0:
                 self.rect.right = colRect.left - 1
             else:
@@ -90,8 +94,10 @@ class Player(Actor):
             return
         
         for c in self.getCollisions():
+            colRect, obj, layer = c
+            if obj.blocks is False:
+                continue
             self.ySpeed = 0
-            colRect = c[0]
             if offset > 0:
                 if self.rect.bottom > colRect.top - 1:
                     self.rect.bottom = colRect.top - 1
@@ -100,19 +106,28 @@ class Player(Actor):
                     self.rect.top = colRect.bottom + 1
 
     def checkActionsOnCollision(self):
+        inLadder = False
         for c in self.getCollisions():
             colRect, element, layer = c
             if element.lethal is True:
                 # Die!! :-)
                 pass
+            
+            if element.ladder is True:
+                inLadder = True
+                
             if element.hasProperty('needsYellowKey'):
                 if self.hasYellowKey:
                     logger.debug('We have the yellow key and we are colliding with a yellow key needing brick!')
                     layer.removeObjectAt(colRect.x, colRect.y)
                     self.resetCollisionsCache()
-                    soundsStore.get('open_lock').play()
+                    SoundsStore.store.get('open_lock').play()
                 else:
                     self.parentMap.addEffect('jqntlla', FadingTextEffect(colRect.x+colRect.width/2, colRect.y-10, 'You need\nthe Yellow Key', 24))
+                    
+        # If ladder is true, maybe we haven't hanged on it
+        if inLadder is False:
+            self.inLadder = False
 
     def move(self, xOffset, yOffset):
         if xOffset == 0 and yOffset == 0:
@@ -131,6 +146,9 @@ class Player(Actor):
                 self.checkYCollisions(yOffset)
 
     def calculateGravity(self):
+        if self.inLadder:
+            return
+        
         if self.ySpeed == 0:
             self.ySpeed = 800  # Faster than falling platforms or it will be doing "strange things"
         else:
@@ -183,16 +201,47 @@ class Player(Actor):
         self.parentMap.setDisplayPosition(xMap, yMap)
 
     # Custom players method
-    def stop(self):
-        self.xSpeed = 0
-        self.animationRight.reset()
+    def stopLeft(self):
+        self.xSpeed += BASE_X_SPEED
         self.animationLeft.reset()
+        
+    def stopRight(self):
+        self.xSpeed -= BASE_X_SPEED
+        self.animationRight.reset()
+        
+    def stopUp(self):
+        if self.inLadder:
+            self.ySpeed  = 0
+    
+    def stopDown(self):
+        if self.inLadder:
+            self.ySpeed  = 0
+    
+    def stopJump(self):
+        pass
     
     def goLeft(self):
-        self.xSpeed = -BASE_X_SPEED
+        self.xSpeed -= BASE_X_SPEED
         
     def goRight(self):
-        self.xSpeed = BASE_X_SPEED
+        self.xSpeed += BASE_X_SPEED
+        
+    def _checkLadderCollision(self):
+        for c in self.getCollisions():
+            if c[1].ladder is True:
+                self.inLadder = True
+                return True
+        return False
+        
+        
+        
+    def goUp(self):
+        if self._checkLadderCollision():
+            self.ySpeed = -BASE_X_SPEED
+        
+    def goDown(self):
+        if self._checkLadderCollision():
+            self.ySpeed = BASE_Y_SPEED
         
     def jump(self):
         self.ySpeed = -BASE_Y_SPEED

@@ -44,7 +44,9 @@ class GameTest(game.game_state.GameState):
 
         self.map = None
         #self.bg = parallax.ParallaxSurface((WIDTH, HEIGHT), pygame.RLEACCEL)
-
+        self.pressKey = { K_RIGHT: Player.goRight, K_LEFT: Player.goLeft, K_DOWN: Player.goDown, K_UP: Player.goUp, K_SPACE: Player.jump }
+        self.releaseKey = { K_RIGHT: Player.stopRight, K_LEFT: Player.stopLeft, K_DOWN: Player.stopDown, K_UP: Player.stopUp, K_SPACE: Player.stopJump }
+        
     def on_init(self):
         # Register actors types
         actorsFactory.registerType('Player', Player)
@@ -60,6 +62,7 @@ class GameTest(game.game_state.GameState):
         self.map = self.maps.get('level0')
         self.player = list(self.map.getActors('Player'))[0]
 
+
         #self.bg.add_surface(self.images.get('bck1'), 5)
         #self.bg.add_surface(self.images.get('bck2'), 3)
 
@@ -72,22 +75,17 @@ class GameTest(game.game_state.GameState):
         print 'Exiting'
 
     def on_keydown(self, key):
-        if key == K_q:
-            return game.game_state.GameControl.EXIT_GAMESTATE
-        elif key == K_RIGHT:
-            self.player.goRight()
-        elif key == K_LEFT:
-            self.player.goLeft()
-        elif key == K_SPACE:
-            self.player.jump()
-        elif key == K_DOWN:
-            pass
+        fnc = self.pressKey.get(key)
+        if fnc is not None:
+            fnc(self.player)
 
     def on_keyup(self, key):
-        if key in (K_RIGHT, K_LEFT):
-            self.player.stop()
-        elif key in (K_UP, K_DOWN):
-            pass
+        if key == K_q:
+            return game.game_state.GameControl.EXIT_GAMESTATE
+        
+        fnc = self.releaseKey.get(key)
+        if fnc is not None:
+            fnc(self.player)
 
     def on_frame(self):
         #self.bg.scroll(self.bg_speed)

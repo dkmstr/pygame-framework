@@ -11,13 +11,13 @@ logger = logging.getLogger(__name__)
 
 class ObjectWithPath(GraphicObject):
     def __init__(self, parentLayer, origX, origY, width, height, tiles, properties):
+        GraphicObject.__init__(self, pygame.Rect(origX, origY, width, height), properties)
         self.parentLayer = parentLayer
-        self.rect = pygame.Rect(origX, origY, width, height)
-        self.path = None
         self.tiles = tiles
-        self.sticky = False
-        self.properties = {}
-        self.setProperties(properties)
+        
+    def updateAttributes(self):
+        GraphicObject.updateAttributes(self)
+        self.path = self.getProperty('path')        
 
     def draw(self, toSurface, x, y):
         '''
@@ -81,26 +81,8 @@ class ObjectWithPath(GraphicObject):
                 actorRect, actor, actorLayer = c  # Rect is a "reference" to actor position, so modifying it will modify actor's position
                 actor.move(xOffset, 0)
 
-    def setProperties(self, properties):
-        self.properties = properties
-
-        self.path = self.properties.get('path', None)
-        self.sticky = checkTrue(properties.get('sticky', 'True'))
-
-        # Possible attributes
-        self.lethal = checkTrue(self.properties.get('lethal', 'False'))
-
-    def getProperty(self, propertyName):
-        '''
-        Obtains a property associated whit this tileset
-        '''
-        return self.properties.get(propertyName)
-
-    def hasProperty(self, prop):
-        return prop in self.properties
-
-    def getRect(self):
-        return self.rect
-
     def collide(self, rect):
         return self.rect.colliderect(rect)
+    
+    def __unicode__(self):
+        return 'Object with path {}'.format(self.path)

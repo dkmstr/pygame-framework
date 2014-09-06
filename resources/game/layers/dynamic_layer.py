@@ -57,7 +57,7 @@ class DynamicLayer(Layer):
                     logger.debug('Path {} {}'.format(name, self.paths[name]))
             elif obj.attrib['type'] == 'platform':
                 if self.tilesLayer is None:
-                    logger.error('Linking to an unexistent layer: {}. Skypped'.format(tilesLayerName))
+                    logger.error('Linking to an unexistent layer: {}. Skipped'.format(tilesLayerName))
                     continue
 
                 name = obj.attrib['name']
