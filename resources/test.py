@@ -39,9 +39,8 @@ class GameTest(game.game_state.GameState):
 
         # self.images = game.images.Images((1280, 2880))
         self.maps = game.maps.Maps()
-        #self.maps.add('level0', 'data/maps/kenney/level-test-0.tmx')
-        self.maps.add('level0', 'data/maps/pencil/test.tmx')
-        #self.maps.add('level0', 'data/maps/level.tmx')
+        self.maps.add('level0', 'data/maps/kenney/level-test-0.tmx')
+        #self.maps.add('level0', 'data/maps/pencil/test.tmx')
 
         self.map = None
         #self.bg = parallax.ParallaxSurface((WIDTH, HEIGHT), pygame.RLEACCEL)

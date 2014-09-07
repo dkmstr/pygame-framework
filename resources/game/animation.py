@@ -72,6 +72,12 @@ class FilesAnimation(Animation):
         for i in self.images:
             i.set_alpha(0, pygame.RLEACCEL)
 
+class SpriteSheetAnimation(Animation):
+    def __init__(self, fileName, width, delay, startingPosition=0):
+        Animation.__init__(self, delay, startingPosition)
+        self.image = pygame.image.load(resource_path(fileName)).convert_alpha()
+        
+        self.images = [self.image.subsurface(x, 0, width, self.image.get_height()) for x in xrange(0, self.image.get_width(), width)]
 
 class FlippedAnimation(Animation):
     def __init__(self, animation):

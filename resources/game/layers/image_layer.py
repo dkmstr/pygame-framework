@@ -18,7 +18,7 @@ class ImageLayer(Layer):
         Layer.__init__(self, parentMap, layerType, properties)
         self.width = self.height = 0
         self.image_path = self.image = None
-        self.cached_size = (-1, -1)
+        self.cached_size = -1
         self.cached_image = None
 
     def load(self, node):
@@ -32,14 +32,29 @@ class ImageLayer(Layer):
 
         self.setProperties(loadProperties(node.find('properties')))
         logger.debug('Loaded image Layer {}'.format(self))
-
+        
     def onDraw(self, toSurface, rect):
-        if rect.width != self.cached_size[0] or rect.height != self.cached_size[1]:
-            logger.debug('Rescaling image layer to {}x{}'.format(rect.width, rect.height))
-            self.cached_size = (rect.width, rect.height)
-            self.cached_image = pygame.transform.scale(self.image, self.cached_size).convert()
+        if rect.height != self.cached_size[1]:
+            width, height = self.image.get_size()
+            width = width * rect.height / height
+            height = rect.height
+            self.cached_size = (width, height)
+            logger.debug('Rescaling image layer to {}x{}'.format(width, height))
+            
+            self.cached_image = pygame.transform.smoothscale(self.image, (width, height)).convert()
+        
+        width, height = self.cached_size
 
-        toSurface.blit(self.cached_image, (0, 0))
+        posX = 0
+        if self.parallax:
+            posX = (rect.left * self.parallaxFactor[0] / 100) % width
+            toSurface.blit(self.cached_image, (0, 0),
+                        (posX, 0, width, height))
+            toSurface.blit(self.cached_image,
+                        (self.cached_image.get_width() - posX, 0),
+                         (0, 0, posX, height))
+        else:
+            toSurface.blit(self.cached_image, (0, 0))
 
     def __unicode__(self):
         return 'Image Layer: {}'.format(self.image_path)

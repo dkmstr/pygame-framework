@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from game.actors import Actor
 from game.animation import FilesAnimation
+from game.animation import SpriteSheetAnimation
 from game.animation import FlippedAnimation
 from game.sound.sound import SoundsStore
 from game.effects import FadingTextEffect
@@ -23,8 +24,8 @@ COLLISION_CACHE_THRESHOLD = 10
 
 class Player(Actor):
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
-        Actor.__init__(self, parentMap, fromTile, actorType, x, y, 52, 66)
-
+        #Actor.__init__(self, parentMap, fromTile, actorType, x, y, 52, 66)
+        Actor.__init__(self, parentMap, fromTile, actorType, x, y)
         # Used sounds
         SoundsStore.store.storeSoundFile('foot_left', 'step_grass_l.ogg', volume=0.3)
         SoundsStore.store.storeSoundFile('foot_right', 'step_grass_r.ogg', volume=0.3)
@@ -33,16 +34,17 @@ class Player(Actor):
         self.xSpeed = self.ySpeed = 0
         self.inLadder = False
         
-        self.animationLeft = FilesAnimation('data/actors/player1/player*.png', 2, 8)
-        self.animationLeft.associateSound(4, SoundsStore.store.get('foot_left'))
-        self.animationLeft.associateSound(12, SoundsStore.store.get('foot_right'))
+        # self.animationLeft = FilesAnimation('data/actors/player1/player*.png', 2, 8)
+        self.animationUp = SpriteSheetAnimation('data/actors/player3-up.png', 48, 2, 7)
+        self.animationLeft = SpriteSheetAnimation('data/actors/player3-side.png', 48, 2, 7)
+        self.animationLeft.associateSound(3, SoundsStore.store.get('foot_left'))
+        self.animationLeft.associateSound(6, SoundsStore.store.get('foot_right'))
         self.animationRight = FlippedAnimation(self.animationLeft)
         self.animation = self.animationRight
         self.keys = {}
         self.collisionsCache = None  # First is objects collisions cache, second is actors collisions cache
         self.cachedX = self.cachedY = -100000
-        self.updateCacheCount = 0
-        
+        self.alive = True
         
         # What the player has
         self.hasYellowKey = False
@@ -52,24 +54,20 @@ class Player(Actor):
         self.collisionsCache = None
         self.cachedX, self.cachedY =  self.rect.x, self.rect.y  # Will be updated on this possition
         
-        self.updateCacheCount += 1
-        logger.debug('Cache will be updated for {} time'.format(self.updateCacheCount))
-        
     def updateCollisionCache(self):
         if abs(self.cachedX - self.rect.x) > COLLISION_CACHE_THRESHOLD or abs(self.cachedY - self.rect.y) > COLLISION_CACHE_THRESHOLD:
             self.resetCollisionsCache()
             
         if self.collisionsCache is None:
-            logger.debug('Updating collisions cache for objects and actors')
             self.collisionsCache = (
                 self.parentMap.getPossibleCollisions(self.rect, COLLISION_CACHE_EXTEND, COLLISION_CACHE_EXTEND),
                 self.parentMap.getPossibleActorsCollisions(self.rect, COLLISION_CACHE_EXTEND, COLLISION_CACHE_EXTEND, exclude=self)
             )
-            
 
     def getCollisions(self):
         self.updateCollisionCache()
-        return self.parentMap.getCollisions(self.rect, self.collisionsCache[0])
+        colRect = self.rect.move(self.xOffset, self.yOffset)
+        return self.parentMap.getCollisions(colRect, self.collisionsCache[0])
     
     def getActorsCollisions(self):
         self.updateCollisionCache()
@@ -83,27 +81,30 @@ class Player(Actor):
             if obj.blocks is False:
                 continue
             if offset > 0:
-                self.rect.right = colRect.left - 1
+                self.rect.right = colRect.left - 1 - self.xOffset
             else:
-                self.rect.left = colRect.right + 1
+                self.rect.left = colRect.right + 1 - self.xOffset 
             return True
         return False
 
     def checkYCollisions(self, offset):
+        '''
+        Our rect is not exactly where the animation is drawn, it's offseted
+        '''
         if offset == 0:
             return
-        
+
         for c in self.getCollisions():
             colRect, obj, layer = c
             if obj.blocks is False:
                 continue
             self.ySpeed = 0
             if offset > 0:
-                if self.rect.bottom > colRect.top - 1:
-                    self.rect.bottom = colRect.top - 1
+                if self.rect.bottom > colRect.top - 1 - self.yOffset:
+                    self.rect.bottom = colRect.top - 1 - self.yOffset
             else:
-                if self.rect.top < colRect.bottom + 1:
-                    self.rect.top = colRect.bottom + 1
+                if self.rect.top < colRect.bottom + 1 - self.yOffset:
+                    self.rect.top = colRect.bottom + 1 - self.yOffset
 
     def checkActionsOnCollision(self):
         inLadder = False
@@ -111,7 +112,8 @@ class Player(Actor):
             colRect, element, layer = c
             if element.lethal is True:
                 # Die!! :-)
-                pass
+                self.parentMap.addEffect('die', FadingTextEffect(colRect.x+colRect.width/2, colRect.y-10, 'DIE!!! :-)', 24))
+                self.isAlive = False
             
             if element.ladder is True:
                 inLadder = True
@@ -158,7 +160,10 @@ class Player(Actor):
 
     def update(self):
         self.calculateGravity()
-        if self.xSpeed != 0:
+        if self.inLadder is True and self.ySpeed != 0:
+            self.animation = self.animationUp
+            self.animation.iterate()
+        elif self.xSpeed != 0:
             if self.xSpeed > 0:
                 self.animation = self.animationRight
             else:
@@ -176,10 +181,12 @@ class Player(Actor):
         return True  # IF we return false, we will get removed!! :)
 
     def draw(self, toSurface):
+        import pygame
         if self.ySpeed == 0:
             self.animation.play()
         x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y)
         self.animation.draw(toSurface, x, y)
+        toSurface.fill(0, (x+self.xOffset, y+self.yOffset, self.rect.width, self.rect.height))
         
     def updateMapDisplayPosition(self, displaySurface):
         w, h = displaySurface.get_size()
@@ -233,8 +240,6 @@ class Player(Actor):
                 return True
         return False
         
-        
-        
     def goUp(self):
         if self._checkLadderCollision():
             self.ySpeed = -BASE_X_SPEED
@@ -246,6 +251,8 @@ class Player(Actor):
     def jump(self):
         self.ySpeed = -BASE_Y_SPEED
         
+    def isAlive(self):
+        return self.isAlive
        
     def notify(self, sender, message):
         if message == 'YellowKey':

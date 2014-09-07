@@ -49,8 +49,6 @@ class ArrayLayer(Layer):
                     flipX = flipY = True
                 self.data[i] = self.parentMap.addTileFromTile(tileId&0x0FFFFFFF, flipX, flipY)
                 
-        logger.debug('DATA: {}'.format(self.data))
-
     def onDraw(self, toSurface, rect):
         tiles = self.parentMap.tiles
         tileWidth = self.parentMap.tileWidth

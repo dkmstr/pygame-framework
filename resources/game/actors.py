@@ -16,7 +16,7 @@ class Actor(object):
         self.xOffset = tileRect.left
         self.yOffset = tileRect.top
 
-        self.rect = pygame.Rect(x+self.xOffset, y+self.yOffset, w, h)
+        self.rect = pygame.Rect(x, y, w, h)
         
         self.tile = fromTile
         self.parentMap = parentMap
@@ -44,7 +44,7 @@ class Actor(object):
     def draw(self, toSurface):
         if self.impact:
             return
-        x, y = self.parentMap.translateCoordinates(self.rect.x-self.xOffset, self.rect.y-self.yOffset) 
+        x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y) 
         self.tile.draw(toSurface, x, y)
 
     def update(self):
