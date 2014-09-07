@@ -224,9 +224,9 @@
   </tile>
   <tile id="2">
    <properties>
-    <property name="heigth" value="60"/>
+    <property name="height" value="60"/>
     <property name="left" value="10"/>
-    <property name="top" value="4"/>
+    <property name="top" value="0"/>
     <property name="type" value="Player"/>
     <property name="width" value="30"/>
    </properties>
