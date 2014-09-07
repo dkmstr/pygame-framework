@@ -66,7 +66,7 @@ class Player(Actor):
 
     def getCollisions(self):
         self.updateCollisionCache()
-        colRect = self.rect.move(self.xOffset, self.yOffset)
+        colRect = self.rect.move(self.xOffset, self.yOffset)  # Actor position is not exactly where it collides
         return self.parentMap.getCollisions(colRect, self.collisionsCache[0])
     
     def getActorsCollisions(self):
@@ -81,9 +81,9 @@ class Player(Actor):
             if obj.blocks is False:
                 continue
             if offset > 0:
-                self.rect.right = colRect.left - 1 - self.xOffset
+                self.rect.right = colRect.left - 1 - self.xOffset # Actor position is not exactly where it collides
             else:
-                self.rect.left = colRect.right + 1 - self.xOffset 
+                self.rect.left = colRect.right + 1 - self.xOffset  # Actor position is not exactly where it collides
             return True
         return False
 
@@ -100,10 +100,10 @@ class Player(Actor):
                 continue
             self.ySpeed = 0
             if offset > 0:
-                if self.rect.bottom > colRect.top - 1 - self.yOffset:
+                if self.rect.bottom > colRect.top - 1 - self.yOffset: # Actor position is not exactly where it collides
                     self.rect.bottom = colRect.top - 1 - self.yOffset
             else:
-                if self.rect.top < colRect.bottom + 1 - self.yOffset:
+                if self.rect.top < colRect.bottom + 1 - self.yOffset: # Actor position is not exactly where it collides
                     self.rect.top = colRect.bottom + 1 - self.yOffset
 
     def checkActionsOnCollision(self):
@@ -186,7 +186,6 @@ class Player(Actor):
             self.animation.play()
         x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y)
         self.animation.draw(toSurface, x, y)
-        toSurface.fill(0, (x+self.xOffset, y+self.yOffset, self.rect.width, self.rect.height))
         
     def updateMapDisplayPosition(self, displaySurface):
         w, h = displaySurface.get_size()
