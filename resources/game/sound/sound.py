@@ -60,6 +60,7 @@ class SoundsStore(object):
 
     def storeSound(self, soundName, soundObj, volume=1.0, force=False):
         if soundName in self.sounds and force is False:
+            logger.debug('Already stored, skipping')
             return
         self.sounds[soundName] = soundObj
 

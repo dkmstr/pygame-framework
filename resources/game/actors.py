@@ -39,7 +39,7 @@ class Actor(object):
     def collide(self, rect):
         if self.impact:
             return False
-        return  self.rect.colliderect(rect)
+        return  rect.colliderect((self.rect.left+self.xOffset, self.rect.top+self.yOffset, self.rect.width, self.rect.height))
 
     def draw(self, toSurface):
         if self.impact:

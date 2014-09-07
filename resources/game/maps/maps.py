@@ -190,7 +190,7 @@ class Map(object):
         '''
         if possibleCollisions is not None:
             for col in possibleCollisions:
-                if col[0].colliderect(rect):
+                if col[1].collide(rect):
                     yield col
         else:
             for layer in self.getActorsLayers():
@@ -198,7 +198,7 @@ class Map(object):
                     if col[1] is not exclude:
                         yield col
 
-    def getPossibleActorsCollisions(self, rect, xRange=1000, yRange=1000, exclude=None):
+    def getPossibleActorsCollisions(self, rect, xRange=32, yRange=32, exclude=None):
         '''
         If needs to get check collisions more than once, this optimizes 
         a lot the process limiting the objects to check

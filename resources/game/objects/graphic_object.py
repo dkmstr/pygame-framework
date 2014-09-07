@@ -18,7 +18,6 @@ class GraphicObject(object):
         Updates attributes of the object because properties was set
         '''
         # Possible attributes
-        self.sticky = checkTrue(self.getProperty('sticky', 'False'))
         self.collission = checkTrue(self.getProperty('collission', 'False'))
         self.blocks = checkTrue(self.getProperty('blocks', 'True'))
         self.ladder = checkTrue(self.getProperty('ladder', 'False'))

@@ -46,7 +46,6 @@ class Tile(GraphicObject):
             self.rect.left = int(self.properties.get('left'))
         if self.properties.get('top') is not None:
             self.rect.top = int(self.properties.get('top'))
-        logger.debug('RECT: {}'.format(self.rect))
             
     def update(self):
         if self.animated is False:

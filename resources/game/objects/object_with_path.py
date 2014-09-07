@@ -17,7 +17,8 @@ class ObjectWithPath(GraphicObject):
         
     def updateAttributes(self):
         GraphicObject.updateAttributes(self)
-        self.path = self.getProperty('path')        
+        self.path = self.getProperty('path')
+        self.sticky = checkTrue(self.getProperty('sticky', 'True'))
 
     def draw(self, toSurface, x, y):
         '''
@@ -45,23 +46,25 @@ class ObjectWithPath(GraphicObject):
         self.path.save()  # Keeps a copy before iterating, so if we collide we can return back
         self.rect.left, self.rect.top = self.path.iterate()
         xOffset, yOffset = self.rect.left - x, self.rect.top - y
-
+        
+        # Reduce a lot the numberof tests needed
+        possibleCollisions = self.parentLayer.parentMap.getPossibleActorsCollisions(self.rect, 10, 10)
+        
         # First we check what any actor collided moves acordly
-        for c in self.parentLayer.parentMap.getActorsCollisions(self.rect):
+        for c in self.parentLayer.parentMap.getActorsCollisions(self.rect, possibleCollisions):
             actorRect, actor, actorLayer = c  # actorRect is a "reference" to actor position, so modifying it will modify actor's position
             if yOffset > 0 or xOffset != 0:  # Do not move if we moved down, left or right
                 self.path.restore()
                 self.rect.left, self.rect.top = x, y
             else:
                 # If actor collides in new position, do not move
-                bottom = actor.rect.bottom
-                actor.rect.bottom = self.rect.top - 1
+                actor.move(0, yOffset)
+                # bottom = actor.rect.bottom
+                # actor.rect.bottom = self.rect.top - 1
                 if any(actor.getCollisions()):
                     actor.rect.bottom = bottom
                     self.path.restore()
                     self.rect.left, self.rect.top = x, y
-                else:
-                    actor.notify(self, 'moved')
                 
 
             #if xOffset > 0:
@@ -75,11 +78,13 @@ class ObjectWithPath(GraphicObject):
         # Now, it we are "sticky", we move any actor that is "over" this item
         # Sticky is only sticky for actors that are ON this object
         if self.sticky and xOffset != 0:
+            logger.debug('Possible colllisions: {}'.format(possibleCollisions))
             # Inflate rect at top to detect collision
-            rect = pygame.Rect(self.rect.left, self.rect.top-2, self.rect.width, self.rect.height)
-            for c in self.parentLayer.parentMap.getActorsCollisions(rect):
-                actorRect, actor, actorLayer = c  # Rect is a "reference" to actor position, so modifying it will modify actor's position
-                actor.move(xOffset, 0)
+            rect = pygame.Rect(self.rect.left, self.rect.top-2, self.rect.width, self.rect.height+2)
+            for c in self.parentLayer.parentMap.getActorsCollisions(rect, possibleCollisions):
+                actorRect, actor, actorLayer = c 
+                actor.move(xOffset, 0)  # Actor collisions rects do not coincide exactly with blitting pos, so let actor itself modify it's position
+                actor.notify(self, 'moved')
 
     def collide(self, rect):
         return self.rect.colliderect(rect)
