@@ -7,6 +7,7 @@ from game.animation import SpriteSheetAnimation
 from game.animation import FlippedAnimation
 from game.sound.sound import SoundsStore
 from game.effects import FadingTextEffect
+from game.collision_cache import CollisionCache
 
 import logging
 
@@ -17,10 +18,6 @@ BASE_Y_SPEED = 8 * 100
 
 SCREEN_BORDER_X = 300
 SCREEN_BORDER_Y = 180
-
-COLLISION_CACHE_EXTEND = 40
-COLLISION_CACHE_THRESHOLD = 10
-
 
 class Player(Actor):
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
@@ -42,36 +39,28 @@ class Player(Actor):
         self.animationRight = FlippedAnimation(self.animationLeft)
         self.animation = self.animationRight
         self.keys = {}
-        self.collisionsCache = None  # First is objects collisions cache, second is actors collisions cache
-        self.cachedX = self.cachedY = -100000
+        self.collisionCache = CollisionCache(parentMap, cachesActors=True, 
+                                            cachesObjects=True, 
+                                            cacheThreshold=32, 
+                                            collisionRangeCheck=128)
         self.alive = True
         
         # What the player has
         self.hasYellowKey = False
         
     def resetCollisionsCache(self):
-        logger.debug('Reseting collision cache')
-        self.collisionsCache = None
-        self.cachedX, self.cachedY =  self.rect.x, self.rect.y  # Will be updated on this possition
+        self.collisionCache.resetCache(self.rect)
         
-    def updateCollisionCache(self):
-        if abs(self.cachedX - self.rect.x) > COLLISION_CACHE_THRESHOLD or abs(self.cachedY - self.rect.y) > COLLISION_CACHE_THRESHOLD:
-            self.resetCollisionsCache()
-            
-        if self.collisionsCache is None:
-            self.collisionsCache = (
-                self.parentMap.getPossibleCollisions(self.rect, COLLISION_CACHE_EXTEND, COLLISION_CACHE_EXTEND),
-                self.parentMap.getPossibleActorsCollisions(self.rect, COLLISION_CACHE_EXTEND, COLLISION_CACHE_EXTEND, exclude=self)
-            )
+    def updateCollisionsCache(self):
+        self.collisionCache.updateCollisionsCache(self.rect)
 
     def getCollisions(self):
-        self.updateCollisionCache()
         colRect = self.rect.move(self.xOffset, self.yOffset)  # Actor position is not exactly where it collides
-        return self.parentMap.getCollisions(colRect, self.collisionsCache[0])
+        return self.collisionCache.getObjectsCollisions(colRect)
     
     def getActorsCollisions(self):
-        self.updateCollisionCache()
-        return self.parentMap.getActorsCollisions(self.rect, self.collisionsCache[1])
+        colRect = self.rect.move(self.xOffset, self.yOffset)  # Actor position is not exactly where it collides
+        return self.collisionCache.getActorsCollissions(colRect)
 
     def checkXCollisions(self, offset):
         if offset == 0:
@@ -258,4 +247,4 @@ class Player(Actor):
             logger.debug('Player has got yellow key')
             self.hasYellowKey = True
         elif message == 'moved':
-            self.updateCollisionCache()
+            self.updateCollisionsCache()

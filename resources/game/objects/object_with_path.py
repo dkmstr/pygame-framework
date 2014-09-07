@@ -5,13 +5,20 @@ import pygame
 import logging
 from game.util import checkTrue
 from game.objects.graphic_object import GraphicObject
+from game.collision_cache import WithCollisionCache
 
 logger = logging.getLogger(__name__)
 
+COLLISION_CACHE_THRESHOLD = 50
 
-class ObjectWithPath(GraphicObject):
+class ObjectWithPath(GraphicObject, WithCollisionCache):
     def __init__(self, parentLayer, origX, origY, width, height, tiles, properties):
         GraphicObject.__init__(self, pygame.Rect(origX, origY, width, height), properties)
+        WithCollisionCache.__init__(self, parentLayer.parentMap, 
+                                            cachesActors=True, 
+                                            cachesObjects=False, 
+                                            cacheThreshold=32, 
+                                            collisionRangeCheck=128)
         self.parentLayer = parentLayer
         self.tiles = tiles
         
@@ -48,10 +55,10 @@ class ObjectWithPath(GraphicObject):
         xOffset, yOffset = self.rect.left - x, self.rect.top - y
         
         # Reduce a lot the numberof tests needed
-        possibleCollisions = self.parentLayer.parentMap.getPossibleActorsCollisions(self.rect, 10, 10)
+        self.updateCollisionsCache()
         
         # First we check what any actor collided moves acordly
-        for c in self.parentLayer.parentMap.getActorsCollisions(self.rect, possibleCollisions):
+        for c in self.getActorsCollisions():
             actorRect, actor, actorLayer = c  # actorRect is a "reference" to actor position, so modifying it will modify actor's position
             if yOffset > 0 or xOffset != 0:  # Do not move if we moved down, left or right
                 self.path.restore()
@@ -78,10 +85,9 @@ class ObjectWithPath(GraphicObject):
         # Now, it we are "sticky", we move any actor that is "over" this item
         # Sticky is only sticky for actors that are ON this object
         if self.sticky and xOffset != 0:
-            logger.debug('Possible colllisions: {}'.format(possibleCollisions))
             # Inflate rect at top to detect collision
             rect = pygame.Rect(self.rect.left, self.rect.top-2, self.rect.width, self.rect.height+2)
-            for c in self.parentLayer.parentMap.getActorsCollisions(rect, possibleCollisions):
+            for c in self.getActorsCollisions(rect):
                 actorRect, actor, actorLayer = c 
                 actor.move(xOffset, 0)  # Actor collisions rects do not coincide exactly with blitting pos, so let actor itself modify it's position
                 actor.notify(self, 'moved')
