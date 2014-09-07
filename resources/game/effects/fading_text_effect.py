@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 class FadingTextEffect(Effect):
     def __init__(self, x, y, text, fontSize=60, fontColor=(0, 0, 0), ticks=200):
         Effect.__init__(self, pygame.Rect(x, y, 0, 0))
-
         
         font = pygame.font.Font(None, fontSize)
         

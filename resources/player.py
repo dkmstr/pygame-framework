@@ -7,7 +7,7 @@ from game.animation import SpriteSheetAnimation
 from game.animation import FlippedAnimation
 from game.sound.sound import SoundsStore
 from game.effects import FadingTextEffect
-from game.collision_cache import CollisionCache
+from game.collision_cache import WithCollisionCache
 
 import logging
 
@@ -19,10 +19,15 @@ BASE_Y_SPEED = 8 * 100
 SCREEN_BORDER_X = 300
 SCREEN_BORDER_Y = 180
 
-class Player(Actor):
+class Player(Actor, WithCollisionCache):
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
         #Actor.__init__(self, parentMap, fromTile, actorType, x, y, 52, 66)
         Actor.__init__(self, parentMap, fromTile, actorType, x, y)
+        WithCollisionCache.__init__(self, parentMap, 
+                                    cachesActors=True, 
+                                    cachesObjects=True, 
+                                    cacheThreshold=32, 
+                                    collisionRangeCheck=128)
         # Used sounds
         SoundsStore.store.storeSoundFile('foot_left', 'step_grass_l.ogg', volume=0.3)
         SoundsStore.store.storeSoundFile('foot_right', 'step_grass_r.ogg', volume=0.3)
@@ -39,28 +44,13 @@ class Player(Actor):
         self.animationRight = FlippedAnimation(self.animationLeft)
         self.animation = self.animationRight
         self.keys = {}
-        self.collisionCache = CollisionCache(parentMap, cachesActors=True, 
-                                            cachesObjects=True, 
-                                            cacheThreshold=32, 
-                                            collisionRangeCheck=128)
         self.alive = True
         
         # What the player has
         self.hasYellowKey = False
         
-    def resetCollisionsCache(self):
-        self.collisionCache.resetCache(self.rect)
-        
-    def updateCollisionsCache(self):
-        self.collisionCache.updateCollisionsCache(self.rect)
-
-    def getCollisions(self):
-        colRect = self.rect.move(self.xOffset, self.yOffset)  # Actor position is not exactly where it collides
-        return self.collisionCache.getObjectsCollisions(colRect)
-    
-    def getActorsCollisions(self):
-        colRect = self.rect.move(self.xOffset, self.yOffset)  # Actor position is not exactly where it collides
-        return self.collisionCache.getActorsCollissions(colRect)
+    def getColRect(self):
+        return self.rect.move(self.xOffset, self.yOffset)
 
     def checkXCollisions(self, offset):
         if offset == 0:
