@@ -67,12 +67,11 @@ class GameTest(game.game_state.GameState):
         #self.bg.add_surface(self.images.get('bck2'), 3)
 
     def on_enter(self):
-        #soundsStore.get('level0').play()
+        SoundsStore.store.get('level0').play()
         pass
 
     def on_exit(self):
         pygame.mixer.music.stop()
-        print 'Exiting'
 
     def on_keydown(self, key):
         fnc = self.pressKey.get(key)

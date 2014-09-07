@@ -328,6 +328,7 @@
   <object name="plat5" type="platform" x="840" y="1470" width="140" height="40">
    <properties>
     <property name="path" value="path5"/>
+    <property name="sticky" value="True"/>
    </properties>
   </object>
   <object name="path5" type="path" x="840" y="1470">
