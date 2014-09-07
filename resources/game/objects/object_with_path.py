@@ -65,8 +65,8 @@ class ObjectWithPath(GraphicObject, WithCollisionCache):
                 self.rect.left, self.rect.top = x, y
             else:
                 # If actor collides in new position, do not move
+                bottom = actor.rect.bottom
                 actor.move(0, yOffset)
-                # bottom = actor.rect.bottom
                 # actor.rect.bottom = self.rect.top - 1
                 if any(actor.getCollisions()):
                     actor.rect.bottom = bottom

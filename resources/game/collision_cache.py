@@ -61,7 +61,7 @@ class WithCollisionCache(object):
         return self.getRect()
     
     def resetCollisionsCache(self):
-        self.collisionCache.resetCache(self.getColRect())
+        self.collisionCache.resetCollisionsCache(self.getColRect())
         
     def updateCollisionsCache(self):
         self.collisionCache.updateCollisionsCache(self.getColRect())

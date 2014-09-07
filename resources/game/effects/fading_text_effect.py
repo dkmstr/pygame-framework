@@ -56,7 +56,7 @@ class FadingTextEffect(Effect):
 
     def update(self):
         self.ticks -= 1
-        if self.ticks == 0:
+        if self.ticks <= 0:
             return True
         return False
         

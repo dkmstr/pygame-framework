@@ -17,8 +17,8 @@ class EffectsLayer(Layer):
 
     def onUpdate(self):
         toRemove = [effect for effect in self.effectsList if effect.update()]
-        for actorToRemove in toRemove:
-            self.removeEffect(actorToRemove)
+        for effectToRemove in toRemove:
+            self.removeEffect(effectToRemove)
         
     def onDraw(self, toSurface, rect):
         for effect in self.effectsList:
@@ -26,9 +26,8 @@ class EffectsLayer(Layer):
         
     def addEffect(self, effectId, effect):
         if effectId is not None:
-            found = False
-            for effect in self.effectsList:
-                if effect.effectId == effectId:
+            for e in self.effectsList:
+                if e.effectId == effectId:
                     return  # Do not add it again if it already exists
         
         self.effectsList.append(effect)

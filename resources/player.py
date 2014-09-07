@@ -35,6 +35,7 @@ class Player(Actor, WithCollisionCache):
         
         self.xSpeed = self.ySpeed = 0
         self.inLadder = False
+        self.ladderX = -1000
         
         # self.animationLeft = FilesAnimation('data/actors/player1/player*.png', 2, 8)
         self.animationUp = SpriteSheetAnimation('data/actors/player3-up.png', 48, 2, 7)
@@ -91,8 +92,9 @@ class Player(Actor, WithCollisionCache):
             colRect, element, layer = c
             if element.lethal is True:
                 # Die!! :-)
-                self.parentMap.addEffect('die', FadingTextEffect(colRect.x+colRect.width/2, colRect.y-10, 'DIE!!! :-)', 24))
+                self.parentMap.addEffect('die', FadingTextEffect(colRect.centerx, colRect.y-10, 'DIE!!! :-)', 24))
                 self.isAlive = False
+                continue
             
             if element.ladder is True:
                 inLadder = True
@@ -105,6 +107,7 @@ class Player(Actor, WithCollisionCache):
                     SoundsStore.store.get('open_lock').play()
                 else:
                     self.parentMap.addEffect('jqntlla', FadingTextEffect(colRect.x+colRect.width/2, colRect.y-10, 'You need\nthe Yellow Key', 24))
+                continue
                     
         # If ladder is true, maybe we haven't hanged on it
         if inLadder is False:
@@ -142,6 +145,7 @@ class Player(Actor, WithCollisionCache):
         if self.inLadder is True and self.ySpeed != 0:
             self.animation = self.animationUp
             self.animation.iterate()
+            self.rect.centerx = self.ladderX
         elif self.xSpeed != 0:
             if self.xSpeed > 0:
                 self.animation = self.animationRight
@@ -206,15 +210,19 @@ class Player(Actor, WithCollisionCache):
         pass
     
     def goLeft(self):
+        self.inLadder = False
         self.xSpeed -= BASE_X_SPEED
         
     def goRight(self):
+        self.inLadder = False
         self.xSpeed += BASE_X_SPEED
         
     def _checkLadderCollision(self):
         for c in self.getCollisions():
             if c[1].ladder is True:
                 self.inLadder = True
+                self.ladderX = c[0].centerx - self.xOffset
+
                 return True
         return False
         
@@ -227,6 +235,8 @@ class Player(Actor, WithCollisionCache):
             self.ySpeed = BASE_Y_SPEED
         
     def jump(self):
+        # Jumpinng goes of ladders
+        self.inLadder = False
         self.ySpeed = -BASE_Y_SPEED
         
     def isAlive(self):
