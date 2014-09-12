@@ -6,7 +6,7 @@ import os
 import xml.etree.ElementTree as ET
 
 from game.tiles.tiles import Tile
-from game.tiles.tile_image_cache import TilesImageCache
+from game.image_cache import ImageCache
 from game.util import loadProperties
 
 import logging
@@ -48,7 +48,7 @@ class TileSet(object):
         self.imageWidth = int(image.attrib['width'])
         self.imageHeight = int(image.attrib['height'])
 
-        self.surface = TilesImageCache.cache.load(os.path.join(self.parentMap.mapPath, self.imageFile))
+        self.surface = ImageCache.cache.load(os.path.join(self.parentMap.mapPath, self.imageFile))
 
         self.properties = loadProperties(node.find('properties'))
         self.__loadTilesProperties(node)

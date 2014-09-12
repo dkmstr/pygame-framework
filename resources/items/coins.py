@@ -24,6 +24,7 @@ class Coin(Actor):
         Actor.notify(self, sender, message)
         if message == 'hit':
             self.soundGetCoin.play()
+            sender.notify(self, self.actorType)
         
 actorsFactory.registerType('BronceCoin', Coin)
 actorsFactory.registerType('SilverCoin', Coin)

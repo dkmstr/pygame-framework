@@ -5,6 +5,8 @@ import pygame
 import glob
 
 from game.util import resource_path
+from game.image_cache import ImageCache
+
 
 import logging
 
@@ -68,9 +70,9 @@ class FilesAnimation(Animation):
         files = sorted(glob.glob(resource_path(fileListPattern)))
 
         # Load image files
-        self.images = [pygame.image.load(f).convert_alpha() for f in files]
-        for i in self.images:
-            i.set_alpha(0, pygame.RLEACCEL)
+        self.images = [ImageCache.cache.load(f).convert_alpha() for f in files]
+        # for i in self.images:
+        #    i.set_alpha(0, pygame.RLEACCEL)
 
 class SpriteSheetAnimation(Animation):
     def __init__(self, fileName, width, delay, startingPosition=0):

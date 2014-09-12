@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from game.actors import Actor
+from game.hud.score import ScoreableMixin
 from game.animation import FilesAnimation
 from game.animation import SpriteSheetAnimation
 from game.animation import FlippedAnimation
@@ -19,7 +20,7 @@ BASE_Y_SPEED = 8 * 100
 SCREEN_BORDER_X = 300
 SCREEN_BORDER_Y = 180
 
-class Player(Actor, WithCollisionCache):
+class Player(Actor, WithCollisionCache, ScoreableMixin):
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
         #Actor.__init__(self, parentMap, fromTile, actorType, x, y, 52, 66)
         Actor.__init__(self, parentMap, fromTile, actorType, x, y)
@@ -38,14 +39,18 @@ class Player(Actor, WithCollisionCache):
         self.ladderX = -1000
         
         # self.animationLeft = FilesAnimation('data/actors/player1/player*.png', 2, 8)
-        self.animationUp = SpriteSheetAnimation('data/actors/player3-up.png', 48, 2, 7)
-        self.animationLeft = SpriteSheetAnimation('data/actors/player3-side.png', 48, 2, 7)
+        # self.animationUp = SpriteSheetAnimation('data/actors/player3-up.png', 48, 2, 7)
+        self.animationUp = FilesAnimation('data/actors/characters/Blue_Back*.png', 6, 0)
+        # self.animationLeft = SpriteSheetAnimation('data/actors/player3-side.png', 48, 2, 7)
+        self.animationLeft = FilesAnimation('data/actors/characters/Blue_Left*.png', 6, 0)
         self.animationLeft.associateSound(3, SoundsStore.store.get('foot_left'))
         self.animationLeft.associateSound(6, SoundsStore.store.get('foot_right'))
         self.animationRight = FlippedAnimation(self.animationLeft)
         self.animation = self.animationRight
         self.keys = {}
         self.alive = True
+        
+        self.score = 0
         
         # What the player has
         self.hasYellowKey = False
@@ -169,6 +174,7 @@ class Player(Actor, WithCollisionCache):
             self.animation.play()
         x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y)
         self.animation.draw(toSurface, x, y)
+        #toSurface.fill((128, 128, 128, 128), (x+self.xOffset, y+self.yOffset, self.rect.width, self.rect.height), pygame.BLEND_RGBA_MAX)
         
     def updateMapDisplayPosition(self, displaySurface):
         w, h = displaySurface.get_size()
@@ -241,10 +247,15 @@ class Player(Actor, WithCollisionCache):
         
     def isAlive(self):
         return self.isAlive
+
+    def getScore(self):
+        return self.score
        
     def notify(self, sender, message):
         if message == 'YellowKey':
             logger.debug('Player has got yellow key')
             self.hasYellowKey = True
+        elif message in ('BronceCoin', 'SilverCoin', 'GoldCoin'):
+            self.score += 1234
         elif message == 'moved':
             self.updateCollisionsCache()

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 # Global tiles images caching
 # Tiles images do not gets modified, so cachin them to no load
 # again and again for each map is nice...
-class TilesImageCache(object):
+class ImageCache(object):
     _cache = None
     
     def __init__(self):
@@ -20,17 +20,16 @@ class TilesImageCache(object):
     @classProperty
     def cache(cls):
         if cls._cache is None:
-            cls._cache = TilesImageCache()
+            cls._cache = ImageCache()
         return cls._cache
     
     def load(self, imagePath):
         if self.images.get(imagePath) is not None:
-            return self.images[imagePath]
+            image = self.images[imagePath]
+        else:
+            image = pygame.image.load(imagePath)
+            self.images[imagePath] = image
         
-        image = pygame.image.load(imagePath)
-        image = image.convert_alpha()
-        self.images[imagePath] = image
-        
-        return image
+        return image.convert_alpha()
         
     

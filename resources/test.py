@@ -22,6 +22,7 @@ from items import *
 import game
 from game.actors import actorsFactory
 from game.sound.sound import SoundsStore
+from game.hud import ScoreFilesHud
 
 WIDTH = 1024
 HEIGHT = 768
@@ -61,7 +62,7 @@ class GameTest(game.game_state.GameState):
 
         self.map = self.maps.get('level0')
         self.player = list(self.map.getActors('Player'))[0]
-
+        self.map.addHudElement(ScoreFilesHud(self.player, 'data/images/numbers/hud_*.png', 8, 5, 5))
 
         #self.bg.add_surface(self.images.get('bck1'), 5)
         #self.bg.add_surface(self.images.get('bck2'), 3)

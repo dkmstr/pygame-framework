@@ -30,6 +30,7 @@ class Map(object):
         self.layers = []
         self.tiles = []
         self.effectsLayer = None
+        self.hudLayer = None
         self.displayPosition = (0, 0)
         self.boundary = pygame.Rect(0, 0, 0, 0)
         self.reset()
@@ -48,6 +49,7 @@ class Map(object):
         self.tileSets = []
         self.layers = []
         self.effectsLayer = layers.EffectsLayer(self)
+        self.hudLayer = layers.HudLayer(self)
         self.tiles = []
         self.properties = {}
         self.displayPosition = (0, 0)
@@ -122,6 +124,9 @@ class Map(object):
             
     def addEffect(self, effectId, effect):
         self.effectsLayer.addEffect(effectId, effect)
+        
+    def addHudElement(self, hudElement):
+        self.hudLayer.addElement(hudElement)
 
     def draw(self, surface):
         # First, we draw "parallax" layers
@@ -132,6 +137,9 @@ class Map(object):
 
         # draw effects layer
         self.effectsLayer.draw(surface, x, y, width, height)
+         
+        # And finally, the HUD at topmost
+        self.hudLayer.draw(surface, x, y, width, height)
 
     def update(self):
         # Keep order intact
@@ -144,6 +152,9 @@ class Map(object):
             
         # Update effects layer
         self.effectsLayer.update()
+        
+        # And hud elements
+        self.hudLayer.update()
 
     # Current display position of the map
     def setDisplayPosition(self, x, y):

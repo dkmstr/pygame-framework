@@ -225,10 +225,8 @@
   <tile id="2">
    <properties>
     <property name="height" value="60"/>
-    <property name="left" value="10"/>
-    <property name="top" value="0"/>
     <property name="type" value="Player"/>
-    <property name="width" value="30"/>
+    <property name="width" value="44"/>
    </properties>
   </tile>
  </tileset>

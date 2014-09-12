@@ -13,6 +13,15 @@ class HudLayer(Layer):
     def __init__(self, parentMap=None, layerType=None, properties=None):
         Layer.__init__(self, parentMap, layerType, properties)
         
-        self.elemetsList = []
+        self.hudElementsList = []
         
-    
+    def onUpdate(self):
+        for hudElement in self.hudElementsList:
+            hudElement.update()
+        
+    def onDraw(self, toSurface, rect):
+        for hudElement in self.hudElementsList:
+            hudElement.draw(toSurface)
+        
+    def addElement(self, hudElement):
+        self.hudElementsList.append(hudElement)
