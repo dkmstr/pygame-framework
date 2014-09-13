@@ -58,7 +58,7 @@ class SoundsStore(object):
             cls._store = SoundsStore()
         return cls._store
 
-    def storeSound(self, soundName, soundObj, volume=1.0, force=False):
+    def storeSound(self, soundName, soundObj, force=False):
         if soundName in self.sounds and force is False:
             logger.debug('Already stored, skipping')
             return
@@ -66,11 +66,11 @@ class SoundsStore(object):
 
     def storeSoundFile(self, soundName, fileName, volume=1.0, force=False):
         logger.debug('Storing sound file {}={}'.format(soundName, fileName))
-        self.storeSound(soundName, Sound(os.path.join(SoundsStore.SOUNDS_DIR, fileName)), volume, force)
+        self.storeSound(soundName, Sound(os.path.join(SoundsStore.SOUNDS_DIR, fileName), volume), force)
         
     def storeMusicFile(self, musicName, fileName, volume=1.0, force=False):
         logger.debug('Storing music file {}={}'.format(musicName, fileName))
-        self.storeSound(musicName, Music(os.path.join(SoundsStore.MUSIC_DIR, fileName)), volume, force)
+        self.storeSound(musicName, Music(os.path.join(SoundsStore.MUSIC_DIR, fileName), volume), force)
 
     def get(self, soundName):
-        return self.sounds[soundName]
+        return self.sounds.get(soundName)

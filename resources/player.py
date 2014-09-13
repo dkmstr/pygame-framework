@@ -21,18 +21,20 @@ SCREEN_BORDER_X = 300
 SCREEN_BORDER_Y = 180
 
 class Player(Actor, WithCollisionCache, ScoreableMixin):
-    def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
+    def __init__(self, parentLayer, fromTile, actorType, x=0, y=0, w=None, h=None):
         #Actor.__init__(self, parentMap, fromTile, actorType, x, y, 52, 66)
-        Actor.__init__(self, parentMap, fromTile, actorType, x, y)
-        WithCollisionCache.__init__(self, parentMap, 
+        Actor.__init__(self, parentLayer, fromTile, actorType, x, y)
+        WithCollisionCache.__init__(self, parentLayer.parentMap, 
                                     cachesActors=True, 
                                     cachesObjects=True, 
                                     cacheThreshold=32, 
-                                    collisionRangeCheck=128)
+                                    collisionRangeCheck=256)
         # Used sounds
         SoundsStore.store.storeSoundFile('foot_left', 'step_grass_l.ogg', volume=0.3)
         SoundsStore.store.storeSoundFile('foot_right', 'step_grass_r.ogg', volume=0.3)
         SoundsStore.store.storeSoundFile('open_lock', 'open_lock.ogg')
+        SoundsStore.store.storeSoundFile('get_coin', 'coin.ogg', volume=0.2)
+        SoundsStore.store.storeSoundFile('key', 'key.ogg')
         
         self.xSpeed = self.ySpeed = 0
         self.inLadder = False
@@ -43,7 +45,7 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
         self.animationUp = FilesAnimation('data/actors/characters/Blue_Back*.png', 6, 0)
         # self.animationLeft = SpriteSheetAnimation('data/actors/player3-side.png', 48, 2, 7)
         self.animationLeft = FilesAnimation('data/actors/characters/Blue_Left*.png', 6, 0)
-        self.animationLeft.associateSound(0, SoundsStore.store.get('foot_left'))
+        #self.animationLeft.associateSound(0, SoundsStore.store.get('foot_left'))
         #self.animationLeft.associateSound(2, SoundsStore.store.get('foot_right'))
         self.animationRight = FlippedAnimation(self.animationLeft)
         self.animation = self.animationRight
@@ -95,23 +97,36 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
         inLadder = False
         for c in self.getCollisions():
             colRect, element, layer = c
-            if element.lethal is True:
+            if element.isA('lethal'):
                 # Die!! :-)
-                self.parentMap.addEffect('die', FadingTextEffect(colRect.centerx, colRect.y-10, 'DIE!!! :-)', 24))
+                self.parent.parentMap.addEffect('die', FadingTextEffect(colRect.centerx, colRect.y-10, 'DIE!!! :-)', 24))
                 self.isAlive = False
                 continue
             
-            if element.ladder is True:
+            if element.isA('ladder'):
                 inLadder = True
-                
-            if element.hasProperty('needsYellowKey'):
-                if self.hasYellowKey:
+            
+            if element.isA('collectable') is True:
+                if 'Coin' in element.name:
+                    layer.removeObjectAt(colRect.x, colRect.y)
+                    self.resetCollisionsCache()
+                    self.score += 1234
+                    SoundsStore.store.get('get_coin').play()
+                    
+                if 'Key' in element.name:
+                    self.hasYellowKey = True
+                    layer.removeObjectAt(colRect.x, colRect.y)
+                    SoundsStore.store.get('key').play()
+                    self.resetCollisionsCache()
+            
+            if element.isA('lock'):
+                if element.getProperty('needs') == 'YellowKey' and self.hasYellowKey:
                     logger.debug('We have the yellow key and we are colliding with a yellow key needing brick!')
                     layer.removeObjectAt(colRect.x, colRect.y)
                     self.resetCollisionsCache()
                     SoundsStore.store.get('open_lock').play()
                 else:
-                    self.parentMap.addEffect('jqntlla', FadingTextEffect(colRect.x+colRect.width/2, colRect.y-10, 'You need\nthe Yellow Key', 24))
+                    self.parent.parentMap.addEffect('jqntlla', FadingTextEffect(colRect.x+colRect.width/2, colRect.y-10, 'You need\nthe Yellow Key', 24))
                 continue
                     
         # If ladder is true, maybe we haven't hanged on it
@@ -170,7 +185,7 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
 
     def draw(self, toSurface):
         import pygame
-        rect = self.parentMap.translateCoordinates(self.rect)
+        rect = self.parent.parentMap.translateCoordinates(self.rect)
         self.animation.draw(toSurface, rect)
         #toSurface.fill((128, 128, 128, 128), (x+self.xOffset, y+self.yOffset, self.rect.width, self.rect.height), pygame.BLEND_RGBA_MAX)
         
@@ -180,7 +195,7 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
         boundariesX = (SCREEN_BORDER_X-self.rect.width, SCREEN_BORDER_X)
         boundariesY = (SCREEN_BORDER_Y-self.rect.height, SCREEN_BORDER_Y)
 
-        xMap, yMap = self.parentMap.getDisplayPosition()
+        xMap, yMap = self.parent.parentMap.getDisplayPosition()
         if xMap > self.rect.x - boundariesX[0] and xMap < self.rect.x:
             xMap = self.rect.x - boundariesX[0]
         elif xMap + w - self.rect.x < boundariesX[1]:
@@ -191,7 +206,7 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
         elif yMap + h - self.rect.y < boundariesY[1]:
             yMap = self.rect.y - h + boundariesY[1]
 
-        self.parentMap.setDisplayPosition(xMap, yMap)
+        self.parent.parentMap.setDisplayPosition(xMap, yMap)
 
     # Custom players method
     def stopLeft(self):
@@ -223,7 +238,7 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
         
     def _checkLadderCollision(self):
         for c in self.getCollisions():
-            if c[1].ladder is True:
+            if c[1].isA('ladder') is True:
                 self.inLadder = True
                 self.ladderX = c[0].centerx - self.xOffset
 

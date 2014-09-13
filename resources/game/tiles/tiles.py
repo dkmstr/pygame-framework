@@ -36,7 +36,7 @@ class Tile(GraphicObject):
             self.animated = False
             self.animation = None
             self.animationState = None
-
+        
         # Optimized rect for collisions
         if self.properties.get('height') is not None:
             self.rect.height = int(self.properties.get('height'))

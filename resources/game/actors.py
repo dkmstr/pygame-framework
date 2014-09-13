@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 class Actor(GraphicObject): 
     EMPTY_RECT = pygame.Rect(0, 0, 0, 0)
     
-    def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
-        GraphicObject.__init__(self, parentMap, pygame.Rect(x, y, 0, 0))
+    def __init__(self, parentLayer, fromTile, actorType, x=0, y=0, w=None, h=None):
+        GraphicObject.__init__(self, parentLayer, pygame.Rect(x, y, 0, 0))
         tileRect = fromTile.getRect()
         self.rect.width = tileRect.width if w is None else w
         self.rect.height = tileRect.height if h is None else h
@@ -21,23 +21,26 @@ class Actor(GraphicObject):
         self.yOffset = tileRect.top
 
         self.tile = fromTile
-        self.parentMap = parentMap
-        self.boundary = self.parentMap.getRect()
+        self.boundary = self.parent.parentMap.getRect()
         self.actorType = actorType
         self.impact = False
         
     def move(self, xOffset, yOffset):
-        self.rect.left += xOffset
-        self.rect.top += yOffset
-        self.rect.clamp_ip(self.boundary)
+        if xOffset != 0 or yOffset != 0:
+            self.rect.left += xOffset
+            self.rect.top += yOffset
+            self.rect.clamp_ip(self.boundary)
+            self.positionChanged()
 
     def setPosition(self, x, y):
-        self.rect.top, self.rect.left = x, y
-        self.rect.clamp_ip(self.boundary)
+        if x != self.rect.left or y != self.rect.top:
+            self.rect.top, self.rect.left = x, y
+            self.rect.clamp_ip(self.boundary)
+            self.positionChanged()
 
-    def getRect(self):
-        return self.rect
-    
+    def positionChanged(self):
+        self.parent.positionChanged(self)
+
     def getColRect(self):
         return pygame.Rect(self.rect.left+self.xOffset, self.rect.top+self.yOffset, self.rect.width, self.rect.height)
 
@@ -49,7 +52,7 @@ class Actor(GraphicObject):
     def draw(self, toSurface):
         if self.impact:
             return
-        rect = self.parentMap.translateCoordinates(self.rect) 
+        rect = self.parent.parentMap.translateCoordinates(self.rect) 
         self.tile.draw(toSurface, rect)
         drawDebugRect(toSurface, rect.move(self.xOffset, self.yOffset), width=4)
 

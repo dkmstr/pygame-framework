@@ -24,8 +24,12 @@ class GraphicObject(Collidable, Drawable):
         # Possible attributes
         self.collission = checkTrue(self.getProperty('collission', 'False'))
         self.blocks = checkTrue(self.getProperty('blocks', 'True'))
-        self.ladder = checkTrue(self.getProperty('ladder', 'False'))
-        self.lethal = checkTrue(self.getProperty('lethal', 'False'))
+        self.objType = self.getProperty('type')
+        self.name = self.getProperty('name')
+        
+        # Ladder and collectables do not blocks
+        if self.objType in ('ladder', 'collectable'):
+            self.blocks = False
     
     def setProperties(self, properties):
         self.properties = properties if properties is not None else {}
@@ -42,9 +46,18 @@ class GraphicObject(Collidable, Drawable):
     
     def getRect(self):
         return self.rect
+    
+    def getColRect(self):
+        return self.rect
 
     def hasProperty(self, prop):
         return prop in self.properties
+    
+    def isA(self, objType):
+        '''
+        returns True if the object if of the specified type
+        '''
+        return self.objType == objType
 
     def collide(self, rect):
         '''

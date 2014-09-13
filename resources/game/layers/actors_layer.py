@@ -32,29 +32,20 @@ class ActorsLayer(Layer):
             if aClass is None:
                 logger.error('Found an unregistered actor class: {}'.format(actorType))
                 continue
-            self.actorList.append(aClass(self.parentMap, tile, actorType, x, y))
-
-        self.quadtree = QuadTree(0, self.parentMap.boundary)
-        self.updated = True
+            self.actorList.append(aClass(self, tile, actorType, x, y))
+        logger.debug('Actors added')
 
     def onDraw(self, toSurface, rect):
         for actor in self.actorList:
             if actor.collide(rect):  # Only draws if actor is visible
                 actor.draw(toSurface)
-        # Debugging quadtree
-        self.quadtree.draw(toSurface, rect)
 
     def onUpdate(self):
-        self.updated = True
-        self.quadtree.clear()
-        for actor in self.actorList:
-            self.quadtree.insert(actor)
-            
         self.actorList[:] = [actor for actor in self.actorList if actor.update() is True]
 
     def getCollisions(self, rect):
         #logger.debug('Number of object retrieved for {}: {} (list has {} objects)'.format(rect, len(list(self.quadtree.retrieve(rect))), len(self.actorList) ))
-        for actor in self.quadtree.retrieve(rect):
+        for actor in self.actorList:
             if actor.collide(rect):
                 yield (actor.getRect(), actor, self)
 
@@ -64,6 +55,9 @@ class ActorsLayer(Layer):
                 yield actor
             elif actor.actorType == actorType:
                 yield actor
+                
+    def positionChanged(self, obj):
+        logger.debug('The obj {} has changed it\'s position'.format(obj))
 
     def removeActor(self, actor):
         try:
