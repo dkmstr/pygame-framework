@@ -4,24 +4,22 @@ from __future__ import unicode_literals
 import pygame
 import logging
 
-from game.interfaces import Collidable
-from game.interfaces import Drawable
+from game.objects import GraphicObject
 from game.debug import drawDebugRect
 
 logger = logging.getLogger(__name__)
 
-class Actor(Collidable, Drawable): 
+class Actor(GraphicObject): 
     EMPTY_RECT = pygame.Rect(0, 0, 0, 0)
     
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
+        GraphicObject.__init__(self, parentMap, pygame.Rect(x, y, 0, 0))
         tileRect = fromTile.getRect()
-        w = tileRect.width if w is None else w
-        h = tileRect.height if h is None else h
+        self.rect.width = tileRect.width if w is None else w
+        self.rect.height = tileRect.height if h is None else h
         self.xOffset = tileRect.left
         self.yOffset = tileRect.top
 
-        self.rect = pygame.Rect(x, y, w, h)
-        
         self.tile = fromTile
         self.parentMap = parentMap
         self.boundary = self.parentMap.getRect()

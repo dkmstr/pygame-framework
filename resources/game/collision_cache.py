@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 
 import pygame
 
+from game.interfaces import Collidable
+from game.interfaces import Drawable
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -49,16 +52,9 @@ class CollisionCache(object):
         self.updateCollisionsCache(rect)
         return self._parentMap.getCollisions(rect, self._colCacheObjects)
     
-class WithCollisionCache(object):
+class WithCollisionCache(Collidable):
     def __init__(self, parentMap, cachesActors=False, cachesObjects=False, cacheThreshold=32, collisionRangeCheck=128):
         self.collisionCache = CollisionCache(parentMap, cachesActors, cachesObjects, cacheThreshold, collisionRangeCheck)
-
-    def getRect(self):
-        logger.error('Invoked WithCollissionCache base getRect method')
-        raise NotImplementedError
-        
-    def getColRect(self):
-        return self.getRect()
     
     def resetCollisionsCache(self):
         self.collisionCache.resetCollisionsCache(self.getColRect())

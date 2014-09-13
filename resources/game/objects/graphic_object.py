@@ -5,10 +5,14 @@ import pygame
 import logging
 from game.util import checkTrue
 
+from game.interfaces import Collidable
+from game.interfaces import Drawable
+
 logger = logging.getLogger(__name__)
 
-class GraphicObject(object):
-    def __init__(self, rect, properties):
+class GraphicObject(Collidable, Drawable):
+    def __init__(self, parent, rect, properties=None):
+        self.parent = parent
         self.properties = None
         self.rect = rect if rect is not None else pygame.Rect(0, 0, 0, 0)
         self.setProperties(properties)
@@ -24,7 +28,7 @@ class GraphicObject(object):
         self.lethal = checkTrue(self.getProperty('lethal', 'False'))
     
     def setProperties(self, properties):
-        self.properties = properties
+        self.properties = properties if properties is not None else {}
         self.updateAttributes()
         
     def setProperty(self, prop, value):
@@ -47,6 +51,12 @@ class GraphicObject(object):
         By default do not collides :-)
         '''
         return False
+    
+    def positionChanged(self):
+        '''
+        By default, does nothing
+        '''
+        logger.debug('Position changed invoked for {}'.format(unicode(self)))
     
     # Draw is invoked with three parameters:
     # toSurface: Surface where to draw

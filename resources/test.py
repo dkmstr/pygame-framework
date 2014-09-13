@@ -68,7 +68,7 @@ class GameTest(game.game_state.GameState):
         #self.bg.add_surface(self.images.get('bck2'), 3)
 
     def on_enter(self):
-        SoundsStore.store.get('level0').play()
+        #SoundsStore.store.get('level0').play()
         pass
 
     def on_exit(self):
@@ -100,6 +100,9 @@ class GameTest(game.game_state.GameState):
         self.map.draw(self.controller.screen)
         #self.player.draw(self.controller.screen)
         return None
+
+# Set defaults sound settings before initializing pygame
+pygame.mixer.pre_init(44100,-16,2, 1024) 
 
 gc = game.game_state.GameControl(WIDTH, HEIGHT)
 

@@ -28,6 +28,9 @@ class Animation(object):
         if self.delay <= 0:
             self.delay = self.baseDelay
             self.position = (self.position + 1) % len(self.images)
+            snd = self.associatedSounds.get(self.position)
+            if snd is not None:
+                snd.play()
             
     def getPosition(self, inPercent=False):
         if inPercent:
@@ -46,14 +49,7 @@ class Animation(object):
         if effect == 'laplacian':
             image = pygame.transform.laplacian(image)
         toSurface.blit(image, rect.topleft)
-        
-    def play(self):
-        # Only play sounds on start of delays
-        if self.delay == self.baseDelay:
-            snd = self.associatedSounds.get(self.position)
-            if snd is not None:
-                snd.play()
-        
+                
     def copy(self):
         '''
         Returns a "partial copy" of this animation

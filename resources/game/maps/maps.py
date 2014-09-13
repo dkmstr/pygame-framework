@@ -98,7 +98,7 @@ class Map(object):
 
     def addTileFromTile(self, srcTileId, flipX, flipY):
         tile = self.tiles[srcTileId-1]
-        self.tiles.append(tile.tileSet.addTileFromTile(tile, flipX, flipY))
+        self.tiles.append(tile.parent.addTileFromTile(tile, flipX, flipY))
         return len(self.tiles)
 
     def addLayer(self, layer):

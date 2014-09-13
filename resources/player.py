@@ -43,8 +43,8 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
         self.animationUp = FilesAnimation('data/actors/characters/Blue_Back*.png', 6, 0)
         # self.animationLeft = SpriteSheetAnimation('data/actors/player3-side.png', 48, 2, 7)
         self.animationLeft = FilesAnimation('data/actors/characters/Blue_Left*.png', 6, 0)
-        self.animationLeft.associateSound(3, SoundsStore.store.get('foot_left'))
-        self.animationLeft.associateSound(6, SoundsStore.store.get('foot_right'))
+        self.animationLeft.associateSound(0, SoundsStore.store.get('foot_left'))
+        #self.animationLeft.associateSound(2, SoundsStore.store.get('foot_right'))
         self.animationRight = FlippedAnimation(self.animationLeft)
         self.animation = self.animationRight
         self.keys = {}
@@ -170,8 +170,6 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
 
     def draw(self, toSurface):
         import pygame
-        if self.ySpeed == 0:
-            self.animation.play()
         rect = self.parentMap.translateCoordinates(self.rect)
         self.animation.draw(toSurface, rect)
         #toSurface.fill((128, 128, 128, 128), (x+self.xOffset, y+self.yOffset, self.rect.width, self.rect.height), pygame.BLEND_RGBA_MAX)

@@ -13,12 +13,13 @@ COLLISION_CACHE_THRESHOLD = 50
 
 class ObjectWithPath(GraphicObject, WithCollisionCache):
     def __init__(self, parentLayer, rect, surface, properties):
-        GraphicObject.__init__(self, rect, properties)
         WithCollisionCache.__init__(self, parentLayer.parentMap, 
                                             cachesActors=True, 
                                             cachesObjects=False, 
                                             cacheThreshold=32, 
                                             collisionRangeCheck=128)
+        GraphicObject.__init__(self, parentLayer, rect, properties)
+        
         self.parentLayer = parentLayer
         self.surface = surface
         
@@ -36,6 +37,9 @@ class ObjectWithPath(GraphicObject, WithCollisionCache):
             return
         # Translate start to screen coordinates
         toSurface.blit(self.surface, (self.rect.left - rect.left, self.rect.top - rect.top))
+        
+    def getColRect(self):
+        return self.rect
 
     def update(self):
         x, y = self.rect.left, self.rect.top

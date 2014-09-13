@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 ######################
 class Tile(GraphicObject):
     def __init__(self, tileSet, tileId, surface, properties={}):
-        GraphicObject.__init__(self, pygame.Rect(0, 0, tileSet.tileWidth, tileSet.tileHeight) if tileSet else None, properties)
+        GraphicObject.__init__(self, tileSet, pygame.Rect(0, 0, tileSet.tileWidth, tileSet.tileHeight) if tileSet else None, properties)
         
-        self.tileSet = tileSet
+        self.parent = tileSet
         self.tileId = tileId
         self.originalSurface = self.surface = surface
 
@@ -58,7 +58,7 @@ class Tile(GraphicObject):
             self.animationState = 0
             self.resetImage()
         else:
-            self.surface = self.tileSet.getTile(self.animation[self.animationState-1]).getOriginalImage()
+            self.surface = self.parent.getTile(self.animation[self.animationState-1]).getOriginalImage()
             self.animationState += 1
 
     # This x,y coordinates are screen coordinates
@@ -83,7 +83,7 @@ class Tile(GraphicObject):
         return self.tileId
 
     def getTileSet(self):
-        return self.tileSet
+        return self.parent
 
     def getRect(self):
         return self.rect

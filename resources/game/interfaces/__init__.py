@@ -16,8 +16,17 @@ class Collidable(object):
         '''
         raise NotImplemented('You must provide collide method for a Collidable')
     
+    def positionChanged(self):
+        '''
+        Provides a method for notify that our position has changed
+        '''
+        raise NotImplemented('You must provide positionChanged method for a Collidable')
+    
     
 class Drawable(object):
+    def getRect(self):
+        raise NotImplemented('You must provide getRect method for a Drawable')
+    
     def draw(self, toSurface):
         '''
         '''
