@@ -163,8 +163,8 @@ class Map(object):
     def getDisplayPosition(self):
         return self.displayPosition
 
-    def translateCoordinates(self, x, y):
-        return (x - self.displayPosition[0], y - self.displayPosition[1])
+    def translateCoordinates(self, rect):
+        return rect.move(-self.displayPosition[0], -self.displayPosition[1])
 
     # Collisions
     def getCollisions(self, rect, possibleCollisions=None):

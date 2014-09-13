@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import pygame
 
+from game.debug import drawDebugRect
 from game.interfaces import Collidable
 
 class QuadTree(object):
@@ -46,24 +47,6 @@ class QuadTree(object):
             for node in self.nodes:
                 if node.bounds.contains(rect):
                     return node
-            
-        #leftQuadrants = rect.x < self.bounds.centerx
-        #topQuadrants = rect.y < self.bounds.centery
-            
-        #if leftQuadrants:
-            #if topQuadrants:
-                #if self.nodes[0].bounds.contains(rect):
-                    #return self.nodes[0]
-            #else:
-                #if self.nodes[2].bounds.contains(rect):
-                    #return self.nodes[2]
-        #else:
-            #if topQuadrants:
-                #if self.nodes[1].bounds.contains(rect):
-                    #return self.nodes[1]
-            #else:
-                #if self.nodes[3].bounds.contains(rect):
-                    #return self.nodes[3]
                     
         return None
     
@@ -107,9 +90,9 @@ class QuadTree(object):
         For debugging pourposes, draws quadtree & collisions rects
         '''
         bounds = self.bounds.move(-rect.x, -rect.y)
-        pygame.draw.rect(toSurface, (self.level*40, 0, 0, 0), bounds, 2*(6-self.level))
+        drawDebugRect(toSurface, bounds, (self.level*40, 0, 0, 0), 2*(6-self.level))
         for obj in self.objects:
-            pygame.draw.rect(toSurface, (0, self.level*50, 0, 0), obj.getColRect().move(-rect.x, -rect.y), 1)
+            drawDebugRect(toSurface, obj.getColRect().move(-rect.x, -rect.y), (0, self.level*50, 0, 0), 1)
         if self.nodes is not None:
             for n in self.nodes:
                 n.draw(toSurface, rect)

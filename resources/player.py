@@ -172,8 +172,8 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
         import pygame
         if self.ySpeed == 0:
             self.animation.play()
-        x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y)
-        self.animation.draw(toSurface, x, y)
+        rect = self.parentMap.translateCoordinates(self.rect)
+        self.animation.draw(toSurface, rect)
         #toSurface.fill((128, 128, 128, 128), (x+self.xOffset, y+self.yOffset, self.rect.width, self.rect.height), pygame.BLEND_RGBA_MAX)
         
     def updateMapDisplayPosition(self, displaySurface):

@@ -63,11 +63,9 @@ class Tile(GraphicObject):
 
     # This x,y coordinates are screen coordinates
     # TileArray, Platform, etc.. converts coordinates of objects acordly beforw invoking it
-    def draw(self, toSurface, x, y):
+    def draw(self, toSurface, rect):
         size = toSurface.get_size()
-        rect = self.rect.move(x, y)
-        if self.surface is not None and rect.right > 0 and rect.left < size[0] and rect.bottom > 0 and rect.top < size[1]:
-            toSurface.blit(self.surface, (x, y))
+        toSurface.blit(self.surface, rect.topleft)
 
     def getOriginalImage(self):
         return self.originalSurface

@@ -41,11 +41,11 @@ class Animation(object):
     def get(self):
         return self.images[self.position]
 
-    def draw(self, toSurface, x, y, effect=None):
+    def draw(self, toSurface, rect, effect=None):
         image = self.images[self.position]
         if effect == 'laplacian':
             image = pygame.transform.laplacian(image)
-        toSurface.blit(image, (x, y))
+        toSurface.blit(image, rect.topleft)
         
     def play(self):
         # Only play sounds on start of delays

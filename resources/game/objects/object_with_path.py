@@ -27,17 +27,15 @@ class ObjectWithPath(GraphicObject, WithCollisionCache):
         self.path = self.getProperty('path')
         self.sticky = checkTrue(self.getProperty('sticky', 'True'))
 
-    def draw(self, toSurface, x, y):
+    def draw(self, toSurface, rect):
         '''
         Draws to specied surface, to coords x, y
         '''
-        rect = pygame.Rect((x, y), toSurface.get_size())
+        #rect = pygame.Rect((x, y), toSurface.get_size())
         if not rect.colliderect(self.rect):
             return
         # Translate start to screen coordinates
-        x = self.rect.left - x
-        y = self.rect.top - y
-        toSurface.blit(self.surface, (x, y))
+        toSurface.blit(self.surface, (self.rect.left - rect.left, self.rect.top - rect.top))
 
     def update(self):
         x, y = self.rect.left, self.rect.top

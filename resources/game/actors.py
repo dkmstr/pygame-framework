@@ -6,7 +6,7 @@ import logging
 
 from game.interfaces import Collidable
 from game.interfaces import Drawable
-
+from game.debug import drawDebugRect
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +51,9 @@ class Actor(Collidable, Drawable):
     def draw(self, toSurface):
         if self.impact:
             return
-        x, y = self.parentMap.translateCoordinates(self.rect.x, self.rect.y) 
-        self.tile.draw(toSurface, x, y)
+        rect = self.parentMap.translateCoordinates(self.rect) 
+        self.tile.draw(toSurface, rect)
+        drawDebugRect(toSurface, rect.move(self.xOffset, self.yOffset), width=4)
 
     def update(self):
         return not self.impact

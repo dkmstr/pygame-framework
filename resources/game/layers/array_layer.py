@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import pygame
 import base64
 import struct
 from game.util import loadProperties
@@ -73,7 +74,7 @@ class ArrayLayer(Layer):
                 if x >= 0 and y >= 0:
                     tile = self.data[pos+x]  # Remove tile flipping
                     if tile > 0:
-                        tiles[tile-1].draw(toSurface, (x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset)
+                        tiles[tile-1].draw(toSurface, pygame.Rect((x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset, tileWidth, tileHeight))
 
     def onUpdate(self):
         pass

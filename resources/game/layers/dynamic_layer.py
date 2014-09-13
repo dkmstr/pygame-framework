@@ -76,7 +76,7 @@ class DynamicLayer(Layer):
                     t = []
                     for x in xrange(startX, startX+width, self.parentMap.tileWidth):
                         tile = self.tilesLayer.getObjectAt(x, y)
-                        tile.draw(image, x-startX, y-startY)
+                        tile.draw(image, pygame.Rect(x-startX, y-startY, self.parentMap.tileWidth, self.parentMap.tileHeight))
 
                 p = ObjectWithPath(self, pygame.Rect(startX, startY, width, height), image, properties)
                 self.platforms[obj.attrib['name']] = p
@@ -99,7 +99,7 @@ class DynamicLayer(Layer):
     def onDraw(self, toSurface, rect):
         for obj in self.platforms.itervalues():
             if obj.collide(rect):
-                obj.draw(toSurface, rect.x, rect.y)
+                obj.draw(toSurface, rect)
 
     def onUpdate(self):
         for obj in self.platforms.itervalues():
