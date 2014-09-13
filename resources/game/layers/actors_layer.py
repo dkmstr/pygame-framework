@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from game.actors import actorsFactory
 from game.layers.layer import Layer
+from game.quadtree import QuadTree
 
 import logging
 
@@ -33,19 +34,26 @@ class ActorsLayer(Layer):
                 continue
             self.actorList.append(aClass(self.parentMap, tile, actorType, x, y))
 
-        logger.debug(unicode(self))
+        self.quadtree = QuadTree(0, self.parentMap.boundary)
+        self.updated = True
 
     def onDraw(self, toSurface, rect):
         for actor in self.actorList:
             if actor.collide(rect):  # Only draws if actor is visible
                 actor.draw(toSurface)
+        # Debugging quadtree
+        self.quadtree.draw(toSurface, rect)
 
     def onUpdate(self):
-        toRemove = [actor for actor in self.actorList if actor.update() is False]
-        for actorToRemove in toRemove:
-            self.removeActor(actorToRemove)
+        self.updated = True
+        self.quadtree.clear()
+        for actor in self.actorList:
+            self.quadtree.insert(actor)
+            
+        self.actorList[:] = [actor for actor in self.actorList if actor.update() is True]
 
     def getCollisions(self, rect):
+        #logger.debug('Number of object retrieved for {}: {} (list has {} objects)'.format(rect, len(list(self.quadtree.retrieve(rect))), len(self.actorList) ))
         for actor in self.actorList:
             if actor.collide(rect):
                 yield (actor.getRect(), actor, self)

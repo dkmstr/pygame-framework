@@ -4,9 +4,13 @@ from __future__ import unicode_literals
 import pygame
 import logging
 
+from game.interfaces import Collidable
+from game.interfaces import Drawable
+
+
 logger = logging.getLogger(__name__)
 
-class Actor(object):
+class Actor(Collidable, Drawable): 
     EMPTY_RECT = pygame.Rect(0, 0, 0, 0)
     
     def __init__(self, parentMap, fromTile, actorType, x=0, y=0, w=None, h=None):
@@ -35,6 +39,9 @@ class Actor(object):
 
     def getRect(self):
         return self.rect
+    
+    def getColRect(self):
+        return pygame.Rect(self.rect.left+self.xOffset, self.rect.top+self.yOffset, self.rect.width, self.rect.height)
 
     def collide(self, rect):
         if self.impact:
