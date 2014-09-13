@@ -519,14 +519,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "resources/test.py",
-			"settings":
-			{
-				"buffer_size": 3262,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -637,10 +629,26 @@
 	"expanded_folders":
 	[
 		"/home/dkmaster/projects/pygame",
-		"/home/dkmaster/projects/pygame/resources"
+		"/home/dkmaster/projects/pygame/resources",
+		"/home/dkmaster/projects/pygame/resources/game",
+		"/home/dkmaster/projects/pygame/resources/game/layers",
+		"/home/dkmaster/projects/pygame/resources/game/maps",
+		"/home/dkmaster/projects/pygame/resources/game/objects",
+		"/home/dkmaster/projects/pygame/resources/game/tiles"
 	],
 	"file_history":
 	[
+		"/home/dkmaster/projects/pygame/resources/game/layers/array_layer.py",
+		"/home/dkmaster/projects/pygame/resources/test.py",
+		"/home/dkmaster/projects/pygame/resources/game/layers/actors_layer.py",
+		"/home/dkmaster/projects/pygame/resources/game/actors.py",
+		"/home/dkmaster/projects/pygame/resources/game/maps/maps.py",
+		"/home/dkmaster/projects/pygame/resources/player.py",
+		"/home/dkmaster/projects/pygame/resources/game/layers/dynamic_layer.py",
+		"/home/dkmaster/projects/pygame/resources/game/animation.py",
+		"/home/dkmaster/projects/pygame/resources/game/objects/graphic_object.py",
+		"/home/dkmaster/projects/pygame/resources/game/tiles/tiles.py",
+		"/home/dkmaster/projects/pygame/resources/game/objects/object_with_path.py",
 		"/home/dkmaster/projects/pygame/states/test.py",
 		"/home/dkmaster/projects/pygame/parallax/parallax.py",
 		"/home/dkmaster/projects/pygame/parallax/test.py",
@@ -757,18 +765,7 @@
 		"/home/dkmaster/projects/udsenterprise.com/manage.py",
 		"/home/dkmaster/projects/udsenterprise.com/uds_users/templates/uds_users/recover-password.html",
 		"/home/dkmaster/projects/udsenterprise.com/knowledge/templates/django_knowledge/index.html",
-		"/home/dkmaster/projects/udsenterprise.com/wiki/templates/wiki/base_site.html",
-		"/home/dkmaster/projects/udsenterprise.com/wiki/templates/wiki/base.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/templates/uds_users/mail-sent.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/templates/uds_users/password-changed.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/templates/uds_users/registration-confirmed.html",
-		"/home/dkmaster/projects/udsenterprise.com/knowledge/templates/django_knowledge/base.html",
-		"/home/dkmaster/projects/udsenterprise.com/knowledge/templates/django_knowledge/question_list.html",
-		"/home/dkmaster/projects/udsenterprise.com/knowledge/templates/django_knowledge/thread.html",
-		"/home/dkmaster/projects/udsenterprise.com/udsenterprise_com/utils.py",
-		"/home/dkmaster/projects/udsenterprise.com/udsenterprise_com/static/css/sections/_articulo.scss",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/templates/uds_users/login.html",
-		"/home/dkmaster/projects/udsenterprise.com/uds_users/models.py"
+		"/home/dkmaster/projects/udsenterprise.com/wiki/templates/wiki/base_site.html"
 	],
 	"find":
 	{
@@ -972,143 +969,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "resources/test.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3262,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2275,
-								2275
-							]
-						],
-						"settings":
-						{
-							"codeintel": true,
-							"codeintel_config":
-							{
-								"JavaScript":
-								{
-									"codeintel_max_recursive_dir_depth": 2,
-									"codeintel_scan_files_in_project": false,
-									"javascriptExtraPaths":
-									[
-									]
-								},
-								"PHP":
-								{
-									"codeintel_max_recursive_dir_depth": 5,
-									"codeintel_scan_files_in_project": false,
-									"phpExtraPaths":
-									[
-									]
-								},
-								"Python":
-								{
-									"env":
-									{
-									}
-								}
-							},
-							"codeintel_enabled_languages":
-							[
-								"JavaScript",
-								"Mason",
-								"XBL",
-								"XUL",
-								"RHTML",
-								"SCSS",
-								"Python",
-								"HTML",
-								"Ruby",
-								"Python3",
-								"XML",
-								"Sass",
-								"XSLT",
-								"Django",
-								"HTML5",
-								"Perl",
-								"CSS",
-								"Twig",
-								"Less",
-								"Smarty",
-								"Node.js",
-								"Tcl",
-								"TemplateToolkit",
-								"PHP"
-							],
-							"codeintel_live": true,
-							"codeintel_live_enabled_languages":
-							[
-								"JavaScript",
-								"Mason",
-								"XBL",
-								"XUL",
-								"RHTML",
-								"SCSS",
-								"Python",
-								"HTML",
-								"Ruby",
-								"Python3",
-								"XML",
-								"Sass",
-								"XSLT",
-								"Django",
-								"HTML5",
-								"Perl",
-								"CSS",
-								"Twig",
-								"Less",
-								"Smarty",
-								"Node.js",
-								"Tcl",
-								"TemplateToolkit",
-								"PHP"
-							],
-							"codeintel_max_recursive_dir_depth": 10,
-							"codeintel_scan_exclude_dir":
-							{
-								"JavaScript":
-								[
-									"/build/",
-									"/min/"
-								]
-							},
-							"codeintel_scan_files_in_project": true,
-							"codeintel_selected_catalogs":
-							[
-								"PyWin32",
-								"jQuery",
-								"Rails"
-							],
-							"codeintel_snippets": true,
-							"codeintel_syntax_map":
-							{
-								"Python Django": "Python"
-							},
-							"codeintel_tooltips": "popup",
-							"sublime_auto_complete": true,
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 724.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
 			]
 		}
 	],

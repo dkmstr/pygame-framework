@@ -54,7 +54,7 @@ class ActorsLayer(Layer):
 
     def getCollisions(self, rect):
         #logger.debug('Number of object retrieved for {}: {} (list has {} objects)'.format(rect, len(list(self.quadtree.retrieve(rect))), len(self.actorList) ))
-        for actor in self.actorList:
+        for actor in self.quadtree.retrieve(rect):
             if actor.collide(rect):
                 yield (actor.getRect(), actor, self)
 

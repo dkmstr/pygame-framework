@@ -12,15 +12,15 @@ logger = logging.getLogger(__name__)
 COLLISION_CACHE_THRESHOLD = 50
 
 class ObjectWithPath(GraphicObject, WithCollisionCache):
-    def __init__(self, parentLayer, origX, origY, width, height, tiles, properties):
-        GraphicObject.__init__(self, pygame.Rect(origX, origY, width, height), properties)
+    def __init__(self, parentLayer, rect, surface, properties):
+        GraphicObject.__init__(self, rect, properties)
         WithCollisionCache.__init__(self, parentLayer.parentMap, 
                                             cachesActors=True, 
                                             cachesObjects=False, 
                                             cacheThreshold=32, 
                                             collisionRangeCheck=128)
         self.parentLayer = parentLayer
-        self.tiles = tiles
+        self.surface = surface
         
     def updateAttributes(self):
         GraphicObject.updateAttributes(self)
@@ -37,16 +37,7 @@ class ObjectWithPath(GraphicObject, WithCollisionCache):
         # Translate start to screen coordinates
         x = self.rect.left - x
         y = self.rect.top - y
-        for row in self.tiles:
-            xx = x
-            yy = 0
-            for t in row:
-                size = t.getSize()
-                t.draw(toSurface, xx, y)  # tile drawing is in screen coordinates, that is what we have on x & y
-                xx += size[0]
-                if size[1] > yy:
-                    yy = size[1]
-            y += yy
+        toSurface.blit(self.surface, (x, y))
 
     def update(self):
         x, y = self.rect.left, self.rect.top

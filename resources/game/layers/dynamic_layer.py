@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import pygame
+
 from game import paths
 from game.objects import ObjectWithPath
 from game.util import loadProperties
@@ -64,15 +66,19 @@ class DynamicLayer(Layer):
                 properties = loadProperties(obj.find('properties'))
                 startX, startY = int(obj.attrib['x']), int(obj.attrib['y'])
                 width, height = int(obj.attrib.get('width', self.parentMap.tileWidth)), int(obj.attrib.get('height', self.parentMap.tileHeight))
-                tiles = []
+
+                # Build graphic object from tiles
+                logger.debug('Building image of {}x{}'.format(width, height))
+                image = pygame.Surface((width, height), flags=pygame.SRCALPHA)
+                image.fill((0, 0, 0, 0))  # Transparent background
 
                 for y in xrange(startY, startY+height, self.parentMap.tileHeight):
                     t = []
                     for x in xrange(startX, startX+width, self.parentMap.tileWidth):
-                        t.append(self.tilesLayer.getObjectAt(x, y))
-                    tiles.append(t)
+                        tile = self.tilesLayer.getObjectAt(x, y)
+                        tile.draw(image, x-startX, y-startY)
 
-                p = ObjectWithPath(self, startX, startY, width, height, tiles, properties)
+                p = ObjectWithPath(self, pygame.Rect(startX, startY, width, height), image, properties)
                 self.platforms[obj.attrib['name']] = p
 
                 logger.debug('Platform {}'.format(p))
