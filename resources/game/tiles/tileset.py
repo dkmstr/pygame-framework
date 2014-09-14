@@ -90,8 +90,13 @@ class TileSet(object):
 
         self.animatedTiles = [i for i in self.tiles if i.animated]
 
-    def addTileFromTile(self, srcTile, flipX, flipY):
-        tile = Tile(self, len(self.tiles)+1, pygame.transform.flip(srcTile.getOriginalImage(), flipX, flipY), srcTile.properties)
+    def addTileFromTile(self, srcTile, flipX, flipY, rotate):
+        if rotate:
+            image = pygame.transform.rotate(srcTile.getOriginalImage(), 90)
+        else:
+            image = srcTile.getOriginalImage()
+        image = pygame.transform.flip(image, flipX, flipY)
+        tile = Tile(self, len(self.tiles)+1, image, srcTile.properties)
         self.tiles.append(tile)
         return tile
 
