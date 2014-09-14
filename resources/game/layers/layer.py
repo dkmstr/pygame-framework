@@ -17,7 +17,7 @@ class Layer(object):
         self.layerType = layerType if layerType is not None else self.LAYER_TYPE
         self.parentMap = parentMap
         self.visible = True
-        self.holder = self.parallax = False
+        self.holder = self.parallax = self.triggers = False
         self.parallaxFactor = ()
         self.properties = {}
         self.setProperties(properties)
@@ -33,6 +33,7 @@ class Layer(object):
         self.holder = checkTrue(self.properties.get('holder', 'False'))
         self.actor = checkTrue(self.properties.get('actors', 'False'))
         self.parallax = checkTrue(self.properties.get('parallax', 'False'))
+        self.triggers = self.properties.get('type') == 'triggers'
 
         self.parallaxFactor = (
             int(self.properties.get('parallax_factor_x', '100')),
@@ -84,8 +85,8 @@ class Layer(object):
         del rect   # Avoid pylint unused
         return ()
 
-    def getProperty(self, propertyName):
+    def getProperty(self, propertyName, default=None):
         '''
         Obtains a property associated whit this layer
         '''
-        return self.properties.get(propertyName)
+        return self.properties.get(propertyName, default)

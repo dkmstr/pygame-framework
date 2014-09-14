@@ -25,8 +25,9 @@ class ObjectWithPath(GraphicObject, WithCollisionCache):
         
     def updateAttributes(self):
         GraphicObject.updateAttributes(self)
-        self.path = self.getProperty('path')
+        self.path = self.getProperty('path', None)
         self.sticky = checkTrue(self.getProperty('sticky', 'True'))
+        self.stopped = checkTrue(self.getProperty('stopped', 'False'))
 
     def draw(self, toSurface, rect):
         '''
@@ -42,6 +43,9 @@ class ObjectWithPath(GraphicObject, WithCollisionCache):
         return self.rect
 
     def update(self):
+        if self.path is None or self.stopped is True:
+            return
+        
         x, y = self.rect.left, self.rect.top
         self.path.save()  # Keeps a copy before iterating, so if we collide we can return back
         self.rect.left, self.rect.top = self.path.iterate()
@@ -66,15 +70,6 @@ class ObjectWithPath(GraphicObject, WithCollisionCache):
                     self.path.restore()
                     self.rect.left, self.rect.top = x, y
                 
-
-            #if xOffset > 0:
-                #actorRect.left = self.rect.right
-            #elif xOffset < 0:
-                #actorRect.right = self.rect.left
-            #if yOffset > 0:
-                #actorRect.top = self.rect.bottom
-            #elif yOffset < 0:
-                #actorRect.bottom = self.rect.top
         # Now, it we are "sticky", we move any actor that is "over" this item
         # Sticky is only sticky for actors that are ON this object
         if self.sticky and xOffset != 0:

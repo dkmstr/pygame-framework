@@ -13,15 +13,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class DynamicLayer(Layer):
-    LAYER_TYPE = 'dynamic'
+class PlatformsLayer(Layer):
+    LAYER_TYPE = 'platforms'
 
     def __init__(self, parentMap=None, layerType=None, properties=None):
         Layer.__init__(self, parentMap, layerType, properties)
         self.width = self.height = 0
         self.tilesLayer = None
         self.paths = {}
-        self.platforms = {}
+        self.platforms = []
 
     def load(self, node):
         self.name = node.attrib['name']
@@ -34,7 +34,7 @@ class DynamicLayer(Layer):
         self.tilesLayer = self.parentMap.getLayer(tilesLayerName)
 
         self.paths = {}
-        self.platforms = {}
+        self.platforms = []
 
         for obj in node.findall('object'):
             if obj.attrib['type'] == 'path':  # This is a path, store it in pathList
@@ -79,45 +79,50 @@ class DynamicLayer(Layer):
                         tile.draw(image, pygame.Rect(x-startX, y-startY, self.parentMap.tileWidth, self.parentMap.tileHeight))
 
                 p = ObjectWithPath(self, pygame.Rect(startX, startY, width, height), image, properties)
-                self.platforms[obj.attrib['name']] = p
+                self.platforms.append(p)
 
                 logger.debug('Platform {}'.format(p))
 
             # Get obj properties to know that is this
         # After loading, add pathList to Platforms
         erroneous = []
-        for k, p in self.platforms.iteritems():
+        for p in self.platforms:
+            if p.path is None:
+                continue
             try:
                 p.path = self.paths[p.path]
             except KeyError:
-                logger.error('Path {} doesn\'t exists!!'.format(p.path))
+                logger.error('Path {} doesn\'t exists (found on platform {}, on layer {})!!'.format(p.path, p.name, self.name))
                 erroneous.append(k)
 
-        for k in erroneous:
-            del self.platforms[k]
+        for p in erroneous:
+            self.platforms.remove(p)
 
     def onDraw(self, toSurface, rect):
-        for obj in self.platforms.itervalues():
+        for obj in self.platforms:
             if obj.collide(rect):
                 obj.draw(toSurface, rect)
 
     def onUpdate(self):
-        for obj in self.platforms.itervalues():
+        for obj in self.platforms:
             obj.update()
 
     def getCollisions(self, rect):
-        for obj in self.platforms.itervalues():
+        for obj in self.platforms:
             if obj.collide(rect):
                 yield (obj.getRect(), obj)
 
     def getObject(self, objecName):
-        return self.platforms.get(objecName)
+        for obj in self.platforms:
+            if obj.name == objecName:
+                return obj
+        return None
 
     def getPath(self, pathName):
         return self.paths.get(pathName)
 
     def __iter__(self):
-        for obj in self.platforms.itervalues():
+        for obj in self.platforms:
             yield obj
 
     def __unicode__(self):

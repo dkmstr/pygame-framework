@@ -31,6 +31,8 @@ class Map(object):
         self.tiles = []
         self.effectsLayer = None
         self.hudLayer = None
+        self.triggersLayers = []
+        self.collissionsLayers = []
         self.displayPosition = (0, 0)
         self.boundary = pygame.Rect(0, 0, 0, 0)
         self.reset()
@@ -40,9 +42,12 @@ class Map(object):
 
     def getActorsLayers(self):
         return [l for l in self.layers if l.actor is True]
+    
+    def getTriggersLayers(self):
+        return self.triggersLayers
 
     def getCollisionsLayers(self):
-        return [l for l in self.layers if l.holder is False and l.visible is True and l.actor is False and l.parallax is False]
+        return self.collissionsLayers
 
     def reset(self, fromNode=None):
         self.width = self.height = self.tileWidth = self.tileHeight = 0
@@ -50,6 +55,8 @@ class Map(object):
         self.layers = []
         self.effectsLayer = layers.EffectsLayer(self)
         self.hudLayer = layers.HudLayer(self)
+        self.triggersLayers = []
+        self.collissionsLayers = []
         self.tiles = []
         self.properties = {}
         self.displayPosition = (0, 0)
@@ -85,17 +92,26 @@ class Map(object):
         # be BEFORE (i.e. down in the tiled editor layers list) the objects layer because reference must
         # exists. To avoit problems, always put (if posible) linked tiles layers at bottom in tiled so they get
         # loaded FIRST
+
+        # We have two types of objectGrouplayers, platforms and triggers 
+        # To know what to get, first identify platform type by getting it's properties
+        def identifyObjectGroup(node):
+            layerType = loadProperties(node.find('properties')).get('type', 'platforms')
+            if layerType == 'platforms':
+                return layers.PlatformsLayer
+            return layers.TriggersLayer
+        
         t = {
-            'layer': layers.ArrayLayer,
-            'objectgroup': layers.DynamicLayer,
-            'imagelayer': layers.ImageLayer
+            'layer': lambda x: layers.ArrayLayer,
+            'objectgroup': lambda x: identifyObjectGroup(x),
+            'imagelayer': lambda x: layers.ImageLayer
         }
         for elem in root:
             if elem.tag in ('layer', 'objectgroup', 'imagelayer'):
-                l = t[elem.tag](self)
+                l = t[elem.tag](elem)(self)
                 l.load(elem)
                 self.addLayer(l)
-
+                
     def addTileFromTile(self, srcTileId, flipX, flipY, rotate):
         tile = self.tiles[srcTileId-1]
         self.tiles.append(tile.parent.addTileFromTile(tile, flipX, flipY, rotate))
@@ -104,8 +120,14 @@ class Map(object):
     def addLayer(self, layer):
         if layer.actor:
             layer = layers.ActorsLayer(self, layer)
-
-        self.layers.append(layer)
+            
+        if layer.triggers:
+            self.triggersLayers.append(layer)
+        else:
+            if layer.holder is False and layer.visible is True and layer.actor is False and layer.parallax is False:
+                self.collissionsLayers.append(layer)
+                
+            self.layers.append(layer)
 
     def getLayer(self, layerName):
         for l in self.layers:

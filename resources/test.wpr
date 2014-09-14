@@ -5,7 +5,8 @@
 ##################################################################
 [project attributes]
 proj.directory-list = [{'dirloc': loc('.'),
-                        'excludes': [u'resources/rendering'],
+                        'excludes': [u'game/layers/objectsGroupLoader.py',
+                                     u'resources/rendering'],
                         'filter': '*',
                         'include_hidden': False,
                         'recursive': True,

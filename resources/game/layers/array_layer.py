@@ -33,23 +33,27 @@ class ArrayLayer(Layer):
             raise Exception('No base 64 encoded')
         self.data = list(struct.unpack('<' + 'I'*(self.width*self.height), base64.b64decode(data.text)))
         
+        cached = {} # So we got only 1 tile generated from 1 source and 1 transormation
         # Scan data for "flipped" tiles and request parentMap to append a flipped tile to it
         for i in xrange(len(self.data)):
             tileId = self.data[i] 
             if tileId & 0xF0000000 != 0:
-                logger.debug('Fipped tile found!: {:X}'.format(tileId&0xF0000000))
-                # Tiles can be flipped on TILED, for now, we ignore this and all tiles ar got as they are
-                # const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
-                # const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
-                # const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
-                flipX = flipY = rotate = False
-                if tileId & 0x80000000 != 0:
-                    flipX = True
-                if tileId & 0x40000000 != 0:
-                    flipY = True
-                if tileId & 0x20000000 != 0:
-                    rotate = True
-                self.data[i] = self.parentMap.addTileFromTile(tileId&0x0FFFFFFF, flipX, flipY, rotate)
+                if cached.get(tileId) is None:
+                    logger.debug('Fipped tile found!: {:X}'.format(tileId&0xF0000000))
+                    # Tiles can be flipped on TILED, for now, we ignore this and all tiles ar got as they are
+                    # const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+                    # const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+                    # const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+                    flipX = flipY = rotate = False
+                    if tileId & 0x80000000 != 0:
+                        flipX = True
+                    if tileId & 0x40000000 != 0:
+                        flipY = True
+                    if tileId & 0x20000000 != 0:
+                        rotate = True
+                    self.data[i] = cached[tileId] = self.parentMap.addTileFromTile(tileId&0x0FFFFFFF, flipX, flipY, rotate)
+                else:
+                    self.data[i] = cached[tileId]
                 
     def onDraw(self, toSurface, rect):
         tiles = self.parentMap.tiles
