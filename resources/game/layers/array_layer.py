@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import pygame
 import base64
 import struct
+import itertools
 from game.util import loadProperties
 from game.layers.layer import Layer
 
@@ -36,25 +37,26 @@ class ArrayLayer(Layer):
         for i in xrange(len(self.data)):
             tileId = self.data[i] 
             if tileId & 0xF0000000 != 0:
-                logger.debug('Fipped tile found!: {}'.format(tileId&0xF0000000))
+                logger.debug('Fipped tile found!: {:X}'.format(tileId&0xF0000000))
                 # Tiles can be flipped on TILED, for now, we ignore this and all tiles ar got as they are
                 # const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
                 # const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
                 # const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
-                flipX = flipY = False
+                flipX = flipY = rotate = False
                 if tileId & 0x80000000 != 0:
                     flipX = True
                 if tileId & 0x40000000 != 0:
                     flipY = True
                 if tileId & 0x20000000 != 0:
-                    flipX = flipY = True
-                self.data[i] = self.parentMap.addTileFromTile(tileId&0x0FFFFFFF, flipX, flipY)
+                    rotate = True
+                self.data[i] = self.parentMap.addTileFromTile(tileId&0x0FFFFFFF, flipX, flipY, rotate)
                 
     def onDraw(self, toSurface, rect):
         tiles = self.parentMap.tiles
         tileWidth = self.parentMap.tileWidth
         tileHeight = self.parentMap.tileHeight
 
+        # Calculate positions inside tile array
         xStart, xLen = rect.x / tileWidth, (rect.width + tileWidth - 1) / tileWidth + 1
         yStart, yLen = rect.y / tileHeight, (rect.height + tileHeight - 1) / tileHeight + 1
 
@@ -62,19 +64,36 @@ class ArrayLayer(Layer):
         # if xStart > self.width or yStart > self.height or xStart + xLen < 0 or yStart + yLen < 0:
         #    return
 
-        xOffset = rect.x % tileWidth
-        yOffset = rect.y % tileHeight
+        # If start drawing outside screen, skip outside zone
+        yPos = 0
+        if yStart < 0:
+            yLen += yStart
+            yPos = -yStart * tileHeight
+            yStart = 0
+          
+        xPos = 0  
+        if xStart < 0:
+            xLen += xStart
+            xPos = -xStart * tileWidth
+            xStart = 0
+            
+        xPos -= rect.x % tileWidth  # Offset inside first drawing tile
+        yPos -= rect.y % tileHeight
 
+        # Adjust ends so we don't go off limits
         xEnd = self.width if xStart+xLen > self.width else xStart+xLen
         yEnd = self.height if yStart+yLen > self.height else yStart+yLen
 
+        drawingRect = pygame.Rect(xPos, yPos, tileWidth, tileHeight)
+
         for y in xrange(yStart, yEnd):
             pos = self.width * y
-            for x in xrange(xStart, xEnd):
-                if x >= 0 and y >= 0:
-                    tile = self.data[pos+x]  # Remove tile flipping
-                    if tile > 0:
-                        tiles[tile-1].draw(toSurface, pygame.Rect((x-xStart)*tileWidth-xOffset, (y-yStart)*tileHeight-yOffset, tileWidth, tileHeight))
+            drawingRect.x = xPos
+            for tile in itertools.islice(self.data, pos+xStart, pos+xEnd):
+                if tile > 0:
+                    tiles[tile-1].draw(toSurface, drawingRect)
+                drawingRect.x += tileWidth
+            drawingRect.y += tileHeight
 
     def onUpdate(self):
         pass

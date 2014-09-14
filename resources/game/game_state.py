@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+SCREEN_BUFFER_SIZE = (1920,1080)
 
 class GameState(object):
     framerate = 50
@@ -131,8 +132,20 @@ class GameControl(object):
         pygame.init()
         pygame.mixer.init()
         pygame.font.init()
+        self.width = width
+        self.height = height
+        
+        self._recalcProportions()
 
-        self.screen = pygame.display.set_mode((width, height), pygame.DOUBLEBUF | pygame.HWSURFACE)
+        self.screen = pygame.display.set_mode((self.width, self.height), pygame.HWSURFACE)
+        self.drawingSurface = pygame.Surface(SCREEN_BUFFER_SIZE, pygame.HWSURFACE)
+
+    def _recalcProportions(self):
+        prop1 = 100 * SCREEN_BUFFER_SIZE[0] / self.width
+        prop2 = 100 * SCREEN_BUFFER_SIZE[1] / self.height
+        prop = prop1 if prop1 < prop2 else prop2
+        logger.debug('Props: {} {} = {}'.format(prop1, prop2, prop))
+        
 
     def add(self, state):
         state.controller = self
@@ -178,7 +191,8 @@ class GameControl(object):
             # Skip flip of displays if we do not reach required frame rate
                 
             if self.current.dirty:
-                pygame.display.flip()
+                pygame.transform.scale(self.drawingSurface, self.screen.get_size(), self.screen)
+                pygame.display.update()
             # Nothing more to do, this is the basic loop
     
     def quit(self):

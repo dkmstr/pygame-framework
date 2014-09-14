@@ -33,9 +33,11 @@ class Music(SoundObject):
     def __init__(self, fileName, volume=1.0):
         logger.debug('Loading music {}'.format(resource_path(fileName)))
         self.musicFile = resource_path(fileName)
+        self.volume = volume
         
     def play(self):
         pygame.mixer.music.load(self.musicFile)
+        pygame.mixer.music.set_volume(self.volume)
         pygame.mixer.music.play(-1)
 
     def stop(self):

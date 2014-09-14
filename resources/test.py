@@ -51,7 +51,7 @@ class GameTest(game.game_state.GameState):
     def on_init(self):
         # Register actors types
         actorsFactory.registerType('Player', Player)
-        SoundsStore.store.storeMusicFile('level0', 'journey_3.ogg')
+        SoundsStore.store.storeMusicFile('level0', 'journey_3.ogg', volume=0.5)
         
         #self.images.addImage('bck1', 'data/images/far-background.png')
         #self.images.addImage('bck2', 'data/images/near-background.png')
@@ -68,7 +68,7 @@ class GameTest(game.game_state.GameState):
         #self.bg.add_surface(self.images.get('bck2'), 3)
 
     def on_enter(self):
-        #SoundsStore.store.get('level0').play()
+        SoundsStore.store.get('level0').play()
         pass
 
     def on_exit(self):
@@ -92,12 +92,12 @@ class GameTest(game.game_state.GameState):
         self.map.update()
         #self.player.move(self.x_speed, self.y_speed)
 
-        self.player.updateMapDisplayPosition(self.controller.screen)
+        self.player.updateMapDisplayPosition(self.controller.drawingSurface)
         return None
 
     def on_render(self):
         #self.bg.draw(self.controller.screen)
-        self.map.draw(self.controller.screen)
+        self.map.draw(self.controller.drawingSurface)
         #self.player.draw(self.controller.screen)
         return None
 
