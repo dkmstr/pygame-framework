@@ -9,7 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-SCREEN_BUFFER_SIZE = (1920,1080)
+SCREEN_BUFFER_SIZE = (1280,1024)
 
 class GameState(object):
     framerate = 50
@@ -70,8 +70,10 @@ class GameState(object):
 
         if ev.type == QUIT:
             return GameControl.EXIT_GAMESTATE
-
-        if ev.type == KEYDOWN:
+        elif ev.type == VIDEORESIZE:
+            pygame.display.set_mode(ev.dict['size'],HWSURFACE|RESIZABLE)
+            
+        elif ev.type == KEYDOWN:
             return self.on_keydown(ev.key)
         elif ev.type == KEYUP:
             return self.on_keyup(ev.key)
@@ -134,18 +136,9 @@ class GameControl(object):
         pygame.font.init()
         self.width = width
         self.height = height
-        
-        self._recalcProportions()
 
-        self.screen = pygame.display.set_mode((self.width, self.height), pygame.HWSURFACE)
+        self.screen = pygame.display.set_mode((width, height), pygame.HWSURFACE|pygame.RESIZABLE)
         self.drawingSurface = pygame.Surface(SCREEN_BUFFER_SIZE, pygame.HWSURFACE)
-
-    def _recalcProportions(self):
-        prop1 = 100 * SCREEN_BUFFER_SIZE[0] / self.width
-        prop2 = 100 * SCREEN_BUFFER_SIZE[1] / self.height
-        prop = prop1 if prop1 < prop2 else prop2
-        logger.debug('Props: {} {} = {}'.format(prop1, prop2, prop))
-        
 
     def add(self, state):
         state.controller = self
