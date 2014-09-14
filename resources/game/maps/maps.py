@@ -33,15 +33,17 @@ class Map(object):
         self.hudLayer = None
         self.triggersLayers = []
         self.collissionsLayers = []
+        self.renderingLayers = []
+        self.actorLayers = []
         self.displayPosition = (0, 0)
         self.boundary = pygame.Rect(0, 0, 0, 0)
         self.reset()
 
     def getRenderingLayers(self):
-        return [l for l in self.layers if l.holder is False and l.visible is True]
+        return self.renderingLayers
 
     def getActorsLayers(self):
-        return [l for l in self.layers if l.actor is True]
+        return self.actorLayers
     
     def getTriggersLayers(self):
         return self.triggersLayers
@@ -57,6 +59,8 @@ class Map(object):
         self.hudLayer = layers.HudLayer(self)
         self.triggersLayers = []
         self.collissionsLayers = []
+        self.renderingLayers = []
+        self.actorLayers = []
         self.tiles = []
         self.properties = {}
         self.displayPosition = (0, 0)
@@ -123,11 +127,14 @@ class Map(object):
             
         if layer.triggers:
             self.triggersLayers.append(layer)
-        else:
-            if layer.holder is False and layer.visible is True and layer.actor is False and layer.parallax is False:
-                self.collissionsLayers.append(layer)
+        if layer.holder is False and layer.visible is True and layer.actor is False and layer.parallax is False and layer.triggers is False:
+            self.collissionsLayers.append(layer)
+        if layer.holder is False and layer.visible is True and layer.triggers is False:
+            self.renderingLayers.append(layer)
+        if layer.actor is True:
+            self.actorLayers.append(layer)
                 
-            self.layers.append(layer)
+        self.layers.append(layer)
 
     def getLayer(self, layerName):
         for l in self.layers:
@@ -201,9 +208,6 @@ class Map(object):
         
         else:
             for layer in self.getCollisionsLayers():
-                if layer.parallax is True:
-                    continue
-    
                 for col in layer.getCollisions(rect):
                     yield (col[0], col[1], layer)
                 
