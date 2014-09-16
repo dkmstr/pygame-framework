@@ -128,10 +128,14 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
                 else:
                     self.parent.parentMap.addEffect('jqntlla', FadingTextEffect(colRect.x+colRect.width/2, colRect.y-10, 'You need\nthe Yellow Key', 24))
                 continue
+            
+        # Fire map triggers on our possition
+        self.parent.parentMap.checkTriggers(self.getColRect())
                     
         # If ladder is true, maybe we haven't hanged on it
         if inLadder is False:
             self.inLadder = False
+            
 
     def move(self, xOffset, yOffset):
         if xOffset == 0 and yOffset == 0:

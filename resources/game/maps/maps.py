@@ -233,7 +233,7 @@ class Map(object):
             for layer in self.getActorsLayers():
                 for col in layer.getCollisions(rect):
                     if col[1] is not exclude:
-                        yield col
+                        yield (col[0], col[1], layer)
 
     def getPossibleActorsCollisions(self, rect, xRange=32, yRange=32, exclude=None):
         '''
@@ -245,6 +245,12 @@ class Map(object):
         rect = rect.inflate(2*xRange, 2*yRange)
         
         return [col for col in self.getActorsCollisions(rect) if col[1] is not exclude]
+    
+    def checkTriggers(self, rect, possibleTriggers=None):
+        for layer in self.getTriggersLayers():
+            for col in layer.getCollisions(rect):
+                col[1].fire()
+        
 
     def getProperty(self, propertyName):
         '''
