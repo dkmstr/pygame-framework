@@ -139,6 +139,11 @@ class ArrayLayer(Layer):
                     tileRect = t.getRect().move(x*tileWidth, y*tileHeight)
                     if tileRect.colliderect(rect):
                         yield (tileRect, t)
+                        
+    def setTileAt(self, x, y, tileId):
+        x /= self.parentMap.tileWidth
+        y /= self.parentMap.tileHeight
+        self.data[y*self.width+x] = tileId
 
     def __iter__(self):
         '''

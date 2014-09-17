@@ -16,6 +16,7 @@ class Trigger(Collidable):
         self.properties = None
         self.rect = rect if rect is not None else pygame.Rect(0, 0, 0, 0)
         self.triggeredsList = []
+        self.tileIdOnTrigger = None
         self.fired = False
         self.sound = None
         self.sound_volume = 1.0
@@ -30,8 +31,19 @@ class Trigger(Collidable):
         self.sound = self.getProperty('sound', None)
         try:
             self.sound_volume = float(self.getProperty('sound_volume', '1.0'))
-        except:
+        except Exception:
             self.sound_volume = 1.0
+            
+        try:
+            layer = self.parent.associatedLayer
+            if layer.layerType == 'array':
+                tileId = int(self.getProperty('tile_on_trigger', None))
+                if tileId is not None:
+                    originalTile = layer.getObjectAt(self.rect.x, self.rect.y)
+                    if originalTile is not None:
+                        self.tileIdOnTrigger = originalTile.parent.getTile(tileId).tileId + 1
+        except Exception:
+            self.tileIdOnTrigger = None
     
     def setProperties(self, properties):
         self.properties = properties if properties is not None else {}
@@ -86,8 +98,10 @@ class Trigger(Collidable):
         
         if self.sound is not None:
             self.sound.play()
-    
-    
+            
+        if self.tileIdOnTrigger:
+            self.parent.associatedLayer.setTileAt(self.rect.x, self.rect.y, self.tileIdOnTrigger)
+
 class Triggered(object):
     def __init__(self, parentLayer, name, rect, properties=None):
         self.parent = parentLayer

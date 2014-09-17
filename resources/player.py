@@ -20,6 +20,16 @@ BASE_Y_SPEED = 8 * 100
 SCREEN_BORDER_X = 300
 SCREEN_BORDER_Y = 180
 
+scoreSoundTable = {
+    'BronceCoin': (100, 'get_coin'),
+    'SilverCoin': (300, 'get_coin'),
+    'GoldCoin': (900, 'get_coin'),
+    'BlueDiamond': (1200, 'get_coin'),
+    'GreenDiamond': (1600, 'get_coin'),
+    'RedDiamond': (2000, 'get_coin'),
+    'GoldDiamond': (3000, 'get_coin'),
+}
+
 class Player(Actor, WithCollisionCache, ScoreableMixin):
     def __init__(self, parentLayer, fromTile, actorType, x=0, y=0, w=None, h=None):
         #Actor.__init__(self, parentMap, fromTile, actorType, x, y, 52, 66)
@@ -107,18 +117,18 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
                 inLadder = True
             
             if element.isA('collectable') is True:
-                if 'Coin' in element.name:
-                    layer.removeObjectAt(colRect.x, colRect.y)
-                    self.resetCollisionsCache()
-                    self.score += 1234
-                    SoundsStore.store.get('get_coin').play()
-                    
+                score, snd = scoreSoundTable.get(element.name, (0, None))
+                layer.removeObjectAt(colRect.x, colRect.y)
+                self.score += score
+                if snd is not None:
+                    SoundsStore.store.get(snd).play()
+                
                 if 'Key' in element.name:
                     self.hasYellowKey = True
-                    layer.removeObjectAt(colRect.x, colRect.y)
                     SoundsStore.store.get('key').play()
-                    self.resetCollisionsCache()
-            
+                    
+                self.resetCollisionsCache()
+        
             if element.isA('lock'):
                 if element.getProperty('needs') == 'YellowKey' and self.hasYellowKey:
                     logger.debug('We have the yellow key and we are colliding with a yellow key needing brick!')
