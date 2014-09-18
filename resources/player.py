@@ -8,6 +8,7 @@ from game.animation import SpriteSheetAnimation
 from game.animation import FlippedAnimation
 from game.sound.sound import SoundsStore
 from game.effects import FadingTextEffect
+from game.effects import FadingMovingValueEffect
 from game.collision_cache import WithCollisionCache
 
 import logging
@@ -119,7 +120,10 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
             if element.isA('collectable') is True:
                 score, snd = scoreSoundTable.get(element.name, (0, None))
                 layer.removeObjectAt(colRect.x, colRect.y)
-                self.score += score
+                if score:
+                    self.score += score
+                    self.parent.parentMap.addEffect(None, FadingMovingValueEffect(colRect.x+colRect.width/2, colRect.y, score))
+                    
                 if snd is not None:
                     SoundsStore.store.get(snd).play()
                 
