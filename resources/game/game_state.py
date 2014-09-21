@@ -181,12 +181,19 @@ class GameControl(object):
                 logger.debug('Got new state: {}'.format(new_state))
                 if self.switch(new_state) is False:
                     return
-            # Skip flip of displays if we do not reach required frame rate
                 
-            if self.current.dirty:
-                pygame.transform.scale(self.drawingSurface, self.screen.get_size(), self.screen)
-                pygame.display.update()
+            self.draw()
+                
             # Nothing more to do, this is the basic loop
+            
+    def getDisplay(self):
+        return self.drawingSurface
+    
+    def draw(self, force=False):
+        # Skip flip of displays if we do not reach required frame rate
+        if self.current.dirty or force:
+            pygame.transform.scale(self.drawingSurface, self.screen.get_size(), self.screen)
+            pygame.display.update()
     
     def quit(self):
         pygame.font.quit()

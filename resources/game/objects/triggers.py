@@ -9,6 +9,8 @@ from game.sound.sound import SoundsStore
 
 logger = logging.getLogger(__name__)
 
+STEPS = 30
+
 class Trigger(Collidable):
     def __init__(self, parent, name, rect, properties=None):
         self.parent = parent
@@ -44,6 +46,8 @@ class Trigger(Collidable):
                         self.tileIdOnTrigger = originalTile.parent.getTile(tileId).tileId + 1
         except Exception:
             self.tileIdOnTrigger = None
+            
+        self.showTriggereds = checkTrue(self.getProperty('show', 'True'))
     
     def setProperties(self, properties):
         self.properties = properties if properties is not None else {}
@@ -92,15 +96,84 @@ class Trigger(Collidable):
         # Firef just once
         self.parent.removeTrigger(self)
         
-        self.fired = True
-        for triggered in self.triggeredsList:
-            triggered.execute()
-        
         if self.sound is not None:
             self.sound.play()
-            
+        
+        self.fired = True
+        for triggered in self.triggeredsList:
+            # Now if showTriggereds is true, scrolls map to show each triggered
+            triggered.execute()
+        
         if self.tileIdOnTrigger:
             self.parent.associatedLayer.setTileAt(self.rect.x, self.rect.y, self.tileIdOnTrigger)
+
+        if self.showTriggereds is True:
+            parentMap = self.parent.parentMap
+            controller = parentMap.getController()
+            display = controller.getDisplay()
+            halfW, halfH = display.get_width() / 2, display.get_height() / 2
+            origX, origY = parentMap.getDisplayPosition()
+            
+            positions = []
+            gradients = []
+            curX, curY = origX<<12, origY<<12
+            allCoords = tuple(t.getRect().topleft for t in self.triggeredsList)
+            allCoords += ((origX+halfW, origY+halfH),) # We want to stay at same coords at end, and the loop will "center" this position, so we first translate it
+            for v in allCoords:
+                x, y = v
+                newX = (x-halfW) << 12
+                newY = (y-halfH) << 12
+                yGradient = (newY - curY) / STEPS
+                xGradient = (newX - curX) / STEPS
+                curX, curY = newX, newY
+                positions.append([newX, newY])
+                gradients.append([xGradient, yGradient])
+                
+            parentMap.setProperty('showing', {
+                'list': positions,
+                'gradients': gradients,
+                'current': 0,
+                'x': origX<<12,
+                'y': origY<<12,
+                'step': 0,
+                'sleeping': 50, # Ticks to stay at display position
+                'origX': origX,
+                'origY': origY
+            })
+            
+            parentMap.beforeDraw = Trigger.show
+
+    @staticmethod
+    def show(parentMap, surface):
+        context = parentMap.getProperty('showing')
+        if context['current'] >= len(context['list']):
+            parentMap.setDisplayPosition(context['origX'], context['origY'])
+            return False
+        
+        # Will scroll display to show what have been done
+        controller = parentMap.getController()
+        display = controller.getDisplay()
+        
+        current = context['list'][context['current']]
+        
+        if context['step'] == STEPS:
+            # Its showing destination, wait until sleeping = 0
+            if context['sleeping'] == 0:
+                context['step'] = 0
+                context['current'] += 1
+                context['sleeping'] = 50
+            else:
+                context['sleeping'] -= 1
+            parentMap.setDisplayPosition(context['x']>>12, context['y']>>12)
+            return True
+        
+        xGradient, yGradient = context['gradients'][context['current']]
+        context['x'] += xGradient
+        context['y'] += yGradient
+        context['step'] += 1
+        parentMap.setDisplayPosition(context['x']>>12, context['y']>>12)
+        return True
+        
 
 class Triggered(object):
     def __init__(self, parentLayer, name, rect, properties=None):

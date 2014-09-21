@@ -51,7 +51,8 @@ class GameTest(game.game_state.GameState):
     def on_init(self):
         # Register actors types
         actorsFactory.registerType('Player', Player)
-        SoundsStore.store.storeMusicFile('level0', 'journey_3.ogg', volume=0.5)
+        #SoundsStore.store.storeMusicFile('level0', 'journey_3.ogg', volume=0.5)
+        SoundsStore.store.storeMusicFile('level0', 'Rose Flats.ogg', volume=0.1)
         
         #self.images.addImage('bck1', 'data/images/far-background.png')
         #self.images.addImage('bck2', 'data/images/near-background.png')
@@ -61,6 +62,7 @@ class GameTest(game.game_state.GameState):
         self.maps.load()
 
         self.map = self.maps.get('level0')
+        self.map.setController(self.controller)
         self.player = list(self.map.getActors('Player'))[0]
         self.map.addHudElement(ScoreFilesHud(self.player, 'data/images/numbers/hud_*.png', 8, 5, 5))
 

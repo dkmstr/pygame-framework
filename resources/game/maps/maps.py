@@ -37,6 +37,8 @@ class Map(object):
         self.actorLayers = []
         self.displayPosition = (0, 0)
         self.boundary = pygame.Rect(0, 0, 0, 0)
+        self.controller = None
+        self.beforeDraw = None
         self.reset()
 
     def getRenderingLayers(self):
@@ -116,6 +118,12 @@ class Map(object):
                 l.load(elem)
                 self.addLayer(l)
                 
+    def setController(self, controller):
+        self.controller = controller
+        
+    def getController(self):
+        return self.controller
+                
     def addTileFromTile(self, srcTileId, flipX, flipY, rotate):
         tile = self.tiles[srcTileId-1]
         self.tiles.append(tile.parent.addTileFromTile(tile, flipX, flipY, rotate))
@@ -158,6 +166,12 @@ class Map(object):
         self.hudLayer.addElement(hudElement)
 
     def draw(self, surface):
+        if self.beforeDraw is not None:
+            saved = self.beforeDraw
+            self.beforeDraw = None
+            if saved(self, surface): # If returns False, will not execute this "beforeDraw" again
+                self.beforeDraw = saved 
+                
         # First, we draw "parallax" layers
         x, y = self.displayPosition
         width, height = surface.get_size()
@@ -252,11 +266,14 @@ class Map(object):
                 col[1].fire()
         
 
-    def getProperty(self, propertyName):
+    def getProperty(self, propertyName, default=None):
         '''
         Obtains a property associated whit this map
         '''
-        return self.properties.get(propertyName)
+        return self.properties.get(propertyName, default)
+    
+    def setProperty(self, propertyName, value):
+        self.properties[propertyName] = value
 
     def getRect(self):
         return self.boundary

@@ -228,6 +228,8 @@
     <property name="height" value="54"/>
     <property name="left" value="16"/>
     <property name="name" value="BronceCoin"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_coin"/>
     <property name="top" value="16"/>
     <property name="type" value="collectable"/>
     <property name="width" value="38"/>
@@ -238,6 +240,8 @@
     <property name="height" value="54"/>
     <property name="left" value="16"/>
     <property name="name" value="SilverCoin"/>
+    <property name="score" value="400"/>
+    <property name="sound" value="get_coin"/>
     <property name="top" value="16"/>
     <property name="type" value="collectable"/>
     <property name="width" value="38"/>
@@ -248,6 +252,8 @@
     <property name="height" value="38"/>
     <property name="left" value="16"/>
     <property name="name" value="GoldCoin"/>
+    <property name="score" value="1000"/>
+    <property name="sound" value="get_coin"/>
     <property name="top" value="16"/>
     <property name="type" value="collectable"/>
     <property name="width" value="38"/>
@@ -256,53 +262,70 @@
   <tile id="29">
    <properties>
     <property name="name" value="BlueDiamond"/>
+    <property name="score" value="1500"/>
+    <property name="sound" value="get_coin"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="30">
    <properties>
     <property name="name" value="GreenDiamond"/>
+    <property name="score" value="2000"/>
+    <property name="sound" value="get_coin"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="31">
    <properties>
     <property name="name" value="RedDiamond"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_coin"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="32">
    <properties>
     <property name="name" value="GoldDiamond"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_coin"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="33">
    <properties>
     <property name="name" value="BlueKey"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_coin"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="34">
    <properties>
     <property name="name" value="GreenKey"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_coin"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="35">
    <properties>
     <property name="name" value="OrangeKey"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_coin"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="36">
    <properties>
     <property name="name" value="YellowKey"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_coin"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="39">
    <properties>
+    <property name="score" value="100"/>
     <property name="top" value="40"/>
     <property name="type" value="lethal"/>
    </properties>
@@ -327,72 +350,96 @@
   <tile id="0">
    <properties>
     <property name="name" value="plum"/>
+    <property name="score" value="250"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="1">
    <properties>
     <property name="name" value="pear"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="2">
    <properties>
     <property name="name" value="orange"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="3">
    <properties>
     <property name="name" value="apple"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="4">
    <properties>
     <property name="name" value="banana"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="5">
    <properties>
     <property name="name" value="carrot"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="6">
    <properties>
     <property name="name" value="cherry"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="7">
    <properties>
     <property name="name" value="chilli"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="8">
    <properties>
     <property name="name" value="grape"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="9">
    <properties>
     <property name="name" value="lemon"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="10">
    <properties>
     <property name="name" value="radish"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
   <tile id="11">
    <properties>
     <property name="name" value="tomato"/>
+    <property name="score" value="100"/>
+    <property name="sound" value="get_fruit"/>
     <property name="type" value="collectable"/>
    </properties>
   </tile>
@@ -476,7 +523,7 @@
   </properties>
   <object name="trigger_1" type="trigger" x="2170" y="1120" width="70" height="70">
    <properties>
-    <property name="sound" value="water-splash.ogg"/>
+    <property name="sound" value="open_lock.ogg"/>
     <property name="sound_volume" value="0.8"/>
     <property name="tile_on_trigger" value="50"/>
    </properties>
@@ -484,18 +531,13 @@
   <object name="blocking1" type="triggered" x="2870" y="1190" width="70" height="140">
    <properties>
     <property name="action" value="remove"/>
-    <property name="by" value="trigger_2"/>
+    <property name="by" value="trigger_1"/>
    </properties>
   </object>
   <object name="blocking2" type="triggered" x="1260" y="1190" width="70" height="140">
    <properties>
     <property name="action" value="remove"/>
     <property name="by" value="trigger_1"/>
-   </properties>
-  </object>
-  <object name="trigger_2" type="trigger" x="2457" y="1150" width="56" height="40">
-   <properties>
-    <property name="tile_on_trigger" value="4"/>
    </properties>
   </object>
  </objectgroup>
