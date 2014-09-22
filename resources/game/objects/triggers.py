@@ -19,12 +19,13 @@ class Trigger(Collidable):
         self.rect = rect if rect is not None else pygame.Rect(0, 0, 0, 0)
         self.triggeredsList = []
         self.tileIdOnTrigger = None
+        self.showTriggereds = False
         self.fired = False
         self.sound = None
-        self.sound_volume = 1.0
+        self.soundVolume = 1.0
         self.setProperties(properties)
         if self.sound is not None:
-            self.sound = SoundsStore.store.storeSoundFile('trigger_{}_snd'.format(self.name), self.sound, volume=self.sound_volume)
+            self.sound = SoundsStore.store.storeSoundFile('trigger_{}_snd'.format(self.name), self.sound, volume=self.soundVolume)
 
     def updateAttributes(self):
         '''
@@ -32,10 +33,10 @@ class Trigger(Collidable):
         '''
         self.sound = self.getProperty('sound', None)
         try:
-            self.sound_volume = float(self.getProperty('sound_volume', '1.0'))
+            self.soundVolume = float(self.getProperty('sound_volume', '1.0'))
         except Exception:
-            self.sound_volume = 1.0
-            
+            self.soundVolume = 1.0
+
         try:
             layer = self.parent.associatedLayer
             if layer.layerType == 'array':
@@ -46,13 +47,13 @@ class Trigger(Collidable):
                         self.tileIdOnTrigger = originalTile.parent.getTile(tileId).tileId + 1
         except Exception:
             self.tileIdOnTrigger = None
-            
+
         self.showTriggereds = checkTrue(self.getProperty('show', 'True'))
-    
+
     def setProperties(self, properties):
         self.properties = properties if properties is not None else {}
         self.updateAttributes()
-        
+
     def setProperty(self, prop, value):
         self.properties[prop] = value
 
@@ -61,22 +62,16 @@ class Trigger(Collidable):
         Obtains a property associated whit this tileset
         '''
         return self.properties.get(propertyName, default)
-    
+
     def getRect(self):
         return self.rect
-    
+
     def getColRect(self):
         return self.rect
 
     def hasProperty(self, prop):
         return prop in self.properties
-    
-    def isA(self, objType):
-        '''
-        returns True if the object if of the specified type
-        '''
-        return self.objType == objType
-    
+
     def appendTriggered(self, triggered):
         self.triggeredsList.append(triggered)
 
@@ -85,25 +80,28 @@ class Trigger(Collidable):
         By default do not collides :-)
         '''
         return self.rect.colliderect(rect)
-    
+
+    def positionChanged(self): # Does nothing if we move the collidable
+        pass
+
     def update(self):
         pass
-    
+
     def fire(self):
         if self.fired is True:
             logger.error('Trigger {} has already been fired'.format(self.name))
             return
         # Firef just once
         self.parent.removeTrigger(self)
-        
+
         if self.sound is not None:
             self.sound.play()
-        
+
         self.fired = True
         for triggered in self.triggeredsList:
             # Now if showTriggereds is true, scrolls map to show each triggered
             triggered.execute()
-        
+
         if self.tileIdOnTrigger:
             self.parent.associatedLayer.setTileAt(self.rect.x, self.rect.y, self.tileIdOnTrigger)
 
@@ -113,7 +111,7 @@ class Trigger(Collidable):
             display = controller.getDisplay()
             halfW, halfH = display.get_width() / 2, display.get_height() / 2
             origX, origY = parentMap.getDisplayPosition()
-            
+
             positions = []
             gradients = []
             curX, curY = origX<<12, origY<<12
@@ -128,7 +126,7 @@ class Trigger(Collidable):
                 curX, curY = newX, newY
                 positions.append([newX, newY])
                 gradients.append([xGradient, yGradient])
-                
+
             parentMap.setProperty('showing', {
                 'list': positions,
                 'gradients': gradients,
@@ -140,23 +138,23 @@ class Trigger(Collidable):
                 'origX': origX,
                 'origY': origY
             })
-            
-            parentMap.beforeDraw = Trigger.show
+
+            parentMap.displayShower = Trigger.show
 
     @staticmethod
-    def show(parentMap, surface):
+    def show(parentMap, _):
         context = parentMap.getProperty('showing')
         lenList = len(context['list'])
         if context['current'] >= lenList:
             parentMap.setDisplayPosition(context['origX'], context['origY'])
             return False
-        
+
         # Will scroll display to show what have been done
-        controller = parentMap.getController()
-        display = controller.getDisplay()
-        
+        # controller = parentMap.getController()
+        # display = controller.getDisplay()
+
         current = context['list'][context['current']]
-        
+
         if context['step'] == STEPS:
             # Its showing destination, wait until sleeping = 0 or its last showing position (that is the original position in fact...)
             if context['current'] == lenList - 1 or context['sleeping'] == 0:
@@ -167,14 +165,14 @@ class Trigger(Collidable):
                 context['sleeping'] -= 1
             parentMap.setDisplayPosition(context['x']>>12, context['y']>>12)
             return True
-        
+
         xGradient, yGradient = context['gradients'][context['current']]
         context['x'] += xGradient
         context['y'] += yGradient
         context['step'] += 1
         parentMap.setDisplayPosition(context['x']>>12, context['y']>>12)
         return True
-        
+
 
 class Triggered(object):
     def __init__(self, parentLayer, name, rect, properties=None):
@@ -185,7 +183,7 @@ class Triggered(object):
         self.action = None
         self.by = None
         self.executed = False
-        
+
         self.setProperties(properties)
 
     def updateAttributes(self):
@@ -194,11 +192,11 @@ class Triggered(object):
         '''
         self.action = self.getProperty('action', None)
         self.by = self.getProperty('by', None)
-    
+
     def setProperties(self, properties):
         self.properties = properties if properties is not None else {}
         self.updateAttributes()
-        
+
     def setProperty(self, prop, value):
         self.properties[prop] = value
 
@@ -207,7 +205,7 @@ class Triggered(object):
         Obtains a property associated whit this tileset
         '''
         return self.properties.get(propertyName, default)
-    
+
     def getRect(self):
         return self.rect
 
@@ -215,11 +213,11 @@ class Triggered(object):
         if self.executed is True:
             logger.error('Triggered {} has already been executed'.format(self.name))
             return
-        
+
         self.executed = True
-        
+
         logger.debug('Executing triggered {}'.format(self.name))
-        
+
         layer = self.parent.associatedLayer
         tileWidth = self.parent.parentMap.tileWidth
         tileHeight = self.parent.parentMap.tileHeight

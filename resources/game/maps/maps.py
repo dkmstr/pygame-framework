@@ -38,7 +38,7 @@ class Map(object):
         self.displayPosition = (0, 0)
         self.boundary = pygame.Rect(0, 0, 0, 0)
         self.controller = None
-        self.beforeDraw = None
+        self.displayShower = None
         self.reset()
 
     def getRenderingLayers(self):
@@ -46,7 +46,7 @@ class Map(object):
 
     def getActorsLayers(self):
         return self.actorLayers
-    
+
     def getTriggersLayers(self):
         return self.triggersLayers
 
@@ -99,14 +99,14 @@ class Map(object):
         # exists. To avoit problems, always put (if posible) linked tiles layers at bottom in tiled so they get
         # loaded FIRST
 
-        # We have two types of objectGrouplayers, platforms and triggers 
+        # We have two types of objectGrouplayers, platforms and triggers
         # To know what to get, first identify platform type by getting it's properties
         def identifyObjectGroup(node):
             layerType = loadProperties(node.find('properties')).get('type', 'platforms')
             if layerType == 'platforms':
                 return layers.PlatformsLayer
             return layers.TriggersLayer
-        
+
         t = {
             'layer': lambda x: layers.ArrayLayer,
             'objectgroup': lambda x: identifyObjectGroup(x),
@@ -117,13 +117,13 @@ class Map(object):
                 l = t[elem.tag](elem)(self)
                 l.load(elem)
                 self.addLayer(l)
-                
+
     def setController(self, controller):
         self.controller = controller
-        
+
     def getController(self):
         return self.controller
-                
+
     def addTileFromTile(self, srcTileId, flipX, flipY, rotate):
         tile = self.tiles[srcTileId-1]
         self.tiles.append(tile.parent.addTileFromTile(tile, flipX, flipY, rotate))
@@ -132,7 +132,7 @@ class Map(object):
     def addLayer(self, layer):
         if layer.actor:
             layer = layers.ActorsLayer(self, layer)
-            
+
         if layer.triggers:
             self.triggersLayers.append(layer)
         if layer.holder is False and layer.visible is True and layer.actor is False and layer.parallax is False and layer.triggers is False:
@@ -141,7 +141,7 @@ class Map(object):
             self.renderingLayers.append(layer)
         if layer.actor is True:
             self.actorLayers.append(layer)
-                
+
         self.layers.append(layer)
 
     def getLayer(self, layerName):
@@ -158,20 +158,20 @@ class Map(object):
     def removeActor(self, actor):
         for layer in self.getActorsLayers():
             layer.removeActor(actor)
-            
+
     def addEffect(self, effectId, effect):
         self.effectsLayer.addEffect(effectId, effect)
-        
+
     def addHudElement(self, hudElement):
         self.hudLayer.addElement(hudElement)
 
     def draw(self, surface):
-        if self.beforeDraw is not None:
-            saved = self.beforeDraw
-            self.beforeDraw = None
+        if self.displayShower is not None:
+            saved = self.displayShower
+            self.displayShower = None
             if saved(self, surface): # If returns False, will not execute this "beforeDraw" again
-                self.beforeDraw = saved 
-                
+                self.displayShower = saved
+
         # First, we draw "parallax" layers
         x, y = self.displayPosition
         width, height = surface.get_size()
@@ -180,22 +180,22 @@ class Map(object):
 
         # draw effects layer
         self.effectsLayer.draw(surface, x, y, width, height)
-         
+
         # And finally, the HUD at topmost
         self.hudLayer.draw(surface, x, y, width, height)
 
     def update(self):
-        for layer in self.getRenderingLayers():
-            if self.beforeDraw is None or layer.actor is False:
-                layer.update()
+        if self.displayShower is None:
+            for layer in self.getRenderingLayers():
+                    layer.update()
 
         # Update tilesets (for animations)
         for ts in self.tileSets:
             ts.update()
-            
+
         # Update effects layer
         self.effectsLayer.update()
-        
+
         # And hud elements
         self.hudLayer.update()
 
@@ -219,21 +219,21 @@ class Map(object):
             for col in possibleCollisions:
                 if col[0].colliderect(rect):
                     yield col
-        
+
         else:
             for layer in self.getCollisionsLayers():
                 for col in layer.getCollisions(rect):
                     yield (col[0], col[1], layer)
-                
+
     def getPossibleCollisions(self, rect, xRange=32, yRange=32):
         '''
-        If needs to get check collisions more than once, this optimizes 
+        If needs to get check collisions more than once, this optimizes
         a lot the process limiting the objects to check
         '''
         rect = rect.inflate(2*xRange, 2*yRange)
-        
+
         return [col for col in self.getCollisions(rect)]
-    
+
     def getActorsCollisions(self, rect, possibleCollisions=None, exclude=None):
         '''
         If a list of possible collisions is passed in, only this
@@ -251,27 +251,27 @@ class Map(object):
 
     def getPossibleActorsCollisions(self, rect, xRange=32, yRange=32, exclude=None):
         '''
-        If needs to get check collisions more than once, this optimizes 
+        If needs to get check collisions more than once, this optimizes
         a lot the process limiting the objects to check
         xRange and yRange should be big enought to ensure that the "destination" actor
         (wich also moves) won't hit us without knowing it
         '''
         rect = rect.inflate(2*xRange, 2*yRange)
-        
+
         return [col for col in self.getActorsCollisions(rect) if col[1] is not exclude]
-    
+
     def checkTriggers(self, rect, possibleTriggers=None):
         for layer in self.getTriggersLayers():
             for col in layer.getCollisions(rect):
                 col[1].fire()
-        
+
 
     def getProperty(self, propertyName, default=None):
         '''
         Obtains a property associated whit this map
         '''
         return self.properties.get(propertyName, default)
-    
+
     def setProperty(self, propertyName, value):
         self.properties[propertyName] = value
 
