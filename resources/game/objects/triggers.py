@@ -239,6 +239,9 @@ class Triggered(object):
             logger.debug('Removing tile with sliding')
             return SlidingTileEffect(layer, self.rect, ticks=50,
                                     horizontalSliding=True)
+        elif self.action == 'start':
+            for col in layer.getCollisions(self.rect):
+                col[1].start()
         else:
             logger.error('Unknown action in triggered {}: {}'.format(self.name, self.action))
 

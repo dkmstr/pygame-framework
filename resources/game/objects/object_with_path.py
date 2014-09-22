@@ -87,5 +87,11 @@ class ObjectWithPath(GraphicObject, WithCollisionCache):
     def collide(self, rect):
         return self.rect.colliderect(rect)
 
+    def start(self):
+        self.stopped = False
+
+    def stop(self):
+        self.stopped = True
+
     def __unicode__(self):
         return 'Object with path {}'.format(self.path)
