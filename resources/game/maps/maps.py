@@ -185,9 +185,9 @@ class Map(object):
         self.hudLayer.draw(surface, x, y, width, height)
 
     def update(self):
-        if self.displayShower is None:
-            for layer in self.getRenderingLayers():
-                    layer.update()
+        for layer in self.getRenderingLayers():
+            if self.displayShower is None or layer.actor is False:
+                layer.update()
 
         # Update tilesets (for animations)
         for ts in self.tileSets:
