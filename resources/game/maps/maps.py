@@ -185,8 +185,8 @@ class Map(object):
         self.hudLayer.draw(surface, x, y, width, height)
 
     def update(self):
-        # Keep order intact
         for layer in self.getRenderingLayers():
+            if self.beforeDraw is None or layer.actor is False:
                 layer.update()
 
         # Update tilesets (for animations)

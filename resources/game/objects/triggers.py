@@ -146,7 +146,8 @@ class Trigger(Collidable):
     @staticmethod
     def show(parentMap, surface):
         context = parentMap.getProperty('showing')
-        if context['current'] >= len(context['list']):
+        lenList = len(context['list'])
+        if context['current'] >= lenList:
             parentMap.setDisplayPosition(context['origX'], context['origY'])
             return False
         
@@ -157,8 +158,8 @@ class Trigger(Collidable):
         current = context['list'][context['current']]
         
         if context['step'] == STEPS:
-            # Its showing destination, wait until sleeping = 0
-            if context['sleeping'] == 0:
+            # Its showing destination, wait until sleeping = 0 or its last showing position (that is the original position in fact...)
+            if context['current'] == lenList - 1 or context['sleeping'] == 0:
                 context['step'] = 0
                 context['current'] += 1
                 context['sleeping'] = 50
