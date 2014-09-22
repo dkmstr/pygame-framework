@@ -14,7 +14,7 @@ class Effect(object):
         '''
         If returns True, means that this effect has finished
         '''
-        return False
+        raise NotImplementedError('update method not implemented!!')
     
     def getRect(self):
         return self.rect

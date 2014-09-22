@@ -6,6 +6,7 @@ import logging
 from game.util import checkTrue
 from game.interfaces import Collidable
 from game.sound.sound import SoundsStore
+from game.effects import SlidingTileEffect
 
 logger = logging.getLogger(__name__)
 
@@ -98,9 +99,14 @@ class Trigger(Collidable):
             self.sound.play()
 
         self.fired = True
+        effectList = []
         for triggered in self.triggeredsList:
             # Now if showTriggereds is true, scrolls map to show each triggered
-            triggered.execute()
+            effect = triggered.execute()
+            effectList.append(effect)
+
+        # Add None as last effect, because it's the initial position
+        effectList.append(None)
 
         if self.tileIdOnTrigger:
             self.parent.associatedLayer.setTileAt(self.rect.x, self.rect.y, self.tileIdOnTrigger)
@@ -136,7 +142,8 @@ class Trigger(Collidable):
                 'step': 0,
                 'sleeping': 50, # Ticks to stay at display position
                 'origX': origX,
-                'origY': origY
+                'origY': origY,
+                'effectList': effectList
             })
 
             parentMap.displayShower = Trigger.show
@@ -156,6 +163,8 @@ class Trigger(Collidable):
         current = context['list'][context['current']]
 
         if context['step'] == STEPS:
+            if context['effectList'][context['current']] is not None:
+                parentMap.addEffect(None, context['effectList'][context['current']])
             # Its showing destination, wait until sleeping = 0 or its last showing position (that is the original position in fact...)
             if context['current'] == lenList - 1 or context['sleeping'] == 0:
                 context['step'] = 0
@@ -226,5 +235,11 @@ class Triggered(object):
                 for x in xrange(self.rect.left, self.rect.right, tileWidth):
                     logger.debug('Remove : {},{}'.format(x, y))
                     layer.removeObjectAt(x, y)
+        elif self.action == 'remove-sliding':
+            logger.debug('Removing tile with sliding')
+            return SlidingTileEffect(layer, self.rect, ticks=50,
+                                    horizontalSliding=True)
         else:
             logger.error('Unknown action in triggered {}: {}'.format(self.name, self.action))
+
+        return None
