@@ -37,17 +37,15 @@ class GameTest(game.game_state.GameState):
 
         self.bg_speed = 0
 
-        # self.images = game.images.Images((1280, 2880))
-        self.maps = game.maps.Maps()
-        self.maps.add('level0', 'data/maps/kenney/level-test-1.tmx')
-        #self.maps.add('level0', 'data/maps/pencil/test.tmx')
+        self.maps = None  # Initialized on "on_init"
 
         self.map = None
-        #self.bg = parallax.ParallaxSurface((WIDTH, HEIGHT), pygame.RLEACCEL)
         self.pressKey = { K_RIGHT: Player.goRight, K_LEFT: Player.goLeft, K_DOWN: Player.goDown, K_UP: Player.goUp, K_SPACE: Player.jump }
         self.releaseKey = { K_RIGHT: Player.stopRight, K_LEFT: Player.stopLeft, K_DOWN: Player.stopDown, K_UP: Player.stopUp, K_SPACE: Player.stopJump }
 
     def on_init(self):
+        self.maps = game.maps.Maps(self.controller)
+        self.maps.add('level0', 'data/maps/kenney/level-test-1.tmx')
         # Register actors types
         actorsFactory.registerType('Player', Player)
         #SoundsStore.store.storeMusicFile('level0', 'journey_3.ogg', volume=0.5)
@@ -61,7 +59,6 @@ class GameTest(game.game_state.GameState):
         self.maps.load()
 
         self.map = self.maps.get('level0')
-        self.map.setController(self.controller)
         self.player = list(self.map.getActors('Player'))[0]
         self.map.addHudElement(ScoreFilesHud(self.player, 'data/images/numbers/hud_*.png', 8, 5, 5))
 

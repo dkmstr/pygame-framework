@@ -13,12 +13,12 @@ logger = logging.getLogger(__name__)
 # Tile               #
 ######################
 class Tile(GraphicObject):
-    def __init__(self, tileSet, tileId, surface, properties={}):
+    def __init__(self, tileSet, tileId, image, properties={}):
         GraphicObject.__init__(self, tileSet, pygame.Rect(0, 0, tileSet.tileWidth, tileSet.tileHeight) if tileSet else None, properties)
 
         self.parent = tileSet
         self.tileId = tileId
-        self.originalSurface = self.surface = surface
+        self.originalImage = self.image = image
 
     def updateAttributes(self):
         GraphicObject.updateAttributes(self)
@@ -58,30 +58,30 @@ class Tile(GraphicObject):
             self.animationState = 0
             self.resetImage()
         else:
-            self.surface = self.parent.getTile(self.animation[self.animationState-1]).getOriginalImage()
+            self.image = self.parent.getTile(self.animation[self.animationState-1]).getOriginalImage()
             self.animationState += 1
 
     # This x,y coordinates are screen coordinates
     # TileArray, Platform, etc.. converts coordinates of objects acordly beforw invoking it
     def draw(self, renderer, rect):
         size = renderer.getSize()
-        renderer.blit(self.surface, rect.topleft)
+        renderer.blit(self.image, rect.topleft)
 
-    def blit(self, toSurface, rect):
-        size = toSurface.get_size()
-        toSurface.blit(self.surface, rect.topleft)
+    def blit(self, toImage, rect):
+        size = toImage.getSize()
+        toImage.blit(self.image, rect.topleft)
 
     def getOriginalImage(self):
-        return self.originalSurface
+        return self.originalImage
 
     def getImage(self):
-        return self.surface
+        return self.image
 
     def setImage(self, surface):
-        self.surface = surface
+        self.image = surface
 
     def resetImage(self):
-        self.surface = self.originalSurface
+        self.image = self.originalImage
 
     def id(self):
         return self.tileId
@@ -96,4 +96,4 @@ class Tile(GraphicObject):
         return (self.rect.width, self.rect.height)
 
     def __unicode__(self):
-        return 'Tile {} ({}x{}) ({})'.format(self.tileId, self.surface.get_width(), self.surface.get_height(), self.properties)
+        return 'Tile {} ({}x{}) ({})'.format(self.tileId, self.image.get_width(), self.image.get_height(), self.properties)

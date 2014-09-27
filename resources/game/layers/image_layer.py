@@ -27,7 +27,7 @@ class ImageLayer(Layer):
         self.width = int(node.attrib['width'])
         self.height = int(node.attrib['height'])
         self.image_path = os.path.join(self.parentMap.mapPath, node.find('image').attrib['source'])
-        self.image = (pygame.image.load(self.image_path))
+        self.image = self.getRenderer().loadImage(self.image_path)
         self.cached_size = (-1, -1)
 
         self.setProperties(loadProperties(node.find('properties')))
@@ -35,13 +35,13 @@ class ImageLayer(Layer):
 
     def onDraw(self, renderer, rect):
         if rect.height != self.cached_size[1]:
-            width, height = self.image.get_size()
+            width, height = self.image.getSize()
             width = width * rect.height / height
             height = rect.height
             self.cached_size = (width, height)
             logger.debug('Rescaling image layer to {}x{}'.format(width, height))
 
-            self.cached_image = pygame.transform.smoothscale(self.image, (width, height)).convert()
+            self.cached_image = self.image.scale(width, height)
 
         width, height = self.cached_size
 
@@ -51,7 +51,7 @@ class ImageLayer(Layer):
             renderer.blit(self.cached_image, (0, 0),
                         (posX, 0, width, height))
             renderer.blit(self.cached_image,
-                        (self.cached_image.get_width() - posX, 0),
+                        (self.cached_image.getWidth() - posX, 0),
                          (0, 0, posX, height))
         else:
             renderer.blit(self.cached_image, (0, 0))

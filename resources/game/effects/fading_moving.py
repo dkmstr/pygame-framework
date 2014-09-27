@@ -5,6 +5,7 @@ import pygame
 from game.util import resource_path
 from game.effects import Effect
 from game import dialog
+from game.renderer import Renderer
 
 import logging
 
@@ -25,7 +26,7 @@ class FadingMovingValueEffect(Effect):
             FadingMovingValueEffect.initializeNumbers()
 
         value = unicode(value)
-        self.image = surface = pygame.Surface((len(value)*NUMBER_SIZE, NUMBER_SIZE), pygame.SRCALPHA)
+        self.image = surface = Renderer.renderer.createImage(len(value)*NUMBER_SIZE, NUMBER_SIZE)
         self.image.fill((255, 255, 255, 0))
         pos = 0
         for v in value:
@@ -52,7 +53,6 @@ class FadingMovingValueEffect(Effect):
 
     @staticmethod
     def initializeNumbers():
-        FadingMovingValueEffect.numbersImage = pygame.image.load(resource_path('data/images/numbers/numbers-sheet-32.png'))
-        FadingMovingValueEffect.numbersImage.convert_alpha()
-        FadingMovingValueEffect.numbers = { unicode(i): FadingMovingValueEffect.numbersImage.subsurface((i*NUMBER_SIZE, 0, NUMBER_SIZE, NUMBER_SIZE)) for i in xrange(10) }
+        FadingMovingValueEffect.numbersImage = Renderer.renderer.loadImage(resource_path('data/images/numbers/numbers-sheet-32.png'))
+        FadingMovingValueEffect.numbers = { unicode(i): FadingMovingValueEffect.numbersImage.subimage((i*NUMBER_SIZE, 0, NUMBER_SIZE, NUMBER_SIZE)) for i in xrange(10) }
 

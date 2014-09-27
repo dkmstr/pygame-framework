@@ -6,7 +6,6 @@ import os
 import xml.etree.ElementTree as ET
 
 from game.tiles.tiles import Tile
-from game.image_cache import ImageCache
 from game.util import loadProperties
 
 import logging
@@ -24,7 +23,7 @@ class TileSet(object):
         self.imageFile = ''
         self.imageWidth = self.imageHeight = 0
         self.firstGid = 0
-        self.surface = None
+        self.image = None
         self.tiles = []
         self.animatedTiles = []
         self.properties = {}
@@ -48,7 +47,7 @@ class TileSet(object):
         self.imageWidth = int(image.attrib['width'])
         self.imageHeight = int(image.attrib['height'])
 
-        self.surface = ImageCache.cache.load(os.path.join(self.parentMap.mapPath, self.imageFile))
+        self.image = self.getRenderer().loadImage(os.path.join(self.parentMap.mapPath, self.imageFile))
 
         self.properties = loadProperties(node.find('properties'))
         self.__loadTilesProperties(node)
@@ -58,6 +57,9 @@ class TileSet(object):
         tree = ET.parse(os.path.join(self.parentMap.mapPath, path))
         root = tree.getroot()  # Map element
         self.__loadTileSet(root)
+
+    def getRenderer(self):
+        return self.parentMap.getController().renderer
 
     def load(self, node):
         logger.debug('Loading tileset in path {}'.format(self.parentMap.mapPath))
@@ -70,8 +72,8 @@ class TileSet(object):
 
         logger.debug('Image path: {} {}x{}'.format(self.imageFile, self.imageWidth, self.imageHeight))
 
-        tilesPerRow = self.surface.get_width() / (self.tileWidth+self.tileSpacing)
-        tilesRows = self.surface.get_height() / (self.tileHeight+self.tileSpacing)
+        tilesPerRow = self.image.getWidth() / (self.tileWidth+self.tileSpacing)
+        tilesRows = self.image.getHeight() / (self.tileHeight+self.tileSpacing)
 
         self.tiles = [None] * (tilesRows*tilesPerRow)  # Gens a dummy array of this len
 
@@ -84,18 +86,19 @@ class TileSet(object):
                 # We keep here a reference to tiles in thow places (same reference in fact)
                 self.tiles[localTileId] = Tile(self,
                     tileId,
-                    self.surface.subsurface(((self.tileWidth+self.tileSpacing)*x, (self.tileHeight+self.tileSpacing)*y, self.tileWidth, self.tileHeight)),
+                    self.image.subimage(((self.tileWidth+self.tileSpacing)*x, (self.tileHeight+self.tileSpacing)*y, self.tileWidth, self.tileHeight)),
                     self.tilesProperties.get(localTileId, {})
                 )  # Creates reference
 
         self.animatedTiles = [i for i in self.tiles if i.animated]
 
     def addTileFromTile(self, srcTile, flipX, flipY, rotate):
+
         if rotate:
             image = pygame.transform.rotate(srcTile.getOriginalImage(), 90)
         else:
             image = srcTile.getOriginalImage()
-        image = pygame.transform.flip(image, flipX, flipY)
+        image = srcTile.getOriginalImage().flip(flipX, flipY, rotate)
         tile = Tile(self, len(self.tiles)+1, image, srcTile.properties)
         self.tiles.append(tile)
         return tile

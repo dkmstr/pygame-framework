@@ -5,7 +5,7 @@ import pygame
 import glob
 
 from game.util import resource_path
-from game.image_cache import ImageCache
+from game.renderer import Renderer
 
 
 import logging
@@ -66,7 +66,7 @@ class FilesAnimation(Animation):
         files = sorted(glob.glob(resource_path(fileListPattern)))
 
         # Load image files
-        self.images = [ImageCache.cache.load(f).convert_alpha() for f in files]
+        self.images = [Renderer.renderer.loadImage(f) for f in files]
         # for i in self.images:
         #    i.set_alpha(0, pygame.RLEACCEL)
 
@@ -85,7 +85,7 @@ class FlippedAnimation(Animation):
         Animation.__init__(self, animation.baseDelay, animation.startingPosition)
         self.associatedSounds = animation.associatedSounds
 
-        self.images = [pygame.transform.flip(i, True, False) for i in animation.images]
+        self.images = [i.flip(True, False) for i in animation.images]
 
 class AnimationsStore(object):
     def __init__(self):

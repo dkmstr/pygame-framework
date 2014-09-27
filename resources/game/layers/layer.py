@@ -60,7 +60,7 @@ class Layer(object):
         height = toSurface.get_height() if height <= 0 else height
 
         rect = pygame.Rect(x, y, width, height)
-        
+
         self.onDraw(toSurface, rect)
 
     def onDraw(self, toSurface, rect):
@@ -72,7 +72,7 @@ class Layer(object):
     def getTileAt(self, x, y):
         x, y = y, x  # Avoid pylint unused
         return None
-    
+
     def removeObjectAt(self, x, y):
         x, y = y, x  # Avoif pylint unused
         pass
@@ -90,3 +90,6 @@ class Layer(object):
         Obtains a property associated whit this layer
         '''
         return self.properties.get(propertyName, default)
+
+    def getRenderer(self):
+        return self.parentMap.getController().renderer

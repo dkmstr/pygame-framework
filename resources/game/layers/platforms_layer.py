@@ -69,7 +69,7 @@ class PlatformsLayer(Layer):
 
                 # Build graphic object from tiles
                 logger.debug('Building image of {}x{}'.format(width, height))
-                image = pygame.Surface((width, height), flags=pygame.SRCALPHA)
+                image = self.getRenderer().createImage(width, height)
                 image.fill((0, 0, 0, 0))  # Transparent background
 
                 for y in xrange(startY, startY+height, self.parentMap.tileHeight):

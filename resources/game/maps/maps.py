@@ -20,11 +20,11 @@ logger = logging.getLogger(__name__)
 # Map                #
 ######################
 class Map(object):
-    def __init__(self, mapId, path, properties=None):
+    def __init__(self, mapId, path, parent):
         self.id = mapId
+        self.parent = parent
         self.mapFile = resource_path(path)
         self.mapPath = os.path.dirname(self.mapFile)
-        self.properties = properties if properties is not None else {}
         self.width = self.height = self.tileWidth = self.tileHeight = 0
         self.tileSets = []
         self.layers = []
@@ -118,11 +118,8 @@ class Map(object):
                 l.load(elem)
                 self.addLayer(l)
 
-    def setController(self, controller):
-        self.controller = controller
-
     def getController(self):
-        return self.controller
+        return self.parent.controller
 
     def addTileFromTile(self, srcTileId, flipX, flipY, rotate):
         tile = self.tiles[srcTileId-1]
@@ -283,11 +280,12 @@ class Map(object):
 
 
 class Maps(object):
-    def __init__(self):
+    def __init__(self, controller):
         self.maps = {}
+        self.controller = controller
 
     def add(self, mapId, path):
-        self.maps[mapId] = Map(mapId, path)
+        self.maps[mapId] = Map(mapId, path, self)
 
     def load(self, mapId=None, force=False):
         if mapId is None:

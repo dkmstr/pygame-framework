@@ -24,8 +24,8 @@ class SlidingTileEffect(Effect):
         tile = layer.getObjectAt(rect.x, rect.y)
         self.image = tile.getImage()
         self.pos = 0
-        self.width = tile.getImage().get_width()
-        self.height = tile.getImage().get_height()
+        self.width = tile.getImage().getWidth()
+        self.height = tile.getImage().getHeight()
         self.maxPos = self.width if horizontalSliding else self.height
         self.step = (self.maxPos << 12) / ticks
         self.horizontalSliding = horizontalSliding

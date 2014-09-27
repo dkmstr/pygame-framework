@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import pygame
 from pygame.locals import *
 
-from game.renderer import Renderer
+from game.renderer import Renderer2D as Renderer
 
 import logging
 
