@@ -25,9 +25,13 @@ class Renderer(object):
     def quit(self):
         pygame.quit()
 
-    def blit(self, image, position=None, area=None):
+    def blit(self, image, position=None, area=None, alpha=255):
         if position is None:
             position = (0,0)
+
+        if alpha != 255:  # Add transparency if required
+            image = image.copy()
+            image.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
 
         self.screen.blit(image, position, area)
 

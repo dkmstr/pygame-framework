@@ -19,11 +19,11 @@ class FadingMovingValueEffect(Effect):
 
     def __init__(self, x, y, value, ticks=50):
         Effect.__init__(self, pygame.Rect(x, y, 0, 0))
-        
-        
+
+
         if FadingMovingValueEffect.numbersImage is None:
             FadingMovingValueEffect.initializeNumbers()
-        
+
         value = unicode(value)
         self.image = surface = pygame.Surface((len(value)*NUMBER_SIZE, NUMBER_SIZE), pygame.SRCALPHA)
         self.image.fill((255, 255, 255, 0))
@@ -33,9 +33,9 @@ class FadingMovingValueEffect(Effect):
             pos += NUMBER_SIZE
 
         self.ticks =  self.totalTicks = ticks
-        
+
         self.rect.top -= NUMBER_SIZE
-        self.rect.left -=  NUMBER_SIZE * len(value) / 2 
+        self.rect.left -=  NUMBER_SIZE * len(value) / 2
         self.y = self.rect.top
 
     def update(self):
@@ -44,19 +44,15 @@ class FadingMovingValueEffect(Effect):
         if self.ticks <= 0:
             return True
         return False
-        
-    def draw(self, toSurface, rect):
-        # Apply transparency to image
-        image = self.image.copy()
+
+    def draw(self, renderer, rect):
         alpha = 255 * self.ticks / self.totalTicks
-        image.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
-        
-        toSurface.blit(image, (self.rect.x-rect.x, self.rect.y-rect.y))
-        
+
+        renderer.blit(self.image, (self.rect.x-rect.x, self.rect.y-rect.y), alpha=alpha)
+
     @staticmethod
     def initializeNumbers():
         FadingMovingValueEffect.numbersImage = pygame.image.load(resource_path('data/images/numbers/numbers-sheet-32.png'))
         FadingMovingValueEffect.numbersImage.convert_alpha()
         FadingMovingValueEffect.numbers = { unicode(i): FadingMovingValueEffect.numbersImage.subsurface((i*NUMBER_SIZE, 0, NUMBER_SIZE, NUMBER_SIZE)) for i in xrange(10) }
-            
-        
+

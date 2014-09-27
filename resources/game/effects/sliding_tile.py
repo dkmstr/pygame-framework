@@ -39,8 +39,8 @@ class SlidingTileEffect(Effect):
             return True
         return False
 
-    def draw(self, toSurface, rect):
+    def draw(self, renderer, rect):
         # Apply transparency to image
         pos, width, height = self.pos>>12, self.width, self.height
         area = (pos, 0, width - pos, height) if self.horizontalSliding else (0, pos, width, height - pos)
-        toSurface.blit(self.image, (self.rect.x-rect.x, self.rect.y-rect.y), area)
+        renderer.blit(self.image, (self.rect.x-rect.x, self.rect.y-rect.y), area)
