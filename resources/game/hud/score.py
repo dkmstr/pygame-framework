@@ -39,16 +39,24 @@ class ScoreFilesHud(HudElement):
         self.image = Renderer.renderer.image(self.rect.width, self.rect.height)
 
     def draw(self, toSurface):
-        toSurface.blit(self.image, self.rect.topleft)
+        score = self.score = self.scoreable.getScore()
+
+        pos = self.rect.left
+        for digit in [(score/(10**i))%10 for i in xrange(self.digits-1,-1,-1)]:
+            Renderer.renderer.blit(self.images[digit], (pos, self.rect.top))
+            pos += self.width
+
+        #toSurface.blit(self.image, self.rect.topleft)
 
     def update(self):
-        if self.score == self.scoreable.getScore():
-            return  # No update to rect
+        pass
+        #if self.score == self.scoreable.getScore():
+            #return  # No update to rect
 
-        score = self.score = self.scoreable.getScore()
-        self.image.fill((0, 0, 0, 0))  # Transparent
-        pos = 0
-        for digit in [(score/(10**i))%10 for i in xrange(self.digits-1,-1,-1)]:
-            self.image.blit(self.images[digit], (pos, 0))
-            pos += self.width
+        #score = self.score = self.scoreable.getScore()
+        #self.image.fill((0, 0, 0, 0))  # Transparent
+        #pos = 0
+        #for digit in [(score/(10**i))%10 for i in xrange(self.digits-1,-1,-1)]:
+            #self.image.blit(self.images[digit], (pos, 0))
+            #pos += self.width
 
