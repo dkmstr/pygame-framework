@@ -31,7 +31,6 @@ BASE_SPEED = 8
 
 
 class GameTest(game.game_state.GameState):
-    framerate = 50
 
     def __init__(self, name):
         super(GameTest, self).__init__(name)
@@ -106,7 +105,7 @@ class GameTest(game.game_state.GameState):
 # Set defaults sound settings before initializing pygame
 pygame.mixer.pre_init(44100,-16,2, 1024)
 
-gc = game.game_state.GameControl(WIDTH, HEIGHT)
+gc = game.game_state.GameControl(WIDTH, HEIGHT, framerate=5000, enableFrameSkip=False)
 
 gc.add(GameTest('state0'))
 #gc.add(GameTest('state1'))
