@@ -30,13 +30,13 @@ class ScoreFilesHud(HudElement):
             logger.error('We need 10 files for score digigts, and file pattern got {} files instead'.format(len(files)))
             raise ValueError('We need 10 files for score digigts, and file pattern got {} files instead'.format(len(files)))
 
-        self.images = [Renderer.renderer.loadImage(f) for f in files]
+        self.images = [Renderer.renderer.imageFromFile(f) for f in files]
 
         self.width = max([i.getWidth() for i in self.images])
         self.rect.width = self.width * self.digits
         self.rect.height = max([i.getHeight() for i in self.images])
 
-        self.image = Renderer.renderer.createImage(self.rect.width, self.rect.height)
+        self.image = Renderer.renderer.image(self.rect.width, self.rect.height)
 
     def draw(self, toSurface):
         toSurface.blit(self.image, self.rect.topleft)

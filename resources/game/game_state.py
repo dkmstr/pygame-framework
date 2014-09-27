@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import pygame
 from pygame.locals import *
 
-from game.renderer import Renderer2D as Renderer
+from game.renderer import RendererGL as Renderer
 
 import logging
 
@@ -22,7 +22,6 @@ class GameState(object):
         self.rendered_frames = 0
         self.frameSkip = 0
         self.frameSkipCount = 0
-        self.dirty = False
 
     def init(self):
         self.on_init()
@@ -47,10 +46,6 @@ class GameState(object):
         # Executes game logic
         if newState is None:
             newState = self.frame()
-
-        # Executes rendering
-        if newState is None:
-            newState = self.render()
 
         return newState
 
@@ -79,19 +74,7 @@ class GameState(object):
     def render(self):
         self.rendered_frames += 1
 
-        self.dirty = False
-        self.frames += 1
-        if self.frameSkip > 0:
-            self.frameSkipCount += 1
-            if self.frameSkipCount > self.frameSkip:
-                self.frameSkipCount = 0
-                self.dirty = True
-        else:
-            self.dirty = True
-
-        if self.dirty:
-            return self.on_render()
-        return None
+        return self.on_render()
 
     def on_init(self):
         print "Base on_init called!!!"
@@ -124,6 +107,8 @@ class GameControl(object):
 
         self.framerate = framerate
         self.frameskipEnabled = enableFrameSkip
+        self.frameSkip = 0
+        self.frameSkipCount = 0
 
         self.clock = pygame.time.Clock()
 
@@ -163,36 +148,54 @@ class GameControl(object):
         while True:
 
             counter += 1
+
+            # Recalc frameskip every 50 frames
             if counter > 50:
                 fps = self.clock.get_fps()
                 #logger.debug("FPS: {}, FrameSkip: {}".format(self.current.fps(), self.current.frameSkip))
                 pygame.display.set_caption("FPS: {}, FrameSkip: {}".format(fps, self.current.frameSkip))
                 if self.frameskipEnabled:
                     if 120 * fps / 100 < self.framerate:
-                        self.current.frameSkip += 1
+                        self.frameSkip += 1
+                        self.frameSkipCount = 0
                     # If we have a frameskip and we are "almost" at full speed
-                    if self.current.frameSkip > 0 and 103 * fps / 100 > self.framerate:
-                        self.current.frameSkip -= 1
+                    if self.frameSkip > 0 and 103 * fps / 100 > self.framerate:
+                        self.frameSkip -= 1
+                        self.frameSkipCount = 0
                 counter = 0
 
             new_state = self.current.tick(pygame.event.get())
+            # If not frame skipping and no new state transition
+            if new_state is None:
+                draw = False
+                if self.frameSkip > 0:
+                    self.frameSkipCount += 1
+                    if self.frameSkipCount > self.frameSkip:
+                        self.frameSkipCount = 0
+                        draw = True
+                else:
+                    draw = True
+
+                if draw:
+                    new_state = self.render()
+
             if new_state is not None:
                 logger.debug('Got new state: {}'.format(new_state))
                 if self.switch(new_state) is False:
                     return
-            self.clock.tick(self.framerate)
 
-            self.draw()
+            self.clock.tick(self.framerate)
 
             # Nothing more to do, this is the basic loop
 
     def getRenderer(self):
         return self.renderer
 
-    def draw(self, force=False):
-        # Skip flip of displays if we do not reach required frame rate
-        if self.current.dirty or force:
-            self.renderer.update()
+    def render(self, force=False):
+        self.renderer.beginDraw()
+        res = self.current.render()
+        self.renderer.endDraw()
+        return res
 
     def quit(self):
         pygame.font.quit()

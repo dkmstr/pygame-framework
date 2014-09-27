@@ -99,6 +99,8 @@ class GameTest(game.game_state.GameState):
         #self.player.draw(self.controller.screen)
         return None
 
+os.environ['SDL_VIDEO_WINDOW_POS'] = 'center'
+
 # Set defaults sound settings before initializing pygame
 pygame.mixer.pre_init(44100,-16,2, 1024)
 

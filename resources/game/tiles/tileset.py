@@ -47,7 +47,7 @@ class TileSet(object):
         self.imageWidth = int(image.attrib['width'])
         self.imageHeight = int(image.attrib['height'])
 
-        self.image = self.getRenderer().loadImage(os.path.join(self.parentMap.mapPath, self.imageFile))
+        self.image = self.getRenderer().imageFromFile(os.path.join(self.parentMap.mapPath, self.imageFile))
 
         self.properties = loadProperties(node.find('properties'))
         self.__loadTilesProperties(node)

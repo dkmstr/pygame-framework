@@ -44,11 +44,11 @@ class Animation(object):
     def get(self):
         return self.images[self.position]
 
-    def draw(self, toSurface, rect, effect=None):
+    def draw(self, renderer, rect, effect=None):
         image = self.images[self.position]
         if effect == 'laplacian':
             image = pygame.transform.laplacian(image)
-        toSurface.blit(image, rect.topleft)
+        renderer.blit(image, rect.topleft)
 
     def copy(self):
         '''
@@ -66,7 +66,7 @@ class FilesAnimation(Animation):
         files = sorted(glob.glob(resource_path(fileListPattern)))
 
         # Load image files
-        self.images = [Renderer.renderer.loadImage(f) for f in files]
+        self.images = [Renderer.renderer.imageFromFile(f) for f in files]
         # for i in self.images:
         #    i.set_alpha(0, pygame.RLEACCEL)
 

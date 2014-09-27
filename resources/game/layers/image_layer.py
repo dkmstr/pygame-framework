@@ -27,7 +27,7 @@ class ImageLayer(Layer):
         self.width = int(node.attrib['width'])
         self.height = int(node.attrib['height'])
         self.image_path = os.path.join(self.parentMap.mapPath, node.find('image').attrib['source'])
-        self.image = self.getRenderer().loadImage(self.image_path)
+        self.image = self.getRenderer().imageFromFile(self.image_path)
         self.cached_size = (-1, -1)
 
         self.setProperties(loadProperties(node.find('properties')))

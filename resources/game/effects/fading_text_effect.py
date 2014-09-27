@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import pygame
 from game.effects import Effect
 from game import dialog
+from game.renderer import Renderer
 
 import logging
 
@@ -43,14 +44,14 @@ class FadingTextEffect(Effect):
         #self.textSurface = self.textSurface.convert_alpha()
 
         # Center speech bubble
-        self.rect.top -= self.textSurface.get_size()[1]
-        self.rect.left -= self.textSurface.get_size()[0] / 2
+        self.rect.top -= self.textSurface.getHeight()
+        self.rect.left -= self.textSurface.getWidth() / 2
 
         yPos = halfBorderSize
         for txt in txtLines:
-            tmpSurface = font.render(txt, True, fontColor)
-            self.textSurface.blit(tmpSurface, ((self.rect.width-tmpSurface.get_size()[0])/2, yPos))
-            yPos += tmpSurface.get_size()[1]
+            tmpSurface = Renderer.renderer.imageFromSurface(font.render(txt, True, fontColor))
+            self.textSurface.blit(tmpSurface, ((self.rect.width-tmpSurface.getWidth())/2, yPos))
+            yPos += tmpSurface.getHeight()
 
         self.ticks = self.totalTicks = ticks
 

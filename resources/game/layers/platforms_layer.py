@@ -69,7 +69,7 @@ class PlatformsLayer(Layer):
 
                 # Build graphic object from tiles
                 logger.debug('Building image of {}x{}'.format(width, height))
-                image = self.getRenderer().createImage(width, height)
+                image = self.getRenderer().image(width, height)
                 image.fill((0, 0, 0, 0))  # Transparent background
 
                 for y in xrange(startY, startY+height, self.parentMap.tileHeight):
