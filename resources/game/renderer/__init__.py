@@ -72,17 +72,17 @@ class Image2D(object):
         img.surface = pygame.transform.smoothscale(self.surface, (width, height)).convert_alpha()
         return img
 
-    def blit(self, toImage, position=None, area=None, alpha=255):
+    def blit(self, srcImage, position=None, area=None, alpha=255):
         if position is None:
             position = (0,0)
 
         if alpha != 255:  # Add transparency if required
-            surface = self.surface.copy()
-            surface.surface.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
+            surface = srcImage.surface.copy()
+            surface.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
         else:
-            surface = self.surface
+            surface = srcImage.surface
 
-        toImage.surface.blit(surface, position, area)
+        self.surface.blit(surface, position, area)
 
     def fill(self, color):
         self.surface.fill(color)
