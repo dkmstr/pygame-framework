@@ -114,8 +114,8 @@ class Trigger(Collidable):
         if self.showTriggereds is True:
             parentMap = self.parent.parentMap
             controller = parentMap.getController()
-            display = controller.getDisplay()
-            halfW, halfH = display.get_width() / 2, display.get_height() / 2
+            renderer = controller.getRenderer()
+            halfW, halfH = renderer.getWidth() / 2, renderer.getHeight() / 2
             origX, origY = parentMap.getDisplayPosition()
 
             positions = []
@@ -186,6 +186,7 @@ class Trigger(Collidable):
 class Triggered(object):
     def __init__(self, parentLayer, name, rect, properties=None):
         self.parent = parentLayer
+        self.layer = parentLayer.associatedLayer
         self.name = name
         self.properties = None
         self.rect = rect if rect is not None else pygame.Rect(0, 0, 0, 0)
@@ -201,6 +202,9 @@ class Triggered(object):
         '''
         self.action = self.getProperty('action', None)
         self.by = self.getProperty('by', None)
+        layerName = self.getProperty('layer', None)
+        if layerName is not None:
+            self.layer = self.parent.parentMap.getLayer(layerName)
 
     def setProperties(self, properties):
         self.properties = properties if properties is not None else {}
@@ -227,7 +231,7 @@ class Triggered(object):
 
         logger.debug('Executing triggered {}'.format(self.name))
 
-        layer = self.parent.associatedLayer
+        layer = self.layer
         tileWidth = self.parent.parentMap.tileWidth
         tileHeight = self.parent.parentMap.tileHeight
         if self.action == 'remove':
@@ -237,7 +241,7 @@ class Triggered(object):
                     layer.removeObjectAt(x, y)
         elif self.action == 'remove-sliding':
             logger.debug('Removing tile with sliding')
-            return SlidingTileEffect(layer, self.rect, ticks=50,
+            return SlidingTileEffect(layer, self.rect, ticks=80,
                                     horizontalSliding=True)
         elif self.action == 'start':
             for col in layer.getCollisions(self.rect):

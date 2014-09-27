@@ -32,29 +32,29 @@ class ImageLayer(Layer):
 
         self.setProperties(loadProperties(node.find('properties')))
         logger.debug('Loaded image Layer {}'.format(self))
-        
-    def onDraw(self, toSurface, rect):
+
+    def onDraw(self, renderer, rect):
         if rect.height != self.cached_size[1]:
             width, height = self.image.get_size()
             width = width * rect.height / height
             height = rect.height
             self.cached_size = (width, height)
             logger.debug('Rescaling image layer to {}x{}'.format(width, height))
-            
+
             self.cached_image = pygame.transform.smoothscale(self.image, (width, height)).convert()
-        
+
         width, height = self.cached_size
 
         posX = 0
         if self.parallax:
             posX = (rect.left * self.parallaxFactor[0] / 100) % width
-            toSurface.blit(self.cached_image, (0, 0),
+            renderer.blit(self.cached_image, (0, 0),
                         (posX, 0, width, height))
-            toSurface.blit(self.cached_image,
+            renderer.blit(self.cached_image,
                         (self.cached_image.get_width() - posX, 0),
                          (0, 0, posX, height))
         else:
-            toSurface.blit(self.cached_image, (0, 0))
+            renderer.blit(self.cached_image, (0, 0))
 
     def __unicode__(self):
         return 'Image Layer: {}'.format(self.image_path)

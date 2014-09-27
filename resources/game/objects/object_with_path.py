@@ -33,7 +33,7 @@ class ObjectWithPath(GraphicObject, WithCollisionCache):
         self.sticky = checkTrue(self.getProperty('sticky', 'True'))
         self.stopped = checkTrue(self.getProperty('stopped', 'False'))
 
-    def draw(self, toSurface, rect):
+    def draw(self, renderer, rect):
         '''
         Draws to specied surface, to coords x, y
         '''
@@ -41,7 +41,7 @@ class ObjectWithPath(GraphicObject, WithCollisionCache):
         if not rect.colliderect(self.rect):
             return
         # Translate start to screen coordinates
-        toSurface.blit(self.surface, (self.rect.left - rect.left, self.rect.top - rect.top))
+        renderer.blit(self.surface, (self.rect.left - rect.left, self.rect.top - rect.top))
 
     def getColRect(self):
         return self.rect

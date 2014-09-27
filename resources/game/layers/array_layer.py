@@ -32,11 +32,11 @@ class ArrayLayer(Layer):
         if data.attrib['encoding'] != 'base64':
             raise Exception('No base 64 encoded')
         self.data = list(struct.unpack('<' + 'I'*(self.width*self.height), base64.b64decode(data.text)))
-        
+
         cached = {} # So we got only 1 tile generated from 1 source and 1 transormation
         # Scan data for "flipped" tiles and request parentMap to append a flipped tile to it
         for i in xrange(len(self.data)):
-            tileId = self.data[i] 
+            tileId = self.data[i]
             if tileId & 0xF0000000 != 0:
                 if cached.get(tileId) is None:
                     logger.debug('Fipped tile found!: {:X}'.format(tileId&0xF0000000))
@@ -54,8 +54,8 @@ class ArrayLayer(Layer):
                     self.data[i] = cached[tileId] = self.parentMap.addTileFromTile(tileId&0x0FFFFFFF, flipX, flipY, rotate)
                 else:
                     self.data[i] = cached[tileId]
-                
-    def onDraw(self, toSurface, rect):
+
+    def onDraw(self, renderer, rect):
         tiles = self.parentMap.tiles
         tileWidth = self.parentMap.tileWidth
         tileHeight = self.parentMap.tileHeight
@@ -74,13 +74,13 @@ class ArrayLayer(Layer):
             yLen += yStart
             yPos = -yStart * tileHeight
             yStart = 0
-          
-        xPos = 0  
+
+        xPos = 0
         if xStart < 0:
             xLen += xStart
             xPos = -xStart * tileWidth
             xStart = 0
-            
+
         xPos -= rect.x % tileWidth  # Offset inside first drawing tile
         yPos -= rect.y % tileHeight
 
@@ -95,7 +95,7 @@ class ArrayLayer(Layer):
             drawingRect.x = xPos
             for tile in itertools.islice(self.data, pos+xStart, pos+xEnd):
                 if tile > 0:
-                    tiles[tile-1].draw(toSurface, drawingRect)
+                    tiles[tile-1].draw(renderer, drawingRect)
                 drawingRect.x += tileWidth
             drawingRect.y += tileHeight
 
@@ -109,12 +109,12 @@ class ArrayLayer(Layer):
         if tile == 0:
             return Layer.EMPTY_TILE
         return self.parentMap.tiles[tile-1]
-    
+
     def removeObjectAt(self, x, y):
         x /= self.parentMap.tileWidth
         y /= self.parentMap.tileHeight
         self.data[y*self.width+x] = 0
-        
+
 
     def getCollisions(self, rect):
         tiles = self.parentMap.tiles
@@ -139,7 +139,7 @@ class ArrayLayer(Layer):
                     tileRect = t.getRect().move(x*tileWidth, y*tileHeight)
                     if tileRect.colliderect(rect):
                         yield (tileRect, t)
-                        
+
     def setTileAt(self, x, y, tileId):
         x /= self.parentMap.tileWidth
         y /= self.parentMap.tileHeight

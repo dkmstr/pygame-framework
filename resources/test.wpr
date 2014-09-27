@@ -6,18 +6,24 @@
 [project attributes]
 console.toolbox = [{'autosave': False,
                     'id': 'cmd-vqOQUuHUBAr7xI3u',
-                    'io_encoding': None,
-                    'key_binding': None,
+                    'io_encoding': 'utf_8',
+                    'key_binding': '',
                     'line_mode': True,
                     'loc': u'\\\\juliet\\dkmaster\\projects\\pygame\\resources\\tools\\create_spritesheet.py',
                     'pseudo_tty': False,
                     'raise_panel': True,
-                    'title': None}]
+                    'title': ''}]
 proj.directory-list = [{'dirloc': loc('.'),
                         'excludes': [u'game/layers/objectsGroupLoader.py',
                                      u'resources/rendering',
                                      u'build'],
                         'filter': '*',
+                        'include_hidden': False,
+                        'recursive': True,
+                        'watch_for_changes': True},
+                       {'dirloc': loc('game/renderer'),
+                        'excludes': (),
+                        'filter': u'*',
                         'include_hidden': False,
                         'recursive': True,
                         'watch_for_changes': True}]

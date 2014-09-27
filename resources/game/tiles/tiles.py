@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class Tile(GraphicObject):
     def __init__(self, tileSet, tileId, surface, properties={}):
         GraphicObject.__init__(self, tileSet, pygame.Rect(0, 0, tileSet.tileWidth, tileSet.tileHeight) if tileSet else None, properties)
-        
+
         self.parent = tileSet
         self.tileId = tileId
         self.originalSurface = self.surface = surface
@@ -36,7 +36,7 @@ class Tile(GraphicObject):
             self.animated = False
             self.animation = None
             self.animationState = None
-        
+
         # Optimized rect for collisions
         if self.properties.get('height') is not None:
             self.rect.height = int(self.properties.get('height'))
@@ -46,7 +46,7 @@ class Tile(GraphicObject):
             self.rect.left = int(self.properties.get('left'))
         if self.properties.get('top') is not None:
             self.rect.top = int(self.properties.get('top'))
-            
+
     def update(self):
         if self.animated is False:
             return
@@ -63,7 +63,11 @@ class Tile(GraphicObject):
 
     # This x,y coordinates are screen coordinates
     # TileArray, Platform, etc.. converts coordinates of objects acordly beforw invoking it
-    def draw(self, toSurface, rect):
+    def draw(self, renderer, rect):
+        size = renderer.getSize()
+        renderer.blit(self.surface, rect.topleft)
+
+    def blit(self, toSurface, rect):
         size = toSurface.get_size()
         toSurface.blit(self.surface, rect.topleft)
 

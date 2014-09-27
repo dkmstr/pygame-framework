@@ -165,24 +165,24 @@ class Map(object):
     def addHudElement(self, hudElement):
         self.hudLayer.addElement(hudElement)
 
-    def draw(self, surface):
+    def draw(self, renderer):
         if self.displayShower is not None:
             saved = self.displayShower
             self.displayShower = None
-            if saved(self, surface): # If returns False, will not execute this "beforeDraw" again
+            if saved(self, renderer): # If returns False, will not execute this "beforeDraw" again
                 self.displayShower = saved
 
         # First, we draw "parallax" layers
         x, y = self.displayPosition
-        width, height = surface.get_size()
+        width, height = renderer.getSize()
         for layer in self.getRenderingLayers():
-            layer.draw(surface, x, y, width, height)
+            layer.draw(renderer, x, y, width, height)
 
         # draw effects layer
-        self.effectsLayer.draw(surface, x, y, width, height)
+        self.effectsLayer.draw(renderer, x, y, width, height)
 
         # And finally, the HUD at topmost
-        self.hudLayer.draw(surface, x, y, width, height)
+        self.hudLayer.draw(renderer, x, y, width, height)
 
     def update(self):
         for layer in self.getRenderingLayers():

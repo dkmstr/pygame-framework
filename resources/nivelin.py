@@ -47,13 +47,13 @@ class GameTest(game.game_state.GameState):
         #self.bg = parallax.ParallaxSurface((WIDTH, HEIGHT), pygame.RLEACCEL)
         self.pressKey = { K_RIGHT: Player.goRight, K_LEFT: Player.goLeft, K_DOWN: Player.goDown, K_UP: Player.goUp, K_SPACE: Player.jump }
         self.releaseKey = { K_RIGHT: Player.stopRight, K_LEFT: Player.stopLeft, K_DOWN: Player.stopDown, K_UP: Player.stopUp, K_SPACE: Player.stopJump }
-        
+
     def on_init(self):
         # Register actors types
         actorsFactory.registerType('Player', Player)
         #SoundsStore.store.storeMusicFile('level0', 'journey_3.ogg', volume=0.5)
         SoundsStore.store.storeMusicFile('level0', 'Rose Flats.ogg', volume=0.1)
-        
+
         #self.images.addImage('bck1', 'data/images/far-background.png')
         #self.images.addImage('bck2', 'data/images/near-background.png')
         #self.images.load(self.controller.screen)
@@ -84,7 +84,7 @@ class GameTest(game.game_state.GameState):
     def on_keyup(self, key):
         if key == K_q:
             return game.game_state.GameControl.EXIT_GAMESTATE
-        
+
         fnc = self.releaseKey.get(key)
         if fnc is not None:
             fnc(self.player)
@@ -94,17 +94,17 @@ class GameTest(game.game_state.GameState):
         self.map.update()
         #self.player.move(self.x_speed, self.y_speed)
 
-        self.player.updateMapDisplayPosition(self.controller.drawingSurface)
+        self.player.updateMapDisplayPosition(self.controller.renderer)
         return None
 
     def on_render(self):
         #self.bg.draw(self.controller.screen)
-        self.map.draw(self.controller.drawingSurface)
+        self.map.draw(self.controller.renderer)
         #self.player.draw(self.controller.screen)
         return None
 
 # Set defaults sound settings before initializing pygame
-pygame.mixer.pre_init(44100,-16,2, 1024) 
+pygame.mixer.pre_init(44100,-16,2, 1024)
 
 gc = game.game_state.GameControl(WIDTH, HEIGHT)
 

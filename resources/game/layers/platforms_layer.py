@@ -76,7 +76,7 @@ class PlatformsLayer(Layer):
                     t = []
                     for x in xrange(startX, startX+width, self.parentMap.tileWidth):
                         tile = self.tilesLayer.getObjectAt(x, y)
-                        tile.draw(image, pygame.Rect(x-startX, y-startY, self.parentMap.tileWidth, self.parentMap.tileHeight))
+                        tile.blit(image, pygame.Rect(x-startX, y-startY, self.parentMap.tileWidth, self.parentMap.tileHeight))
 
                 p = ObjectWithPath(self, pygame.Rect(startX, startY, width, height), image, properties)
                 self.platforms.append(p)
@@ -98,10 +98,10 @@ class PlatformsLayer(Layer):
         for p in erroneous:
             self.platforms.remove(p)
 
-    def onDraw(self, toSurface, rect):
+    def onDraw(self, renderer, rect):
         for obj in self.platforms:
             if obj.collide(rect):
-                obj.draw(toSurface, rect)
+                obj.draw(renderer, rect)
 
     def onUpdate(self):
         for obj in self.platforms:

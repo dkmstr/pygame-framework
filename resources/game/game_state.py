@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 import pygame
 from pygame.locals import *
 
+from game.renderer import Renderer
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -72,7 +74,7 @@ class GameState(object):
             return GameControl.EXIT_GAMESTATE
         elif ev.type == VIDEORESIZE:
             pygame.display.set_mode(ev.dict['size'],HWSURFACE|RESIZABLE)
-            
+
         elif ev.type == KEYDOWN:
             return self.on_keydown(ev.key)
         elif ev.type == KEYUP:
@@ -82,11 +84,11 @@ class GameState(object):
         ''' game logic '''
         self.frames += 1
         return self.on_frame()
-            
+
 
     def render(self):
         self.rendered_frames += 1
-        
+
         self.dirty = False
         self.frames += 1
         if self.frameSkip > 0:
@@ -96,7 +98,7 @@ class GameState(object):
                 self.dirty = True
         else:
             self.dirty = True
-                
+
         if self.dirty:
             return self.on_render()
         return None
@@ -129,7 +131,7 @@ class GameControl(object):
     def __init__(self, width, height):
         self.states = {}
         self.current = None
-        
+
         # Initializes all used libraries
         pygame.init()
         pygame.mixer.init()
@@ -137,8 +139,8 @@ class GameControl(object):
         self.width = width
         self.height = height
 
-        self.screen = pygame.display.set_mode((width, height), pygame.HWSURFACE|pygame.RESIZABLE)
-        self.drawingSurface = pygame.Surface(SCREEN_BUFFER_SIZE, pygame.HWSURFACE)
+        self.renderer = Renderer(width, height)
+        self.renderer.init()
 
     def add(self, state):
         state.controller = self
@@ -164,7 +166,7 @@ class GameControl(object):
         logger.debug('Running main loop')
         counter = 0
         while True:
-            
+
             counter += 1
             if counter > 50:
                 #logger.debug("FPS: {}, FrameSkip: {}".format(self.current.fps(), self.current.frameSkip))
@@ -175,27 +177,26 @@ class GameControl(object):
                 if self.current.frameSkip > 0 and 103 * self.current.fps() / 100 > self.current.framerate:
                     self.current.frameSkip -= 1
                 counter = 0
-                
+
             new_state = self.current.tick(pygame.event.get())
             if new_state is not None:
                 logger.debug('Got new state: {}'.format(new_state))
                 if self.switch(new_state) is False:
                     return
-                
+
             self.draw()
-                
+
             # Nothing more to do, this is the basic loop
-            
-    def getDisplay(self):
-        return self.drawingSurface
-    
+
+    def getRenderer(self):
+        return self.renderer
+
     def draw(self, force=False):
         # Skip flip of displays if we do not reach required frame rate
         if self.current.dirty or force:
-            pygame.transform.scale(self.drawingSurface, self.screen.get_size(), self.screen)
-            pygame.display.update()
-    
+            self.renderer.update()
+
     def quit(self):
         pygame.font.quit()
         pygame.mixer.quit()
-        pygame.quit()
+        self.renderer.quit()

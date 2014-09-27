@@ -74,11 +74,11 @@ class GraphicObject(Collidable, Drawable):
         logger.debug('Position changed invoked for {}'.format(unicode(self)))
 
     # Draw is invoked with three parameters:
-    # toSurface: Surface where to draw
+    # Renderer: rendereable wher to draw
     # x, y: Relative position of the surface. This means that if a surface, is,
     # for example, at 100, 100
     # we will have to translate blitting to X, y
-    def draw(self, toSurface, rect):
+    def draw(self, renderer, rect):
         pass
 
     def update(self):

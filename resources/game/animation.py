@@ -31,7 +31,7 @@ class Animation(object):
             snd = self.associatedSounds.get(self.position)
             if snd is not None:
                 snd.play()
-            
+
     def getPosition(self, inPercent=False):
         if inPercent:
             return 100 * self.position / len(self.images)
@@ -49,7 +49,7 @@ class Animation(object):
         if effect == 'laplacian':
             image = pygame.transform.laplacian(image)
         toSurface.blit(image, rect.topleft)
-                
+
     def copy(self):
         '''
         Returns a "partial copy" of this animation
@@ -72,6 +72,9 @@ class FilesAnimation(Animation):
 
 class SpriteSheetAnimation(Animation):
     def __init__(self, fileName, width, delay, startingPosition=0):
+        '''
+        Generates an animation from an spritesheet file
+        '''
         Animation.__init__(self, delay, startingPosition)
         self.image = pygame.image.load(resource_path(fileName)).convert_alpha()
         widh, height = self.image.get_size()
@@ -95,4 +98,3 @@ class AnimationsStore(object):
         return self.animations[animationName].copy()
 
 animationStore = AnimationsStore()
-    
