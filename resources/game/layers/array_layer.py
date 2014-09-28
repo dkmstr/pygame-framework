@@ -112,7 +112,7 @@ class ArrayLayer(Layer):
             xPos = -xStart * tileWidth
             xStart = 0
 
-        xPos -= rect.x % tileWidth  # Offset inside first drawing tile
+        xPos -= rect.x % tileWidth + xStart * tileWidth  # Offset inside first drawing tile
         yPos -= rect.y % tileHeight
 
         # Adjust ends so we don't go off limits
@@ -123,15 +123,16 @@ class ArrayLayer(Layer):
 
         for y in xrange(yStart, yEnd):
             xo = self.lineOffsets[y][xStart]
+            line = self.lines[y]
             if xo != -1:  # Maybe the line do not holds anything at all, skip it
-                (x, tileId) = self.lines[y][xo]
+                (x, tileId) = line[xo]
                 pos = self.width * y
 
-                drawingRect.x = xPos + (x-xStart) * tileWidth
-                for tile in itertools.islice(self.data, pos+x, pos+xEnd):
-                    if tile > 0:
-                        tiles[tile-1].draw(renderer, drawingRect)
-                    drawingRect.x += tileWidth
+                for x, tileId in itertools.islice(line, xo, None):
+                    if x >= xEnd:
+                        break
+                    drawingRect.x = xPos + x * tileWidth
+                    tiles[tileId].draw(renderer, drawingRect)
             drawingRect.y += tileHeight
 
     def onUpdate(self):

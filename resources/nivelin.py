@@ -108,7 +108,7 @@ os.environ['SDL_VIDEO_WINDOW_POS'] = 'center'
 # Set defaults sound settings before initializing pygame
 pygame.mixer.pre_init(44100,-16,2, 1024)
 
-gc = game.game_state.GameControl(WIDTH, HEIGHT, framerate=50, enableFrameSkip=False, fullScreen=FULLSCREEN, renderer=RENDERER)
+gc = game.game_state.GameControl(WIDTH, HEIGHT, framerate=50, enableFrameSkip=True, fullScreen=FULLSCREEN, renderer=RENDERER)
 
 gc.add(GameTest('state0'))
 #gc.add(GameTest('state1'))

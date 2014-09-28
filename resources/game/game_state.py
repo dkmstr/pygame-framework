@@ -149,11 +149,11 @@ class GameControl(object):
 
             counter += 1
 
-            # Recalc frameskip every 50 frames
-            if counter > 50:
+            # Recalc frameskip every second
+            if counter > self.framerate:
                 fps = self.clock.get_fps()
                 #logger.debug("FPS: {}, FrameSkip: {}".format(self.current.fps(), self.current.frameSkip))
-                pygame.display.set_caption("FPS: {}, FrameSkip: {}".format(fps, self.current.frameSkip))
+                pygame.display.set_caption("FPS: {}, FrameSkip: {}".format(fps, self.frameSkip))
                 if self.frameskipEnabled:
                     if 120 * fps / 100 < self.framerate:
                         self.frameSkip += 1
