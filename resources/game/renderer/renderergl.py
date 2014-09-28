@@ -88,11 +88,21 @@ class ImageGL(Image):
         self.dl = None
         self.texture = None
 
+    def __del__(self):
+        if self.texture is not None:
+            glDeleteTextures(self.texture)
+            self.texture = None
+        if self.dl is not None:
+            glDeleteLists(self.dl, 1)
+
+
     def _initTexture(self):
         if self.texture is not None:
             glDeleteTextures(self.texture)
             self.texture = None
-
+        if self.dl is not None:
+            glDeleteLists(self.dl, 1)
+            self.dl = None
 
         texSize = glGetIntegerv (GL_MAX_TEXTURE_SIZE)
 
@@ -166,13 +176,15 @@ class ImageGL(Image):
         self._initTexture()
 
     def draw(self, position):
-        glPushMatrix()
+        #glPushMatrix()
+        #glLoadIdentity()
         glTranslatef(position[0] + self.ox, position[1] + self.oy, 0)
-        glColor4f(*self.color)
-        glRotatef(self.rotation, 0.0, 0.0, 1.0)
-        glScalef(self.scalar, self.scalar, self.scalar)
+        #glColor4f(*self.color)
+        #glRotatef(self.rotation, 0.0, 0.0, 1.0)
+        #glScalef(self.scalar, self.scalar, self.scalar)
         glCallList(self.dl)
-        glPopMatrix()
+        glTranslatef(-position[0] - self.ox, -position[1] - self.oy, 0)
+        #glPopMatrix()
 
 
     def fill(self, color):

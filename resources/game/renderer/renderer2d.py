@@ -113,7 +113,7 @@ class Renderer2D(Renderer):
         img.load(path)
         return img
 
-    def fromSurface(self, surface):
+    def imageFromSurface(self, surface):
         img = Image2D()
-        img.surface = surface
+        img.fromSurface(surface)
         return img
