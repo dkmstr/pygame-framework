@@ -73,7 +73,10 @@ class Renderer2D(Renderer):
     renderer = None
 
     def init(self):
-        self.screen = pygame.display.set_mode(self.resolution, pygame.DOUBLEBUF|pygame.HWSURFACE, self.depth)
+        flags = pygame.DOUBLEBUF|pygame.HWSURFACE
+        if self.fullScreen:
+            flags |= pygame.FULLSCREEN
+        self.screen = pygame.display.set_mode(self.resolution, flags, self.depth)
 
     def quit(self):
         pygame.quit()

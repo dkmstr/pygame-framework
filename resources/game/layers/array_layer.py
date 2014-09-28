@@ -20,6 +20,34 @@ class ArrayLayer(Layer):
         Layer.__init__(self, parentMap, layerType, properties)
         self.width = self.height = 0
         self.data = []
+        self.lines = None
+        self.lineOffsets = None
+
+    def updateCacheLine(self, y):
+        tiles = self.parentMap.tiles
+
+        def tileAt(x):
+            return self.data[y*self.width+x]-1
+
+        self.lines[y] = [(x, tileAt(x)) for x in xrange(self.width) if tileAt(x) >= 0]
+
+        self.lineOffsets[y] = [-1]*self.width
+
+        curr = 0
+        counter = 0
+        for x, tile in self.lines[y]:
+            while curr <= x:
+                self.lineOffsets[y][curr] = counter
+                curr += 1
+            counter += 1
+
+        logger.debug(self.lineOffsets[y])
+
+    def updateAllCacheLines(self):
+        self.lines = [[]] * self.height
+        self.lineOffsets = [[]] * self.height
+        for y in xrange(self.height):
+            self.updateCacheLine(y)
 
     def load(self, node):
         self.name = node.attrib['name']
@@ -54,6 +82,9 @@ class ArrayLayer(Layer):
                     self.data[i] = cached[tileId] = self.parentMap.addTileFromTile(tileId&0x0FFFFFFF, flipX, flipY, rotate)
                 else:
                     self.data[i] = cached[tileId]
+
+        # Fill line "strides" of not empty tiles
+        self.updateAllCacheLines()
 
     def onDraw(self, renderer, rect):
         tiles = self.parentMap.tiles
@@ -91,12 +122,16 @@ class ArrayLayer(Layer):
         drawingRect = pygame.Rect(xPos, yPos, tileWidth, tileHeight)
 
         for y in xrange(yStart, yEnd):
-            pos = self.width * y
-            drawingRect.x = xPos
-            for tile in itertools.islice(self.data, pos+xStart, pos+xEnd):
-                if tile > 0:
-                    tiles[tile-1].draw(renderer, drawingRect)
-                drawingRect.x += tileWidth
+            xo = self.lineOffsets[y][xStart]
+            if xo != -1:  # Maybe the line do not holds anything at all, skip it
+                (x, tileId) = self.lines[y][xo]
+                pos = self.width * y
+
+                drawingRect.x = xPos + (x-xStart) * tileWidth
+                for tile in itertools.islice(self.data, pos+x, pos+xEnd):
+                    if tile > 0:
+                        tiles[tile-1].draw(renderer, drawingRect)
+                    drawingRect.x += tileWidth
             drawingRect.y += tileHeight
 
     def onUpdate(self):
@@ -114,7 +149,7 @@ class ArrayLayer(Layer):
         x /= self.parentMap.tileWidth
         y /= self.parentMap.tileHeight
         self.data[y*self.width+x] = 0
-
+        self.updateCacheLine(y)
 
     def getCollisions(self, rect):
         tiles = self.parentMap.tiles
@@ -144,6 +179,7 @@ class ArrayLayer(Layer):
         x /= self.parentMap.tileWidth
         y /= self.parentMap.tileHeight
         self.data[y*self.width+x] = tileId
+        self.updateCacheLine(y)
 
     def __iter__(self):
         '''

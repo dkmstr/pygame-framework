@@ -8,9 +8,10 @@ class Renderer(object):
 
     renderer = None
 
-    def __init__(self, width=1024, height=768, depth=32):
+    def __init__(self, width=1024, height=768, depth=32, fullScreen=False):
         self.resolution = (width, height)
         self.depth = depth
+        self.fullScreen = fullScreen
         self.screen = None
 
         Renderer.renderer = self
@@ -22,7 +23,7 @@ class Renderer(object):
         self.depth = depth
 
     def init(self):
-        self.screen = pygame.display.set_mode(self.resolution, pygame.DOUBLEBUF|pygame.HWSURFACE, self.depth)
+        raise NotImplementedError('init Method not implemented for class {}'.format(self.__class__))
 
     def quit(self):
         pygame.quit()

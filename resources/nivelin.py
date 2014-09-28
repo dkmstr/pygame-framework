@@ -23,9 +23,13 @@ import game
 from game.actors import actorsFactory
 from game.sound.sound import SoundsStore
 from game.hud import ScoreFilesHud
+from game.renderer import Renderer2D
+from game.renderer import RendererGL
 
-WIDTH = 1024
-HEIGHT = 768
+WIDTH = 1280
+HEIGHT = 960
+FULLSCREEN = False
+RENDERER = Renderer2D
 
 BASE_SPEED = 8
 
@@ -104,7 +108,7 @@ os.environ['SDL_VIDEO_WINDOW_POS'] = 'center'
 # Set defaults sound settings before initializing pygame
 pygame.mixer.pre_init(44100,-16,2, 1024)
 
-gc = game.game_state.GameControl(WIDTH, HEIGHT, framerate=50, enableFrameSkip=False)
+gc = game.game_state.GameControl(WIDTH, HEIGHT, framerate=50, enableFrameSkip=False, fullScreen=FULLSCREEN, renderer=RENDERER)
 
 gc.add(GameTest('state0'))
 #gc.add(GameTest('state1'))

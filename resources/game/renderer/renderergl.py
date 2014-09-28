@@ -12,6 +12,7 @@ WRAP = 0
 FILTER = 1
 MIPMAP = 2
 
+# Lots of fragments from https://github.com/RyanHope/PyGL2D
 def closest_power_of_two (x):
     return (pow(2, floor ((log (x) / log (2.0)) + 0.5)))
 
@@ -27,7 +28,6 @@ def wanted_size (texSize, x_current):
     if (x_wanted > texSize): x_wanted = texSize
     return (x_wanted)
 
-# Lots of fragments from https://github.com/RyanHope/PyGL2D
 def resize (image, texSize):
     H1 = image.get_height()
     W1 = image.get_width()
@@ -42,37 +42,20 @@ def resize (image, texSize):
         return image
 
 
-#Thanks Ian Mallett!
-def Texture(surface, filters):
+def surfaceToTexture(surface):
     texture = glGenTextures(1)
-    Data = pygame.image.tostring(surface, "RGBA", 1)
+
+    textureData = pygame.image.tostring(surface, "RGBA", 1)
+
+    width = surface.get_width()
+    height = surface.get_height()
+
+    texture = glGenTextures(1)
     glBindTexture(GL_TEXTURE_2D, texture)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface.get_width(), surface.get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, Data)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-
-    if filters == None:
-        return texture
-
-    for f in filters:
-        if f == FILTER:
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        elif f == WRAP:
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-        elif f == MIPMAP:
-            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
-            gluBuild2DMipmaps(GL_TEXTURE_2D, 3, surface.get_width(), surface.get_height(), GL_RGB, GL_UNSIGNED_BYTE, Data)
-            if FILTER in filters:
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-            else:
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST)
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, textureData)
 
     return texture
 
@@ -95,7 +78,6 @@ class ImageGL(Image):
         if self.dl is not None:
             glDeleteLists(self.dl, 1)
 
-
     def _initTexture(self):
         if self.texture is not None:
             glDeleteTextures(self.texture)
@@ -117,7 +99,7 @@ class ImageGL(Image):
         self.width, self.height = self.surface.get_size()
 
         #convert to GL texture
-        self.texture = Texture(image2, filters=[FILTER])
+        self.texture = surfaceToTexture(image2)
 
         #image mods
         self.rotation = 0.0
@@ -130,10 +112,12 @@ class ImageGL(Image):
         glNewList(self.dl, GL_COMPILE)
         glBindTexture(GL_TEXTURE_2D, self.texture)
         glBegin(GL_QUADS)
+
         glTexCoord2f(0, 1); glVertex3f(-self.width / 2.0, -self.height / 2.0, 0)
         glTexCoord2f(fracW, 1); glVertex3f(self.width / 2.0, -self.height / 2.0, 0)
         glTexCoord2f(fracW, 1 - fracH); glVertex3f(self.width / 2.0, self.height / 2.0, 0)
         glTexCoord2f(0, 1 - fracH); glVertex3f(-self.width / 2.0, self.height / 2.0, 0)
+
         glEnd()
         glEndList()
 
@@ -179,11 +163,13 @@ class ImageGL(Image):
         #glPushMatrix()
         #glLoadIdentity()
         glTranslatef(position[0] + self.ox, position[1] + self.oy, 0)
+        #glTranslatef(position[0], position[1], 0)
         #glColor4f(*self.color)
         #glRotatef(self.rotation, 0.0, 0.0, 1.0)
         #glScalef(self.scalar, self.scalar, self.scalar)
         glCallList(self.dl)
         glTranslatef(-position[0] - self.ox, -position[1] - self.oy, 0)
+        #glTranslatef(-position[0], -position[1], 0)
         #glPopMatrix()
 
 
@@ -222,19 +208,24 @@ class RendererGL(Renderer):
     renderer = None
 
     def init(self):
-        self.screen = pygame.display.set_mode(self.resolution, pygame.DOUBLEBUF|pygame.OPENGL, self.depth)
+        flags = pygame.DOUBLEBUF|pygame.OPENGL
+        if self.fullScreen:
+            flags |= pygame.FULLSCREEN
+        self.screen = pygame.display.set_mode(self.resolution, flags, self.depth)
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
         glEnable(GL_TEXTURE_2D)
+
         glShadeModel(GL_SMOOTH)
         glClearColor(0.0, 0.0, 0.0, 0.0)
         glClearDepth(1.0)
-        glEnable(GL_DEPTH_TEST)
+        #glEnable(GL_DEPTH_TEST)
         glEnable(GL_ALPHA_TEST)
         glDepthFunc(GL_LEQUAL)
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
+        #glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
         glAlphaFunc(GL_NOTEQUAL, 0.0)
 
 
