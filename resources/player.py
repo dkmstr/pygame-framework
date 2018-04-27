@@ -15,8 +15,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-BASE_X_SPEED = 4 * 100
-BASE_Y_SPEED = 8 * 100
+BASE_X_SPEED = 32 * 50
+BASE_Y_SPEED = 16 * 100
 
 SCREEN_BORDER_X = 300
 SCREEN_BORDER_Y = 180
@@ -110,7 +110,7 @@ class Player(Actor, WithCollisionCache, ScoreableMixin):
                 inLadder = True
 
             if element.isA('collectable') is True:
-                score, snd = int(element.getProperty('score')), element.getProperty('sound')
+                score, snd = int(element.getProperty('score', '0')), element.getProperty('sound')
                 layer.removeObjectAt(colRect.x, colRect.y)
                 if score is not None:
                     self.score += score

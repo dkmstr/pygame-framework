@@ -49,6 +49,7 @@ class GameTest(game.game_state.GameState):
 
     def on_init(self):
         self.maps = game.maps.Maps(self.controller)
+        #self.maps.add('level0', 'data/maps/kenney/level-test-1.tmx')
         self.maps.add('level0', 'data/maps/kenney/level-test-1.tmx')
         # Register actors types
         actorsFactory.registerType('Player', Player)
@@ -81,13 +82,20 @@ class GameTest(game.game_state.GameState):
         if fnc is not None:
             fnc(self.player)
 
+        return None
+
     def on_keyup(self, key):
         if key == K_q:
             return game.game_state.GameControl.EXIT_GAMESTATE
 
+        #if key == K_n:
+        #    return 'state1'
+
         fnc = self.releaseKey.get(key)
         if fnc is not None:
             fnc(self.player)
+
+        return None
 
     def on_frame(self):
         #self.bg.scroll(self.bg_speed)
@@ -111,7 +119,6 @@ pygame.mixer.pre_init(44100,-16,2, 1024)
 gc = game.game_state.GameControl(WIDTH, HEIGHT, framerate=50, enableFrameSkip=True, fullScreen=FULLSCREEN, renderer=RENDERER)
 
 gc.add(GameTest('state0'))
-#gc.add(GameTest('state1'))
 
 import cProfile
 

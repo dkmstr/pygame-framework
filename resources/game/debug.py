@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import pygame
 
-DEBUG = True
+DEBUG = False
 
 def drawDebugRect(toSurface, rect, color=(0, 0, 0, 255), width=1):
     if DEBUG is True:

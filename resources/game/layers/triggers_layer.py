@@ -27,8 +27,6 @@ class TriggersLayer(Layer):
 
     def load(self, node):
         self.name = node.attrib['name']
-        self.width = int(node.attrib['width'])
-        self.height = int(node.attrib['height'])
         self.triggersList = []
         self.triggeredsList = []
 
@@ -38,7 +36,7 @@ class TriggersLayer(Layer):
         self.associatedLayer = self.parentMap.getLayer(associatedLayerName)
 
         logger.debug('Loading triggers layer {}'.format(self.name))
-        
+
         for obj in node.findall('object'):
             type_ = obj.attrib.get('type')
             name = obj.attrib.get('name')
@@ -51,14 +49,14 @@ class TriggersLayer(Layer):
                 int(obj.attrib.get('width', self.parentMap.tileWidth)),
                 int(obj.attrib.get('height', self.parentMap.tileHeight))
             )
-            
+
             if type_ == 'trigger':
                 logger.debug('Adding new trigger: {} on {}'.format(name, rect))
                 self.triggersList.append(Trigger(self, name, rect, properties))
             else:
                 logger.debug('Adding new triggered {} on {}'.format(name, rect))
                 self.triggeredsList.append(Triggered(self, name, rect, properties))
-        
+
         for triggered in self.triggeredsList:
             trigger = self.getTrigger(triggered.by)
             if trigger is None:
@@ -66,7 +64,7 @@ class TriggersLayer(Layer):
                 continue
             logger.debug('Triggered {} is executed by trigger {}'.format(triggered.name, trigger.name))
             trigger.appendTriggered(triggered)
-        
+
     def onDraw(self, toSurface, rect):
         pass
 
@@ -77,14 +75,14 @@ class TriggersLayer(Layer):
         for obj in self.triggersList:
             if obj.collide(rect):
                 yield (obj.getRect(), obj)
-        
+
 
     def getTrigger(self, objecName):
         for t in self.triggersList:
             if t.name == objecName:
                 return t
         return None
-    
+
     def removeTrigger(self, trigger):
         try:
             self.triggersList.remove(trigger)

@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import pygame
 from pygame.locals import *
 
-from game.renderer import Renderer2D
+from game.renderer import RendererGL as Renderer
 
 import logging
 
@@ -101,7 +101,7 @@ class GameState(object):
 class GameControl(object):
     EXIT_GAMESTATE = 'EXIT_GAME'
 
-    def __init__(self, width, height, framerate, enableFrameSkip=False, fullScreen=False, renderer=Renderer2D):
+    def __init__(self, width, height, framerate, enableFrameSkip=False, fullScreen=False, renderer=Renderer):
         self.states = {}
         self.current = None
 

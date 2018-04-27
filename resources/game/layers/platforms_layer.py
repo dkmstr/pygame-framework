@@ -25,8 +25,6 @@ class PlatformsLayer(Layer):
 
     def load(self, node):
         self.name = node.attrib['name']
-        self.width = int(node.attrib['width'])
-        self.height = int(node.attrib['height'])
 
         self.setProperties(loadProperties(node.find('properties')))
         tilesLayerName = self.properties.get('layer', None)
