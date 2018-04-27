@@ -26,7 +26,7 @@ class Image2D(Image):
 
     def scale(self, width, height):
         img = Image2D()
-        img.surface = pygame.transform.smoothscale(self.surface, (width, height)).convert_alpha()
+        img.surface = pygame.transform.smoothscale(self.surface, (int(width), int(height))).convert_alpha()
         return img
 
     def blit(self, srcImage, position=None, area=None, alpha=255):

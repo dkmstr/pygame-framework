@@ -28,7 +28,7 @@ def loadProperties(node):
 
 
 def checkTrue(value):
-    return unicode(value).lower() == 'true'
+    return str(value).lower() == 'true'
 
 
 class classProperty(property):

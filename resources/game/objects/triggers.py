@@ -115,7 +115,7 @@ class Trigger(Collidable):
             parentMap = self.parent.parentMap
             controller = parentMap.getController()
             renderer = controller.getRenderer()
-            halfW, halfH = renderer.getWidth() / 2, renderer.getHeight() / 2
+            halfW, halfH = renderer.getWidth() // 2, renderer.getHeight() // 2
             origX, origY = parentMap.getDisplayPosition()
 
             positions = []

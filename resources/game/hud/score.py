@@ -42,7 +42,7 @@ class ScoreFilesHud(HudElement):
         score = self.score = self.scoreable.getScore()
 
         pos = self.rect.left
-        for digit in [(score/(10**i))%10 for i in xrange(self.digits-1,-1,-1)]:
+        for digit in [int(score/(10**i))%10 for i in range(self.digits-1,-1,-1)]:
             Renderer.renderer.blit(self.images[digit], (pos, self.rect.top))
             pos += self.width
 
@@ -56,7 +56,7 @@ class ScoreFilesHud(HudElement):
         #score = self.score = self.scoreable.getScore()
         #self.image.fill((0, 0, 0, 0))  # Transparent
         #pos = 0
-        #for digit in [(score/(10**i))%10 for i in xrange(self.digits-1,-1,-1)]:
+        #for digit in [(score/(10**i))%10 for i in range(self.digits-1,-1,-1)]:
             #self.image.blit(self.images[digit], (pos, 0))
             #pos += self.width
 

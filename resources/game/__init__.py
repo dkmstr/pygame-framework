@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import util
-import maps
-import images
-import game_state
+from . import util
+from . import maps
+from . import images
+from . import game_state
 
 DEBUG = True

@@ -77,25 +77,25 @@ class GameState(object):
         return self.on_render()
 
     def on_init(self):
-        print "Base on_init called!!!"
+        print("Base on_init called!!!")
 
     def on_enter(self):
-        print "Base on_enter called!!!"
+        print("Base on_enter called!!!")
 
     def on_exit(self):
-        print "Base on_exit called!!!"
+        print("Base on_exit called!!!")
 
     def on_keydown(self, key):
-        print "Base on_keydown called!!!"
+        print("Base on_keydown called!!!")
 
     def on_keyup(self, key):
-        print "Base on_keyup called!!!"
+        print("Base on_keyup called!!!")
 
     def on_frame(self, event):
-        print "Base on_frame called!!!"
+        print("Base on_frame called!!!")
 
     def on_render(self):
-        print "Base on_render called!!!"
+        print("Base on_render called!!!")
 
 
 class GameControl(object):

@@ -72,14 +72,14 @@ class TileSet(object):
 
         logger.debug('Image path: {} {}x{}'.format(self.imageFile, self.imageWidth, self.imageHeight))
 
-        tilesPerRow = self.image.getWidth() / (self.tileWidth+self.tileSpacing)
-        tilesRows = self.image.getHeight() / (self.tileHeight+self.tileSpacing)
+        tilesPerRow = int(self.image.getWidth() / (self.tileWidth+self.tileSpacing))
+        tilesRows = int(self.image.getHeight() / (self.tileHeight+self.tileSpacing))
 
         self.tiles = [None] * (tilesRows*tilesPerRow)  # Gens a dummy array of this len
 
         logger.debug('Tiles Grid size: {}x{}'.format(tilesPerRow, tilesRows))
-        for y in xrange(tilesRows):
-            for x in xrange(tilesPerRow):
+        for y in range(tilesRows):
+            for x in range(tilesPerRow):
                 localTileId = y*tilesPerRow+x
                 tileId = self.firstGid+localTileId-1
                 # Map data contains global tile id (i.e., tile id + tileset firstgid - 1)

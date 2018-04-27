@@ -25,7 +25,7 @@ class FadingMovingValueEffect(Effect):
         if FadingMovingValueEffect.numbersImage is None:
             FadingMovingValueEffect.initializeNumbers()
 
-        value = unicode(value)
+        value = str(value)
         self.image = surface = Renderer.renderer.image(len(value)*NUMBER_SIZE, NUMBER_SIZE)
         self.image.fill((255, 255, 255, 0))
         pos = 0
@@ -54,5 +54,5 @@ class FadingMovingValueEffect(Effect):
     @staticmethod
     def initializeNumbers():
         FadingMovingValueEffect.numbersImage = Renderer.renderer.imageFromFile(resource_path('data/images/numbers/numbers-sheet-32.png'))
-        FadingMovingValueEffect.numbers = { unicode(i): FadingMovingValueEffect.numbersImage.subimage((i*NUMBER_SIZE, 0, NUMBER_SIZE, NUMBER_SIZE)) for i in xrange(10) }
+        FadingMovingValueEffect.numbers = { str(i): FadingMovingValueEffect.numbersImage.subimage((i*NUMBER_SIZE, 0, NUMBER_SIZE, NUMBER_SIZE)) for i in range(10) }
 

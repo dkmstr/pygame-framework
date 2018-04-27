@@ -29,7 +29,7 @@ class ArrayLayer(Layer):
         def tileAt(x):
             return self.data[y*self.width+x]-1
 
-        self.lines[y] = [(x, tileAt(x)) for x in xrange(self.width) if tileAt(x) >= 0]
+        self.lines[y] = [(x, tileAt(x)) for x in range(self.width) if tileAt(x) >= 0]
 
         self.lineOffsets[y] = [-1]*self.width
 
@@ -46,7 +46,7 @@ class ArrayLayer(Layer):
     def updateAllCacheLines(self):
         self.lines = [[]] * self.height
         self.lineOffsets = [[]] * self.height
-        for y in xrange(self.height):
+        for y in range(self.height):
             self.updateCacheLine(y)
 
     def load(self, node):
@@ -63,7 +63,7 @@ class ArrayLayer(Layer):
 
         cached = {} # So we got only 1 tile generated from 1 source and 1 transormation
         # Scan data for "flipped" tiles and request parentMap to append a flipped tile to it
-        for i in xrange(len(self.data)):
+        for i in range(len(self.data)):
             tileId = self.data[i]
             if tileId & 0xF0000000 != 0:
                 if cached.get(tileId) is None:
@@ -92,8 +92,8 @@ class ArrayLayer(Layer):
         tileHeight = self.parentMap.tileHeight
 
         # Calculate positions inside tile array
-        xStart, xLen = rect.x / tileWidth, (rect.width + tileWidth - 1) / tileWidth + 1
-        yStart, yLen = rect.y / tileHeight, (rect.height + tileHeight - 1) / tileHeight + 1
+        xStart, xLen = int(rect.x / tileWidth), int((rect.width + tileWidth - 1) / tileWidth + 1)
+        yStart, yLen = int(rect.y / tileHeight),int((rect.height + tileHeight - 1) / tileHeight + 1)
 
         # If drawing zone is outside map, skip
         # if xStart > self.width or yStart > self.height or xStart + xLen < 0 or yStart + yLen < 0:
@@ -121,7 +121,7 @@ class ArrayLayer(Layer):
 
         drawingRect = pygame.Rect(xPos, yPos, tileWidth, tileHeight)
 
-        for y in xrange(yStart, yEnd):
+        for y in range(yStart, yEnd):
             xo = self.lineOffsets[y][xStart]
             line = self.lines[y]
             if xo != -1:  # Maybe the line do not holds anything at all, skip it
@@ -139,16 +139,16 @@ class ArrayLayer(Layer):
         pass
 
     def getObjectAt(self, x, y):
-        x /= self.parentMap.tileWidth
-        y /= self.parentMap.tileHeight
+        x //= self.parentMap.tileWidth
+        y //= self.parentMap.tileHeight
         tile = self.data[y*self.width+x]
         if tile == 0:
             return Layer.EMPTY_TILE
         return self.parentMap.tiles[tile-1]
 
     def removeObjectAt(self, x, y):
-        x /= self.parentMap.tileWidth
-        y /= self.parentMap.tileHeight
+        x //= self.parentMap.tileWidth
+        y //= self.parentMap.tileHeight
         self.data[y*self.width+x] = 0
         self.updateCacheLine(y)
 
@@ -157,16 +157,16 @@ class ArrayLayer(Layer):
         tileWidth = self.parentMap.tileWidth
         tileHeight = self.parentMap.tileHeight
 
-        xStart = rect.left / tileWidth
-        xEnd = (rect.right + tileWidth - 2) / tileWidth
-        yStart = rect.top / tileHeight
-        yEnd = (rect.bottom + tileHeight - 2) / tileHeight
+        xStart = rect.left // tileWidth
+        xEnd = (rect.right + tileWidth - 2) // tileWidth
+        yStart = rect.top // tileHeight
+        yEnd = (rect.bottom + tileHeight - 2) // tileHeight
 
-        for y in xrange(yStart, yEnd):
+        for y in range(yStart, yEnd):
             if y < 0 or y >= self.height:  # Skips out of bounds rows
                 continue
             pos = self.width * y
-            for x in xrange(xStart, xEnd):
+            for x in range(xStart, xEnd):
                 if x < 0 or x >= self.width:  # Skips out of bounds columns
                     continue
                 tile = self.data[pos+x]
@@ -177,8 +177,8 @@ class ArrayLayer(Layer):
                         yield (tileRect, t)
 
     def setTileAt(self, x, y, tileId):
-        x /= self.parentMap.tileWidth
-        y /= self.parentMap.tileHeight
+        x //= self.parentMap.tileWidth
+        y //= self.parentMap.tileHeight
         self.data[y*self.width+x] = tileId
         self.updateCacheLine(y)
 
@@ -188,9 +188,9 @@ class ArrayLayer(Layer):
          return (x, y, tile) where x,y are integers and tile is an Tile object
          x and 6 are "Absolute map coords in pixels"
         '''
-        for y in xrange(0, self.height):
+        for y in range(0, self.height):
             pos = self.width * y
-            for x in xrange(0, self.width):
+            for x in range(0, self.width):
                 tile = self.data[pos+x]
                 if tile > 0:
                     yield(x*self.parentMap.tileWidth, y*self.parentMap.tileHeight, self.parentMap.tiles[tile-1])

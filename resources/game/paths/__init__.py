@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class PathSegment(object):
     def __init__(self, x, y, x_offset, y_offset):
-        self.x, self.y, self.x_offset, self.y_offset = x, y, x_offset, y_offset
+        self.x, self.y, self.x_offset, self.y_offset = int(x), int(y), int(x_offset), int(y_offset)
 
         # Calculate gradient
         if x_offset == 0 and y_offset == 0:
@@ -16,14 +16,14 @@ class PathSegment(object):
             self.x_at_end = self.y_at_end = lambda x: True
         else:
             div = abs(x_offset) if abs(x_offset) > abs(y_offset) else abs(y_offset)
-            self.x_step = (x_offset << 16) / div
+            self.x_step = int((x_offset << 16) / div)
 
             if self.x_step > 0:
                 self.x_at_end = lambda x: x >= self.x + self.x_offset
             else:
                 self.x_at_end = lambda x: x <= self.x + self.x_offset
 
-            self.y_step = (y_offset << 16) / div
+            self.y_step = int((y_offset << 16) / div)
 
             if self.y_step > 0:
                 self.y_at_end = lambda y: y >= self.y + self.y_offset
@@ -34,7 +34,7 @@ class PathSegment(object):
         '''
         Very aproximate position using only integers
         '''
-        position *= step
+        position = int(position*step)
         x, y = self.x + ((self.x_step*position) >> 16), self.y + ((self.y_step*position) >> 16)
         if self.x_at_end(x) and self.y_at_end(y):
             return None  # Out of line
