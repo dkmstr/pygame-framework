@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 import pygame
-from game.renderer.renderer import Renderer
-from game.renderer.renderer import Image
+from .renderer import Renderer
+from .renderer import Image
 
 
 class Image2D(Image):

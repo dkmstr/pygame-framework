@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-import pygame
-from game.effects import Effect
-from game import dialog
-from game.renderer import Renderer
 
 import logging
+
+import pygame
+from .effects import Effect
+from .. import dialog
+from ..renderer import Renderer
+
 
 logger = logging.getLogger(__name__)
 

@@ -2,9 +2,9 @@
 from __future__ import unicode_literals
 
 import pygame
-from game.util import resource_path
-from game.effects import Effect
-from game import dialog
+from ..util import resource_path
+from ..effects import Effect
+from .. import dialog
 
 import logging
 
@@ -34,13 +34,13 @@ class SlidingTileEffect(Effect):
         if self.pos == 0:
             self.layer.removeObjectAt(self.rect.x, self.rect.y)
         self.pos += self.step
-        if self.pos>>12 >= self.maxPos:
+        if int(self.pos)>>12 >= self.maxPos:
             # Remove tile
             return True
         return False
 
     def draw(self, renderer, rect):
         # Apply transparency to image
-        pos, width, height = self.pos>>12, self.width, self.height
+        pos, width, height = int(self.pos)>>12, self.width, self.height
         area = (pos, 0, width - pos, height) if self.horizontalSliding else (0, pos, width, height - pos)
         renderer.blit(self.image, (self.rect.x-rect.x, self.rect.y-rect.y), area)

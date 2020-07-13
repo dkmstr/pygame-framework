@@ -4,3 +4,5 @@
 .DS_Store
 resources/build
 resources/dist
+.mypy_cache
+.vscode

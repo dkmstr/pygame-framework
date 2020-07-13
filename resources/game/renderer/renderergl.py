@@ -1,34 +1,41 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 import pygame
 from OpenGL.GL import *
 from math import pow, floor, log, ceil
 
-from game.renderer.renderer import Renderer
-from game.renderer.renderer import Image
+from .renderer import Renderer
+from .renderer import Image
 
 WRAP = 0
 FILTER = 1
 MIPMAP = 2
 
 # Lots of fragments from https://github.com/RyanHope/PyGL2D
-def closest_power_of_two (x):
-    return (pow(2, floor ((log (x) / log (2.0)) + 0.5)))
 
-def next_power_of_two (x):
-    return (pow(2, ceil ((log (x) / log (2.0)))))
 
-def previous_power_of_two (x):
-    return (pow(2, floor ((log (x) / log (2.0)))))
+def closest_power_of_two(x):
+    return (pow(2, floor((log(x) / log(2.0)) + 0.5)))
 
-#returns closest power of 2 which is greater than x_current. Max value is texSize.
-def wanted_size (texSize, x_current):
-    x_wanted = next_power_of_two (x_current)
-    if (x_wanted > texSize): x_wanted = texSize
+
+def next_power_of_two(x):
+    return (pow(2, ceil((log(x) / log(2.0)))))
+
+
+def previous_power_of_two(x):
+    return (pow(2, floor((log(x) / log(2.0)))))
+
+# returns closest power of 2 which is greater than x_current. Max value is texSize.
+
+
+def wanted_size(texSize, x_current):
+    x_wanted = next_power_of_two(x_current)
+    if (x_wanted > texSize):
+        x_wanted = texSize
     return (x_wanted)
 
-def resize (image, texSize):
+
+def resize(image, texSize):
     H1 = image.get_height()
     W1 = image.get_width()
     H2 = wanted_size(texSize, H1)
@@ -59,6 +66,7 @@ def surfaceToTexture(surface):
 
     return texture
 
+
 class ImageGL(Image):
     def __init__(self):
         self.surface = None
@@ -79,14 +87,14 @@ class ImageGL(Image):
             glDeleteLists(self.dl, 1)
 
     def _initTexture(self):
-        if self.texture is not None:
+        if self.texture:
             glDeleteTextures(self.texture)
             self.texture = None
-        if self.dl is not None:
+        if self.dl:
             glDeleteLists(self.dl, 1)
             self.dl = None
 
-        texSize = glGetIntegerv (GL_MAX_TEXTURE_SIZE)
+        texSize = glGetIntegerv(GL_MAX_TEXTURE_SIZE)
 
         oldH = self.surface.get_height()
         oldW = self.surface.get_width()
@@ -98,36 +106,39 @@ class ImageGL(Image):
 
         self.width, self.height = self.surface.get_size()
 
-        #convert to GL texture
+        # convert to GL texture
         self.texture = surfaceToTexture(image2)
 
-        #image mods
+        # image mods
         self.rotation = 0.0
         self.scalar = 1.0
         self.color = [1.0, 1.0, 1.0, 1.0]
         self.ox, self.oy = self.getWidth() / 2.0, self.getHeight() / 2.0
 
-        #crazy gl stuff :)
+        # crazy gl stuff :)
         self.dl = glGenLists(1)
         glNewList(self.dl, GL_COMPILE)
         glBindTexture(GL_TEXTURE_2D, self.texture)
         glBegin(GL_QUADS)
 
-        glTexCoord2f(0, 1); glVertex3f(-self.width / 2.0, -self.height / 2.0, 0)
-        glTexCoord2f(fracW, 1); glVertex3f(self.width / 2.0, -self.height / 2.0, 0)
-        glTexCoord2f(fracW, 1 - fracH); glVertex3f(self.width / 2.0, self.height / 2.0, 0)
-        glTexCoord2f(0, 1 - fracH); glVertex3f(-self.width / 2.0, self.height / 2.0, 0)
+        glTexCoord2f(0, 1)
+        glVertex3f(-self.width / 2.0, -self.height / 2.0, 0)
+        glTexCoord2f(fracW, 1)
+        glVertex3f(self.width / 2.0, -self.height / 2.0, 0)
+        glTexCoord2f(fracW, 1 - fracH)
+        glVertex3f(self.width / 2.0, self.height / 2.0, 0)
+        glTexCoord2f(0, 1 - fracH)
+        glVertex3f(-self.width / 2.0, self.height / 2.0, 0)
 
         glEnd()
         glEndList()
-
 
     def load(self, path):
         self.surface = pygame.image.load(path).convert_alpha()
         self._initTexture()
 
     def create(self, width, height):
-        self.surface = pygame.Surface((width, height), flags=pygame.SRCALPHA|pygame.HWSURFACE,depth=32)
+        self.surface = pygame.Surface((width, height), flags=pygame.SRCALPHA | pygame.HWSURFACE, depth=32)
         self._initTexture()
 
     def fromSurface(self, surface):
@@ -148,7 +159,7 @@ class ImageGL(Image):
 
     def blit(self, srcImage, position=None, area=None, alpha=255):
         if position is None:
-            position = (0,0)
+            position = (0, 0)
 
         if alpha != 255:  # Add transparency if required
             surface = srcImage.surface.copy()
@@ -160,21 +171,20 @@ class ImageGL(Image):
         self._initTexture()
 
     def draw(self, position):
-        #glPushMatrix()
-        #glLoadIdentity()
+        # glPushMatrix()
+        # glLoadIdentity()
         glTranslatef(position[0] + self.ox, position[1] + self.oy, 0)
         #glTranslatef(position[0], position[1], 0)
-        #glColor4f(*self.color)
+        # glColor4f(*self.color)
         #glRotatef(self.rotation, 0.0, 0.0, 1.0)
         #glScalef(self.scalar, self.scalar, self.scalar)
         glCallList(self.dl)
         glTranslatef(-position[0] - self.ox, -position[1] - self.oy, 0)
         #glTranslatef(-position[0], -position[1], 0)
-        #glPopMatrix()
-
+        # glPopMatrix()
 
     def fill(self, color):
-        #self.surface.fill(color)
+        # self.surface.fill(color)
         pass
 
     def flip(self, flipX=False, flipY=False, rotate=False):
@@ -208,7 +218,7 @@ class RendererGL(Renderer):
     renderer = None
 
     def init(self):
-        flags = pygame.DOUBLEBUF|pygame.OPENGL
+        flags = pygame.DOUBLEBUF | pygame.OPENGL
         if self.fullScreen:
             flags |= pygame.FULLSCREEN
         self.screen = pygame.display.set_mode(self.resolution, flags, self.depth)
@@ -222,12 +232,11 @@ class RendererGL(Renderer):
         glShadeModel(GL_SMOOTH)
         glClearColor(0.0, 0.0, 0.0, 0.0)
         glClearDepth(1.0)
-        #glEnable(GL_DEPTH_TEST)
+        # glEnable(GL_DEPTH_TEST)
         glEnable(GL_ALPHA_TEST)
         glDepthFunc(GL_LEQUAL)
         #glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST)
         glAlphaFunc(GL_NOTEQUAL, 0.0)
-
 
     def quit(self):
         pygame.quit()

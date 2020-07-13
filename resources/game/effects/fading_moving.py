@@ -2,10 +2,10 @@
 from __future__ import unicode_literals
 
 import pygame
-from game.util import resource_path
-from game.effects import Effect
-from game import dialog
-from game.renderer import Renderer
+from ..util import resource_path
+from ..effects import Effect
+from .. import dialog
+from ..renderer import Renderer
 
 import logging
 

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 import pygame
 
 
-class Renderer(object):
+class Renderer:
 
     renderer = None
 

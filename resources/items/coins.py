@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 from game.actors import actorsFactory
 from game.actors import Actor

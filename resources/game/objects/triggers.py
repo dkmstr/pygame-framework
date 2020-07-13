@@ -172,14 +172,14 @@ class Trigger(Collidable):
                 context['sleeping'] = 50
             else:
                 context['sleeping'] -= 1
-            parentMap.setDisplayPosition(context['x']>>12, context['y']>>12)
+            parentMap.setDisplayPosition(int(context['x'])>>12, int(context['y'])>>12)
             return True
 
         xGradient, yGradient = context['gradients'][context['current']]
         context['x'] += xGradient
         context['y'] += yGradient
         context['step'] += 1
-        parentMap.setDisplayPosition(context['x']>>12, context['y']>>12)
+        parentMap.setDisplayPosition(int(context['x'])>>12, int(context['y'])>>12)
         return True
 
 
