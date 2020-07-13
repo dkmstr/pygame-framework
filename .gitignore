@@ -2,7 +2,7 @@
 *~
 *.log
 .DS_Store
-resources/build
-resources/dist
+src/build
+src/dist
 .mypy_cache
 .vscode
