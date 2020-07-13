@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 
 
 class _subsurface:
-    '''Container class for subsurface'''
     def __init__(self, surface, factor, y_offset=0):
+        '''Container class for subsurface'''
         self.scroll = 0
         self.factor = factor
         self.surface = surface
