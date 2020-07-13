@@ -71,7 +71,7 @@ class GraphicObject(Collidable, Drawable):
         '''
         By default, does nothing
         '''
-        logger.debug('Position changed invoked for {}'.format(unicode(self)))
+        logger.debug('Position changed invoked for {}'.format(str(self)))
 
     # Draw is invoked with three parameters:
     # Renderer: rendereable wher to draw
