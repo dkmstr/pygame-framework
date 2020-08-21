@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 SCREEN_BUFFER_SIZE = (1280,1024)
 
-class GameState(object):
+class GameState:
     def __init__(self, name):
         self.name = name
         self.controller = None

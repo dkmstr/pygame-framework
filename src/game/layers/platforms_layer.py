@@ -71,7 +71,6 @@ class PlatformsLayer(Layer):
                 image.fill((0, 0, 0, 0))  # Transparent background
 
                 for y in range(startY, startY+height, self.parentMap.tileHeight):
-                    t = []
                     for x in range(startX, startX+width, self.parentMap.tileWidth):
                         tile = self.tilesLayer.getObjectAt(x, y)
                         tile.blit(image, pygame.Rect(x-startX, y-startY, self.parentMap.tileWidth, self.parentMap.tileHeight))

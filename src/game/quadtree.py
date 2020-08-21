@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import pygame
 
 from game.debug import drawDebugRect
 from game.interfaces import Collidable
 
-class QuadTree(object):
-    
+class QuadTree:
+
     MAX_OBJECTS = 10
     MAX_LEVELS = 5
-    
+
     def __init__(self, level, bounds):
         self.level = level
         self.bounds = pygame.Rect(bounds)
         self.objects = []
         self.nodes = None
-        
+
     def clear(self):
         self.objects[:] = []
         if self.nodes is not None:
@@ -24,12 +24,12 @@ class QuadTree(object):
                 n.clear()
                 
         self.nodes = None
-                
+       
     def _split(self):
         width, height = self.bounds.size
         startWidth, startHeight = width / 2, height / 2
         endWidth, endHeight = width - startWidth, height - startHeight
-       
+
         x, y = self.bounds.topleft
         
         self.nodes = (
