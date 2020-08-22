@@ -1,7 +1,7 @@
 '''A simple parallax rendering module'''
 # -*- coding: utf-8 -*-
 
-#    Copyright (C) , 2012 Åke Forslund (ake.forslund@gmail.com)
+#    Copyright (C) , 2012 ake Forslund (ake.forslund@gmail.com)
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
