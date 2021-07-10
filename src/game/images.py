@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Images(object):
+class Images:
     '''
     Resources are images that must be scaled with display
     '''

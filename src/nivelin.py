@@ -38,12 +38,12 @@ class GameTest(game.game_state.GameState):
     store: SoundsStore
     maps: typing.Optional[game.maps.Maps]
     bg_speed: int
-    pressKey: typing.Dict[typing.Any, typing.Callable[[Player], None]]
-    releaseKey: typing.Dict[typing.Any, typing.Callable[[Player], None]]
-    map: typing.Optional[game.maps.Maps]
+    pressKey: typing.Dict[int, typing.Callable[[Player], None]]
+    releaseKey: typing.Dict[int, typing.Callable[[Player], None]]
+    map: typing.Optional[game.maps.Map]
 
     def __init__(self, name):
-        super(GameTest, self).__init__(name)
+        super().__init__(name)
 
         self.bg_speed = 0
 

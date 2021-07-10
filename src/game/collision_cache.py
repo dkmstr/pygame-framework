@@ -23,11 +23,11 @@ class CollisionCache(object):
         self._cachedPos = (-100000, -10000)
         
         
-    def resetCollisionsCache(self, rect):
+    def resetCollisionsCache(self, rect: pygame.Rect) -> None:
         self._colCacheActors = self._colCacheObjects = None
         self._cachedPos = rect.topleft
         
-    def updateCollisionsCache(self, rect):
+    def updateCollisionsCache(self, rect: pygame.Rect) -> None:
         if abs(self._cachedPos[0] - rect.x) > self._cacheThreshold or abs(self._cachedPos[1] - rect.y) > self._cacheThreshold:
             self.resetCollisionsCache(rect)
         

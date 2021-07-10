@@ -66,12 +66,11 @@ class GameState:
     def frame(self):
         ''' game logic '''
         self.frames += 1
-        return self.on_frame()
+        self.on_frame()
 
 
     def render(self):
         self.rendered_frames += 1
-
         return self.on_render()
 
     def on_init(self):
@@ -89,7 +88,7 @@ class GameState:
     def on_keyup(self, key):
         print("Base on_keyup called!!!")
 
-    def on_frame(self, event):
+    def on_frame(self):
         print("Base on_frame called!!!")
 
     def on_render(self):

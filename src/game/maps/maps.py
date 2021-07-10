@@ -149,7 +149,7 @@ class Map(object):
                 l.load(elem)
                 self.addLayer(l)
 
-    def getController(self):
+    def getController(self) -> 'game.renderer.Renderer':
         return self.parent.controller
 
     def addTileFromTile(self, srcTileId, flipX, flipY, rotate):
@@ -249,8 +249,8 @@ class Map(object):
     def getDisplayPosition(self) -> typing.Tuple[int, int]:
         return self.displayPosition
 
-    def translateCoordinates(self, rect: pygame.Rect):
-        return rect.move(-self.displayPosition[0], -self.displayPosition[1])
+    def translateCoordinates(self, rect: pygame.Rect) -> pygame.Rect:
+        return typing.cast(pygame.Rect, rect.move(-self.displayPosition[0], -self.displayPosition[1]))
 
     # Collisions
     def getCollisions(self, rect: pygame.Rect, possibleCollisions=None):

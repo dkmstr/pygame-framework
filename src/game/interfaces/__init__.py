@@ -1,5 +1,9 @@
-# -*- coding: utf-8 -*-
+import typing
+
 import pygame
+
+if typing.TYPE_CHECKING:
+    import game.renderer
 
 class Collidable:
     def getColRect(self):
@@ -26,7 +30,7 @@ class Drawable:
     def getRect(self) -> pygame.Rect:
         raise NotImplementedError('You must provide getRect method for a Drawable')
 
-    def draw(self, renderer, rect: pygame.Rect) -> None:
+    def draw(self, renderer: 'game.renderer.Renderer', rect: pygame.Rect) -> None:
         '''
         '''
         raise NotImplementedError('You must provide draw method for a Drawable')
