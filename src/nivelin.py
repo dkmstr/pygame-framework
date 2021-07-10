@@ -37,13 +37,16 @@ BASE_SPEED = 8
 class GameTest(game.game_state.GameState):
     store: SoundsStore
     maps: typing.Optional[game.maps.Maps]
+    bg_speed: int
+    pressKey: typing.Dict[typing.Any, typing.Callable[[Player], None]]
+    releaseKey: typing.Dict[typing.Any, typing.Callable[[Player], None]]
+    map: typing.Optional[game.maps.Maps]
 
     def __init__(self, name):
         super(GameTest, self).__init__(name)
 
         self.bg_speed = 0
 
-        self.maps = None  # Initialized on "on_init"
         self.store = SoundsStore.store  # type: ignore
 
         self.map = None
@@ -117,15 +120,15 @@ class GameTest(game.game_state.GameState):
 
     def on_frame(self):
         # self.bg.scroll(self.bg_speed)
-        self.map.update()
+        self.map.update()  # type: ignore
         # self.player.move(self.x_speed, self.y_speed)
 
-        self.player.updateMapDisplayPosition(self.controller.renderer)
+        self.player.updateMapDisplayPosition(self.controller.renderer)  # type: ignore
         return None
 
     def on_render(self):
         # self.bg.draw(self.controller.screen)
-        self.map.draw(self.controller.renderer)
+        self.map.draw(self.controller.renderer)  # type: ignore
         # self.player.draw(self.controller.screen)
         return None
 

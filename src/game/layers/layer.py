@@ -1,34 +1,51 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+import logging
+import typing
 
 import pygame
 from game.util import checkTrue
 
-import logging
-
 logger = logging.getLogger(__name__)
 
+if typing.TYPE_CHECKING:
+    import game.maps
+    import game.renderer
 
-class Layer(object):
+
+class Layer:
     LAYER_TYPE = 'default'
 
-    def __init__(self, parentMap=None, layerType=None, properties=None):
+    name: typing.Optional[str]
+    layerType: str
+    parentMap: typing.Optional['game.maps.Map']
+    visible: bool
+    holder: bool
+    parallax: bool
+    triggers: bool
+    parallaxFactor: typing.Tuple[int, int]
+    properties: typing.Dict[str, str]
+
+    def __init__(
+        self,
+        parentMap: typing.Optional['game.maps.Map'] = None,
+        layerType: typing.Optional[str] = None,
+        properties: typing.Dict[str, str] = None,
+    ):
         self.name = None
         self.layerType = layerType if layerType is not None else self.LAYER_TYPE
         self.parentMap = parentMap
         self.visible = True
         self.holder = self.parallax = self.triggers = False
-        self.parallaxFactor = ()
+        self.parallaxFactor = (100, 100)
         self.properties = {}
         self.setProperties(properties)
 
-    def setProperties(self, properties):
-        if properties is not None:
+    def setProperties(self, properties: typing.Optional[typing.Dict[str, str]]) -> None:
+        if properties:
             self.properties = properties
         # Set custom "flags" based on properties
         self.updateAttributes()
 
-    def updateAttributes(self):
+    def updateAttributes(self) -> None:
         self.visible = checkTrue(self.properties.get('visible', 'True'))
         self.holder = checkTrue(self.properties.get('holder', 'False'))
         self.actor = checkTrue(self.properties.get('actors', 'False'))
@@ -37,7 +54,7 @@ class Layer(object):
 
         self.parallaxFactor = (
             int(self.properties.get('parallax_factor_x', '100')),
-            int(self.properties.get('parallax_factor_y', '100'))
+            int(self.properties.get('parallax_factor_y', '100')),
         )
 
     def load(self, node):
@@ -63,7 +80,7 @@ class Layer(object):
 
         self.onDraw(toSurface, rect)
 
-    def onDraw(self, toSurface, rect):
+    def onDraw(self, toSurface: pygame.Surface, rect: pygame.Rect):
         pass
 
     def getType(self):
@@ -81,8 +98,7 @@ class Layer(object):
         return self.visible
 
     # Collisions
-    def getCollisions(self, rect):
-        del rect   # Avoid pylint unused
+    def getCollisions(self, rect: pygame.Rect) -> typing.Iterable[typing.Any]:
         return ()
 
     def getProperty(self, propertyName, default=None):
@@ -91,5 +107,7 @@ class Layer(object):
         '''
         return self.properties.get(propertyName, default)
 
-    def getRenderer(self):
-        return self.parentMap.getController().renderer
+    def getRenderer(self) -> 'game.renderer.Renderer':
+        if self.parentMap:
+            return self.parentMap.getController().renderer
+        raise Exception('No renderer')

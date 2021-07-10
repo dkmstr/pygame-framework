@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from game.layers.triggers_layer import TriggersLayer
 
 import os
+import logging
+import typing
+
 import pygame
 import xml.etree.ElementTree as ET
 
 from game.util import resource_path
 from game.util import loadProperties
-from game.tiles import TileSet
 
-from game import layers
+import game.layers
+import game.tiles
 
-import logging
+if typing.TYPE_CHECKING:
+    import game.renderer
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +25,29 @@ logger = logging.getLogger(__name__)
 # Map                #
 ######################
 class Map(object):
-    def __init__(self, mapId, path, parent):
+    id: str
+    parent: 'Maps'
+    mapFile: str
+    width: int
+    height: int
+    tileWidth: int
+    tileHeight: int
+    tileSets: typing.List[game.tiles.TileSet]
+    layers: typing.List[game.layers.Layer]
+    tiles: typing.List[game.tiles.Tile]
+    effectsLayer: typing.Optional[game.layers.EffectsLayer]
+    hudLayer: typing.Optional[game.layers.HudLayer]
+    triggersLayers: typing.List[game.layers.TriggersLayer]
+    collissionsLayers: typing.List[game.layers.Layer]
+    renderingLayers: typing.List[game.layers.Layer]
+    actorLayers: typing.List[game.layers.ActorsLayer]
+    controller: typing.Optional[typing.Any]
+    displayShower: typing.Optional[typing.Any]
+    properties: typing.Dict[str, str]
+    boundary: pygame.Rect
+    displayPosition: typing.Tuple[int, int]
+
+    def __init__(self, mapId: str, path: str, parent: 'Maps') -> None:
         self.id = mapId
         self.parent = parent
         self.mapFile = resource_path(path)
@@ -39,26 +66,27 @@ class Map(object):
         self.boundary = pygame.Rect(0, 0, 0, 0)
         self.controller = None
         self.displayShower = None
+        self.properties = {}
         self.reset()
 
-    def getRenderingLayers(self):
+    def getRenderingLayers(self) -> typing.List[game.layers.Layer]:
         return self.renderingLayers
 
-    def getActorsLayers(self):
+    def getActorsLayers(self) -> typing.List[game.layers.ActorsLayer]:
         return self.actorLayers
 
-    def getTriggersLayers(self):
+    def getTriggersLayers(self) -> typing.List[game.layers.TriggersLayer]:
         return self.triggersLayers
 
-    def getCollisionsLayers(self):
+    def getCollisionsLayers(self) -> typing.List[game.layers.Layer]:
         return self.collissionsLayers
 
-    def reset(self, fromNode=None):
+    def reset(self, fromNode: typing.Optional[typing.Any] = None):
         self.width = self.height = self.tileWidth = self.tileHeight = 0
         self.tileSets = []
         self.layers = []
-        self.effectsLayer = layers.EffectsLayer(self)
-        self.hudLayer = layers.HudLayer(self)
+        self.effectsLayer = game.layers.EffectsLayer(self)
+        self.hudLayer = game.layers.HudLayer(self)
         self.triggersLayers = []
         self.collissionsLayers = []
         self.renderingLayers = []
@@ -72,7 +100,9 @@ class Map(object):
             self.tileWidth = int(fromNode.attrib['tilewidth'])
             self.tileHeight = int(fromNode.attrib['tileheight'])
             self.properties = loadProperties(fromNode.find('properties'))
-            self.boundary = pygame.Rect(0, 0, self.width*self.tileHeight, self.height*self.tileHeight)
+            self.boundary = pygame.Rect(
+                0, 0, self.width * self.tileHeight, self.height * self.tileHeight
+            )
         else:
             self.width = self.height = self.tileWidth = self.tileHeight = 0
             self.properties = {}
@@ -87,7 +117,7 @@ class Map(object):
         self.reset(root)
 
         for tileSet in root.findall('tileset'):
-            ts = TileSet(self)
+            ts = game.tiles.TileSet(self)
             ts.load(tileSet)
 
             self.tileSets.append(ts)
@@ -104,13 +134,13 @@ class Map(object):
         def identifyObjectGroup(node):
             layerType = loadProperties(node.find('properties')).get('type', 'platforms')
             if layerType == 'platforms':
-                return layers.PlatformsLayer
-            return layers.TriggersLayer
+                return game.layers.PlatformsLayer
+            return game.layers.TriggersLayer
 
         t = {
-            'layer': lambda x: layers.ArrayLayer,
+            'layer': lambda x: game.layers.ArrayLayer,
             'objectgroup': lambda x: identifyObjectGroup(x),
-            'imagelayer': lambda x: layers.ImageLayer
+            'imagelayer': lambda x: game.layers.ImageLayer,
         }
         for elem in root:
             if elem.tag in ('layer', 'objectgroup', 'imagelayer'):
@@ -122,22 +152,29 @@ class Map(object):
         return self.parent.controller
 
     def addTileFromTile(self, srcTileId, flipX, flipY, rotate):
-        tile = self.tiles[srcTileId-1]
+        tile = self.tiles[srcTileId - 1]
         self.tiles.append(tile.parent.addTileFromTile(tile, flipX, flipY, rotate))
         return len(self.tiles)
 
-    def addLayer(self, layer):
+    def addLayer(self, layer: game.layers.Layer):
         if layer.actor:
-            layer = layers.ActorsLayer(self, layer)
+            layer = typing.cast(game.layers.Layer, game.layers.ActorsLayer(self, layer))
 
         if layer.triggers:
-            self.triggersLayers.append(layer)
-        if layer.holder is False and layer.visible is True and layer.actor is False and layer.parallax is False and layer.triggers is False:
+            self.triggersLayers.append(typing.cast(game.layers.TriggersLayer, layer))
+        if (
+            not layer.holder
+            and layer.visible
+            and not layer.actor
+            and not layer.parallax
+            and not layer.triggers
+        ):
             self.collissionsLayers.append(layer)
-        if layer.holder is False and layer.visible is True and layer.triggers is False:
+        if not layer.holder and layer.visible and not layer.triggers:
             self.renderingLayers.append(layer)
-        if layer.actor is True:
-            self.actorLayers.append(layer)
+
+        if layer.actor:
+            self.actorLayers.append(typing.cast(game.layers.ActorsLayer, layer))
 
         self.layers.append(layer)
 
@@ -157,16 +194,20 @@ class Map(object):
             layer.removeActor(actor)
 
     def addEffect(self, effectId, effect):
-        self.effectsLayer.addEffect(effectId, effect)
+        if self.effectsLayer:
+            self.effectsLayer.addEffect(effectId, effect)
 
     def addHudElement(self, hudElement):
-        self.hudLayer.addElement(hudElement)
+        if self.hudLayer:
+            self.hudLayer.addElement(hudElement)
 
-    def draw(self, renderer):
-        if self.displayShower is not None:
+    def draw(self, renderer: 'game.renderer.Renderer') -> None:
+        if self.displayShower:
             saved = self.displayShower
             self.displayShower = None
-            if saved(self, renderer): # If returns False, will not execute this "beforeDraw" again
+            if saved(
+                self, renderer
+            ):  # If returns False, will not execute this "beforeDraw" again
                 self.displayShower = saved
 
         # First, we draw "parallax" layers
@@ -176,12 +217,14 @@ class Map(object):
             layer.draw(renderer, x, y, width, height)
 
         # draw effects layer
-        self.effectsLayer.draw(renderer, x, y, width, height)
+        if self.effectsLayer:
+            self.effectsLayer.draw(renderer, x, y, width, height)
 
         # And finally, the HUD at topmost
-        self.hudLayer.draw(renderer, x, y, width, height)
+        if self.hudLayer:
+            self.hudLayer.draw(renderer, x, y, width, height)
 
-    def update(self):
+    def update(self) -> None:
         for layer in self.getRenderingLayers():
             if self.displayShower is None or layer.actor is False:
                 layer.update()
@@ -191,28 +234,30 @@ class Map(object):
             ts.update()
 
         # Update effects layer
-        self.effectsLayer.update()
+        if self.effectsLayer:
+            self.effectsLayer.update()
 
         # And hud elements
-        self.hudLayer.update()
+        if self.hudLayer:
+            self.hudLayer.update()
 
     # Current display position of the map
-    def setDisplayPosition(self, x, y):
+    def setDisplayPosition(self, x: int, y: int) -> None:
         self.displayPosition = (x, y)
 
-    def getDisplayPosition(self):
+    def getDisplayPosition(self) -> typing.Tuple[int, int]:
         return self.displayPosition
 
-    def translateCoordinates(self, rect):
+    def translateCoordinates(self, rect: pygame.Rect):
         return rect.move(-self.displayPosition[0], -self.displayPosition[1])
 
     # Collisions
-    def getCollisions(self, rect, possibleCollisions=None):
+    def getCollisions(self, rect: pygame.Rect, possibleCollisions=None):
         '''
         If a list of possible collisions is passed in, only this
         elements are used to test collisions
         '''
-        if possibleCollisions is not None:
+        if possibleCollisions:
             for col in possibleCollisions:
                 if col[0].colliderect(rect):
                     yield col
@@ -227,7 +272,7 @@ class Map(object):
         If needs to get check collisions more than once, this optimizes
         a lot the process limiting the objects to check
         '''
-        rect = rect.inflate(2*xRange, 2*yRange)
+        rect = rect.inflate(2 * xRange, 2 * yRange)
 
         return [col for col in self.getCollisions(rect)]
 
@@ -253,7 +298,7 @@ class Map(object):
         xRange and yRange should be big enought to ensure that the "destination" actor
         (wich also moves) won't hit us without knowing it
         '''
-        rect = rect.inflate(2*xRange, 2*yRange)
+        rect = rect.inflate(2 * xRange, 2 * yRange)
 
         return [col for col in self.getActorsCollisions(rect) if col[1] is not exclude]
 
@@ -261,7 +306,6 @@ class Map(object):
         for layer in self.getTriggersLayers():
             for col in layer.getCollisions(rect):
                 col[1].fire()
-
 
     def getProperty(self, propertyName, default=None):
         '''
@@ -275,32 +319,41 @@ class Map(object):
     def getRect(self):
         return self.boundary
 
-    def __unicode__(self):
-        return 'Map {}: {}x{} with tile of  ({}x{}) and {} properties'.format(self.mapFile, self.width, self.height, self.tileWidth, self.tileHeight, self.properties)
+    def __str__(self):
+        return 'Map {}: {}x{} with tile of  ({}x{}) and {} properties'.format(
+            self.mapFile,
+            self.width,
+            self.height,
+            self.tileWidth,
+            self.tileHeight,
+            self.properties,
+        )
 
 
 class Maps(object):
+    maps: typing.Dict[str, Map]
+
     def __init__(self, controller):
         self.maps = {}
         self.controller = controller
 
-    def add(self, mapId, path):
+    def add(self, mapId: str, path: str):
         self.maps[mapId] = Map(mapId, path, self)
 
-    def load(self, mapId=None, force=False):
+    def load(self, mapId: typing.Optional[str] = None, force: bool = False) -> None:
         if mapId is None:
             for mId in self.maps:
                 self.load(mId, force)
             return
 
         if mapId not in self.maps:
-            return False
+            return
 
         m = self.maps[mapId]
         m.load()
 
-    def get(self, mapId):
+    def get(self, mapId) -> Map:
         return self.maps[mapId]
 
-    def __unicode__(self):
-        return [unicode(v) for v in self.maps].join(',')
+    def __str__(self) -> str:
+        return ','.join(str(v) for v in self.maps)

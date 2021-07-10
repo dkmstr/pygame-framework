@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 import pygame
 import os
+import typing
+
 import xml.etree.ElementTree as ET
 
 from game.tiles.tiles import Tile
@@ -17,6 +19,8 @@ logger = logging.getLogger(__name__)
 # TileSet            #
 ######################
 class TileSet(object):
+    tiles: typing.List['Tile']
+
     def __init__(self, parentMap):
         self.name = None
         self.tileWidth = self.tileHeight = self.tileSpacing = 0

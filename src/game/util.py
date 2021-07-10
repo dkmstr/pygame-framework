@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import sys
 import os
-
 import logging
+import typing
 
 logger = logging.getLogger(__name__)
 
 
 # For loading from pyinstaller
-def resource_path(relative):
+def resource_path(relativePath: str) -> str:
 
     if hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, relative)
+        return os.path.join(getattr(sys, '_MEIPASS'), relativePath)
 
-    return os.path.join(relative)
+    return os.path.join(relativePath)
 
 
-def loadProperties(node):
+def loadProperties(node) -> typing.Dict[str, str]:
     props = {}
     if node is not None:
         for p in node.findall('property'):
-            logger.debug('Found property {}={}'.format(p.attrib['name'], p.attrib['value']))
+            logger.debug(
+                'Found property {}={}'.format(p.attrib['name'], p.attrib['value'])
+            )
             props[p.attrib['name']] = p.attrib['value']
     return props
 
@@ -33,5 +33,6 @@ def checkTrue(value):
 
 class classProperty(property):
     """Subclass property to make classmethod properties possible"""
+
     def __get__(self, cls, owner):
-        return classmethod(self.fget).__get__(None, owner)()
+        return classmethod(self.fget).__get__(None, owner)()  # type: ignore
