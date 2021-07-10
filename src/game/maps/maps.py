@@ -17,6 +17,7 @@ import game.tiles
 
 if typing.TYPE_CHECKING:
     import game.renderer
+    import game.game_state
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,7 @@ class Map(object):
     collissionsLayers: typing.List[game.layers.Layer]
     renderingLayers: typing.List[game.layers.Layer]
     actorLayers: typing.List[game.layers.ActorsLayer]
-    controller: typing.Optional[typing.Any]
+    controller: typing.Optional['game.game_state.GameControl']
     displayShower: typing.Optional[typing.Any]
     properties: typing.Dict[str, str]
     boundary: pygame.Rect
@@ -81,7 +82,7 @@ class Map(object):
     def getCollisionsLayers(self) -> typing.List[game.layers.Layer]:
         return self.collissionsLayers
 
-    def reset(self, fromNode: typing.Optional[typing.Any] = None):
+    def reset(self, fromNode: typing.Optional[ET.Element] = None) -> None:
         self.width = self.height = self.tileWidth = self.tileHeight = 0
         self.tileSets = []
         self.layers = []
@@ -94,7 +95,7 @@ class Map(object):
         self.tiles = []
         self.properties = {}
         self.displayPosition = (0, 0)
-        if fromNode is not None:
+        if fromNode:
             self.width = int(fromNode.attrib['width'])
             self.height = int(fromNode.attrib['height'])
             self.tileWidth = int(fromNode.attrib['tilewidth'])
@@ -108,9 +109,9 @@ class Map(object):
             self.properties = {}
             self.boundary = pygame.Rect(0, 0, 0, 0)
 
-    def load(self):
-        tree = ET.parse(self.mapFile)
-        root = tree.getroot()  # Map element
+    def load(self) -> None:
+        tree: ET.ElementTree = ET.parse(self.mapFile)
+        root: ET.Element = tree.getroot()  # Map element
 
         logger.debug('Loading map "{}" in folder "{}"'.format(self.id, self.mapPath))
 
@@ -178,13 +179,13 @@ class Map(object):
 
         self.layers.append(layer)
 
-    def getLayer(self, layerName):
+    def getLayer(self, layerName: str) -> typing.Optional[game.layers.Layer]:
         for l in self.layers:
             if l.name == layerName:
                 return l
         return None
 
-    def getActors(self, actorType=None):
+    def getActors(self, actorType: typing.Optional[str] = None) -> typing.Iterable[typing.Any]:
         for layer in self.getActorsLayers():
             for actor in layer.getActors(actorType):
                 yield actor
@@ -330,7 +331,7 @@ class Map(object):
         )
 
 
-class Maps(object):
+class Maps:
     maps: typing.Dict[str, Map]
 
     def __init__(self, controller):

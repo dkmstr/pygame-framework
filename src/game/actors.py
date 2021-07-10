@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+import logging
+import typing
 
 import pygame
-import logging
 
 from game.objects import GraphicObject
 from game.debug import drawDebugRect
@@ -68,14 +67,16 @@ class Actor(GraphicObject):
             self.impact = True
 
 
-class ActorsFactory(object):
+class ActorsFactory:
+    actorTypes: typing.Dict[str, typing.Type[Actor]]
+
     def __init__(self):
         self.actorTypes = {}
 
-    def registerType(self, actorTypeName, actorType):
+    def registerType(self, actorTypeName: str, actorType: typing.Type[Actor]) -> None:
         self.actorTypes[actorTypeName] = actorType
 
-    def getActor(self, actorType):
+    def getActor(self, actorType) -> typing.Optional[typing.Type[Actor]]:
         return self.actorTypes.get(actorType)
 
 actorsFactory = ActorsFactory()

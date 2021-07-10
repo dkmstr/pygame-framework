@@ -4,6 +4,9 @@ import os
 import logging
 import typing
 
+if typing.TYPE_CHECKING:
+    import xml.etree.ElementTree as ET
+
 logger = logging.getLogger(__name__)
 
 
@@ -16,9 +19,9 @@ def resource_path(relativePath: str) -> str:
     return os.path.join(relativePath)
 
 
-def loadProperties(node) -> typing.Dict[str, str]:
+def loadProperties(node: typing.Optional['ET.Element']) -> typing.Dict[str, str]:
     props = {}
-    if node is not None:
+    if node:
         for p in node.findall('property'):
             logger.debug(
                 'Found property {}={}'.format(p.attrib['name'], p.attrib['value'])
@@ -27,7 +30,7 @@ def loadProperties(node) -> typing.Dict[str, str]:
     return props
 
 
-def checkTrue(value):
+def checkTrue(value: typing.Any) -> bool:
     return str(value).lower() == 'true'
 
 
