@@ -6,14 +6,14 @@ if typing.TYPE_CHECKING:
     import game.renderer
 
 class Collidable:
-    def getColRect(self):
+    def getColRect(self) -> pygame.rect.Rect:
         '''
         Returns the collision rect of this object
         The returned value must be ABSOLUTE rect, not screen rects
         '''
         raise NotImplementedError('You must provide getColRect method for a Collidable')
 
-    def collide(self, rect: pygame.Rect):
+    def collide(self, rect: pygame.Rect) -> bool:
         '''
         Checks if objects collides with a rect
         '''
@@ -32,5 +32,6 @@ class Drawable:
 
     def draw(self, renderer: 'game.renderer.Renderer', rect: pygame.Rect) -> None:
         '''
+        Draws this object to renderer
         '''
         raise NotImplementedError('You must provide draw method for a Drawable')
