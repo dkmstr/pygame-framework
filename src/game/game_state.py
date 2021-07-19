@@ -140,6 +140,8 @@ class GameControl(object):
         return True
 
     def run(self):
+        if not self.current:
+            return
         logger.debug('Running main loop')
         counter = 0
         while True:
@@ -189,6 +191,8 @@ class GameControl(object):
         return self.renderer
 
     def render(self, force=False):
+        if not self.current:
+            return
         self.renderer.beginDraw()
         res = self.current.render()
         self.renderer.endDraw()

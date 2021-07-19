@@ -28,7 +28,7 @@ class Image2D(renderer.Image):
             img.surface = typing.cast(pygame.Surface, self.surface.copy())
         return img
 
-    def scale(self, width: int, height: int) -> 'Image':
+    def scale(self, width: int, height: int) -> 'renderer.Image':
         img = Image2D()
         if self.surface:
             img.surface = typing.cast(
@@ -42,7 +42,7 @@ class Image2D(renderer.Image):
     def blit(
         self,
         srcImage: 'renderer.Image',
-        position: typing.Optional[typing.Tuple[int, int]] = None,
+        position: typing.Optional[typing.Tuple[float, float]] = None,
         area: typing.Optional[pygame.Rect] = None,
         alpha: int = 255,
     ) -> None:
@@ -55,6 +55,9 @@ class Image2D(renderer.Image):
 
         if not self.surface or not srcImage.surface:
             return
+
+        if not position:
+            position = (0, 0)
 
         if alpha != 255:  # Add transparency if required
             surface = srcImage.surface.copy()

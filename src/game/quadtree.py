@@ -13,13 +13,13 @@ class QuadTree:
     MAX_LEVELS = 5
 
     level: int
-    bounds: pygame.Rect
+    bounds: pygame.rect.Rect
     objects: typing.List[typing.Any]
     nodes: typing.List['QuadTree']
 
-    def __init__(self, level: int, bounds: pygame.Rect) -> None:
+    def __init__(self, level: int, bounds: pygame.rect.Rect) -> None:
         self.level = level
-        self.bounds = pygame.Rect(bounds)
+        self.bounds = bounds.copy()
         self.objects = []
         self.nodes = []
 

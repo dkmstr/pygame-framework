@@ -42,7 +42,7 @@ class Image:
     def blit(
         self,
         srcImage: 'Image',
-        position: typing.Optional[typing.Tuple[int, int]] = None,
+        position: typing.Optional[typing.Tuple[float, float]] = None,
         area: typing.Optional[pygame.Rect] = None,
         alpha: int = 255,
     ) -> None:
@@ -84,7 +84,6 @@ class Image:
 
 
 class Renderer:
-
     renderer: typing.ClassVar['Renderer']
     resolution: typing.Tuple[int, int]
     depth: int
