@@ -235,8 +235,8 @@ class Triggered(object):
         tileWidth = self.parent.parentMap.tileWidth
         tileHeight = self.parent.parentMap.tileHeight
         if self.action == 'remove':
-            for y in xrange(self.rect.top, self.rect.bottom, tileHeight):
-                for x in xrange(self.rect.left, self.rect.right, tileWidth):
+            for y in range(self.rect.top, self.rect.bottom, tileHeight):
+                for x in range(self.rect.left, self.rect.right, tileWidth):
                     logger.debug('Remove : {},{}'.format(x, y))
                     layer.removeObjectAt(x, y)
         elif self.action == 'remove-sliding':

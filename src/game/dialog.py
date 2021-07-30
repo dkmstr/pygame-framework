@@ -17,9 +17,9 @@ class DialogStyle(object):
         self.path = resource_path(os.path.join('data/images', tileSheet))
         self.image = Renderer.renderer.imageFromFile(self.path)
         self.tiles = []
-        for y in xrange(3):
+        for y in range(3):
             tiles = []
-            for x in xrange(3):
+            for x in range(3):
                 tiles.append(self.image.subimage(pygame.Rect(x*_TILE_SIZE, y*_TILE_SIZE, _TILE_SIZE, _TILE_SIZE)))
             self.tiles.append(tiles)
 
@@ -44,8 +44,8 @@ class Dialog(object):
 
         surface = Renderer.renderer.image(width*_TILE_SIZE, height*_TILE_SIZE)
 
-        for y in xrange(0, height):
-            for x in xrange(0, width):
+        for y in range(0, height):
+            for x in range(0, width):
                 if y == 0: # Left side
                     tiles = sTiles[0]
                 elif y == height - 1:
