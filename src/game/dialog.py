@@ -44,8 +44,8 @@ class Dialog(object):
 
         surface = Renderer.renderer.image(width*_TILE_SIZE, height*_TILE_SIZE)
 
-        for y in range(0, height):
-            for x in range(0, width):
+        for y in range(0, int(height)):
+            for x in range(0, int(width)):
                 if y == 0: # Left side
                     tiles = sTiles[0]
                 elif y == height - 1:
