@@ -99,11 +99,11 @@ class QuadTree:
             i = 0
             while i < total:
                 node = self._getInsertNode(self.objects[i].getColRect())
-                if node is not None:
+                if node is not None:    
                     node.insert(self.objects[i])
                     del self.objects[i]
                 else:
-                    i = 1
+                    i += 1
 
     def retrieve(self, rect: pygame.Rect) -> typing.Iterable['Collidable']:
         '''

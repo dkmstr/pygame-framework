@@ -60,9 +60,9 @@ class BuildExe:
         self.license = "MyApps License"
  
         #Auhor of program
-        self.author_name = "Adolfo Gómez"
+        self.author_name = "Adolfo GÃ³mez"
         self.author_email = "dkmaster@dkmon.com"
-        self.copyright = "Copyright (c) 2014 Adolfo Gómez"
+        self.copyright = "Copyright (c) 2014 Adolfo GÃ³mez"
  
         #Description
         self.project_description = "Game test"
