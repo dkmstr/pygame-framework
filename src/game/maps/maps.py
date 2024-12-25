@@ -122,7 +122,7 @@ class Map(object):
             ts.load(tileSet)
 
             self.tileSets.append(ts)
-            self.tiles.extend(ts.tiles)
+            self.tiles.extend(tile for tile in ts.tiles if tile)
 
         # Load Layer
         # Remember that object layers must reference tiles layer, and that tiles layer must

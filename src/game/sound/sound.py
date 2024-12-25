@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import pygame
 import os
 from game.util import resource_path
@@ -10,11 +7,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class SoundObject(object):
-    def play():
+class SoundObject:
+    def play(self):
         pass
     
-    def stop():
+    def stop(self):
         pass
 
 class Sound(SoundObject):

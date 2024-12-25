@@ -133,7 +133,7 @@ class TileSet(object):
                     self.tilesProperties.get(localTileId, {}),
                 )  # Creates reference
 
-        self.animatedTiles = [i for i in self.tiles if i.animated]
+        self.animatedTiles = [i for i in self.tiles if i and i.animated]
 
     def addTileFromTile(self, srcTile, flipX, flipY, rotate):
         if rotate:

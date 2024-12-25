@@ -38,12 +38,12 @@ class GameTest(game.game_state.GameState):
     store: SoundsStore
     maps: typing.Optional[game.maps.Maps]
     bg_speed: int
-    pressKey: typing.Dict[int, typing.Callable[[Player], None]]
-    releaseKey: typing.Dict[int, typing.Callable[[Player], None]]
-    map: typing.Optional[game.maps.Map]
+    pressKey: typing.Dict[typing.Any, typing.Callable[[Player], None]]
+    releaseKey: typing.Dict[typing.Any, typing.Callable[[Player], None]]
+    map: typing.Optional[game.maps.Maps]
 
     def __init__(self, name):
-        super().__init__(name)
+        super(GameTest, self).__init__(name)
 
         self.bg_speed = 0
 
@@ -83,7 +83,7 @@ class GameTest(game.game_state.GameState):
 
         self.map = self.maps.get('level0')
         self.player = list(self.map.getActors('Player'))[0]
-        self.map.addHudElement(
+        self.map.addHudElement(  
             ScoreFilesHud(self.player, 'data/images/numbers/hud_*.png', 8, 5, 5)
         )
 
